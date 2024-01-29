@@ -1,10 +1,12 @@
 // assets
-import { LoginOutlined, ProfileOutlined } from '@ant-design/icons';
+import { LoginOutlined, ProfileOutlined, CarOutlined, FieldTimeOutlined } from '@ant-design/icons';
 
 // icons
 const icons = {
   LoginOutlined,
-  ProfileOutlined
+  ProfileOutlined,
+  CarOutlined,
+  FieldTimeOutlined,
 };
 
 // ==============================|| MENU ITEMS - EXTRA PAGES ||============================== //
@@ -29,6 +31,24 @@ const pages = {
       url: '/register',
       icon: icons.ProfileOutlined,
       target: true
+    },
+    {
+      id: 'vehicleList',
+      title: 'Vehicle List',
+      type: 'item',
+      url: '/optimizer/vehicles',
+      icon: icons.CarOutlined,
+      target: false,
+      breadcrumbs: true
+    },
+    {
+      id: 'jobList',
+      title: 'Job List',
+      type: 'item',
+      url: '/optimizer/jobs',
+      icon: icons.FieldTimeOutlined,
+      target: false,
+      breadcrumbs: true
     }
   ]
 };

@@ -6,6 +6,7 @@ import MainLayout from 'layout/MainLayout';
 
 // render - dashboard
 const DashboardDefault = Loadable(lazy(() => import('pages/dashboard')));
+const FileUploader = Loadable(lazy(() => import('pages/import-wiz/ImportModule')));
 
 // render - sample page
 const SamplePage = Loadable(lazy(() => import('pages/extra-pages/SamplePage')));
@@ -15,6 +16,10 @@ const Typography = Loadable(lazy(() => import('pages/components-overview/Typogra
 const Color = Loadable(lazy(() => import('pages/components-overview/Color')));
 const Shadow = Loadable(lazy(() => import('pages/components-overview/Shadow')));
 const AntIcons = Loadable(lazy(() => import('pages/components-overview/AntIcons')));
+
+// render - vehicleModule
+const VehicleList = Loadable(lazy(() => import('pages/vehicleModule/VehicleModule')));
+const JobsList = Loadable(lazy(() => import('pages/vehicleModule/JobsModule')));
 
 // ==============================|| MAIN ROUTING ||============================== //
 
@@ -27,6 +32,10 @@ const MainRoutes = {
       element: <DashboardDefault />
     },
     {
+      path: 'typography',
+      element: <Typography />
+    },
+    {
       path: 'color',
       element: <Color />
     },
@@ -36,8 +45,16 @@ const MainRoutes = {
         {
           path: 'default',
           element: <DashboardDefault />
-        }
+        },
       ]
+    },
+    {
+      path: 'sample-page',
+      element: <SamplePage />
+    },
+    {
+      path: 'shadow',
+      element: <Shadow />
     },
     {
       path: 'sample-page',
@@ -54,6 +71,18 @@ const MainRoutes = {
     {
       path: 'icons/ant',
       element: <AntIcons />
+    },
+    {
+      path: '/data/import',
+      element: <FileUploader />
+    },
+    {
+      path: '/optimizer/vehicles',
+      element: <VehicleList />
+    },
+    {
+      path: '/optimizer/jobs',
+      element: <JobsList />
     }
   ]
 };

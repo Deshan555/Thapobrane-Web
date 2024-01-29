@@ -1,9 +1,10 @@
 // assets
-import { DashboardOutlined } from '@ant-design/icons';
+import { DashboardOutlined, ImportOutlined } from '@ant-design/icons';
 
 // icons
 const icons = {
-  DashboardOutlined
+  DashboardOutlined,
+  ImportOutlined
 };
 
 // ==============================|| MENU ITEMS - DASHBOARD ||============================== //
@@ -19,7 +20,15 @@ const dashboard = {
       type: 'item',
       url: '/dashboard/default',
       icon: icons.DashboardOutlined,
-      breadcrumbs: false
+      breadcrumbs: true
+    },
+    {
+      id : 'data-import',
+      title: 'Data Import',
+      type: 'item',
+      url: '/data/import',
+      icon: icons.ImportOutlined,
+      breadcrumbs: true
     }
   ]
 };

@@ -53,6 +53,14 @@ const utilities = {
       url: '/icons/ant',
       icon: icons.AntDesignOutlined,
       breadcrumbs: false
+    },
+    {
+      id : 'loading-icons',
+      title: 'Loading Icons',
+      type: 'item',
+      url: '/icons/loading',
+      icon: icons.LoadingOutlined,
+      breadcrumbs: true
     }
   ]
 };
