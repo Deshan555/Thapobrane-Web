@@ -45,7 +45,50 @@ const apiExecutions = {
             }
             return null;
         }
-    }
+    },
+    registerNewEmployee: async (employeeDetails) => {
+        try {
+            const response = await axios.post(baseDetails.CORE_SERVICE_URL + '/employees/add', {
+                EmployeeName: employeeDetails.name,
+                EmployeeMobile: employeeDetails.mobile,
+                EmployeeEmail: employeeDetails.email,
+                EmployeeType: employeeDetails.type,
+                FactoryID: employeeDetails.factory,
+                Password: employeeDetails.password
+            });
+            return response;
+        } catch (error) {
+            console.error('Axios error:', error);
+            if (error.response) {
+                console.error('Server responded with:', error.response.data);
+            } else if (error.request) {
+                console.error('No response received:', error.request);
+            } else {
+                console.error('Error setting up the request:', error.message);
+            }
+            return null;
+        }
+    },
+    getAllEmployees: async () => {
+        try {
+            const response = await axios.get(baseDetails.CORE_SERVICE_URL + '/employees', {
+                // headers: {
+                //     Authorization: `Bearer ${LocalStroage.getItem('token')}`
+                // }
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Axios error:', error);
+            if (error.response) {
+                console.error('Server responded with:', error.response.data);
+            } else if (error.request) {
+                console.error('No response received:', error.request);
+            } else {
+                console.error('Error setting up the request:', error.message);
+            }
+            return null;
+        }
+    },
 };
 
 export { apiExecutions };
