@@ -12,10 +12,7 @@ import {
   CloseCircleOutlined,
   EyeOutlined,
 } from '@ant-design/icons';
-import { get, set } from 'lodash';
-import Tab from 'themes/overrides/Tab';
 const { Option } = Select;
-
 
 const JobsModule = () => {
   const [open, setOpen] = useState(false);
@@ -45,6 +42,7 @@ const JobsModule = () => {
   const [searchText, setSearchText] = useState('');
   const [filterData, setFilterData] = useState([]);
   const [isEdit, setIsEdit] = useState(false);
+  const [openEdit, setOpenEdit] = useState(false);
   // That Is Notification Function For Create Notifications Over Web Page
   const openNotificationWithIcon = (type, message, title) => {
     api[type]({
@@ -113,9 +111,20 @@ const JobsModule = () => {
     console.log(employeeRegister);
   }, [employeeRegister]);
 
+  useEffect(() => {
+    // Log selectedUser when it changes
+    console.log(selectedUser);
+  }, [selectedUser]);
+
   const showModal = () => {
     setOpen(true);
   };
+
+  // const showEditModal = () => {
+  //   setOpenEdit(true);
+  // };
+
+  
 
   const showDetailsModel = (userObj) => {
     setSelectedUser({
@@ -131,6 +140,7 @@ const JobsModule = () => {
   };
 
   const showEditModel = (userObj) => {
+    console.log(userObj);
     setIsEdit(true);
     setSelectedUser({
       EmployeeID : userObj.EmployeeID,
@@ -141,6 +151,7 @@ const JobsModule = () => {
       FactoryID: userObj.FactoryID,
       RegisterDate: userObj.JoiningDate,
     });
+    console.log(selectedUser);
     setOpen(true);
   };
 
@@ -156,6 +167,17 @@ const JobsModule = () => {
     });
   }
 
+  const resetEmployeeRegisterData = () => {
+    setEmployeeRegister({
+      EmployeeName: "",
+      EmployeeMobile: "",
+      EmployeeEmail: "",
+      EmployeeType: "",
+      FactoryID: "",
+      Password: ""
+    });
+  }
+
   const handleOk = () => {
     setModalText('That Employee Registeration Process Related To Only That Digitalization Process');
     setConfirmLoading(true);
@@ -167,9 +189,16 @@ const JobsModule = () => {
   };
 
   const handleCancel = () => {
+    resetEmployeeRegisterData();
     setIsEdit(false);
     resetSelectedData();
     setOpen(false);
+  };
+
+  const handleDisplayCancel = () => {
+    resetSelectedData();
+    resetEmployeeRegisterData();
+    setDisplay(false);
   };
 
   const apiCall = async () => {
@@ -340,6 +369,84 @@ const JobsModule = () => {
         <Form onFinish={onFinish} layout="vertical">
           <Form.Item label="Employee Name" name="name" rules={[{ required: true, message: 'Please enter employee name' }]}>
             <Input
+              defaultValue={selectedUser.EmployeeName}
+              onChange={(e) => handleEmployeeNameChange(e)}
+            />
+          </Form.Item>
+
+          <Form.Item label="Employee Mobile" name="mobile" rules={[{ required: true, message: 'Please enter employee mobile' }]}>
+            <Input
+              defaultValue={selectedUser.EmployeeMobile}
+              onChange={(e) => handleEmployeeMobileChange(e)}
+            />
+          </Form.Item>
+
+          <Form.Item label="Employee Email" name="email" rules={[{ required: true, type: 'email', message: 'Please enter a valid email' }]}>
+            <Input
+              defaultValue={selectedUser.EmployeeEmail}
+              onChange={(e) => handleEmployeeEmailChange(e)}
+            />
+          </Form.Item>
+
+          <Form.Item label="Employee Type" name="type" rules={[{ required: true, message: 'Please select employee type' }]}>
+            <Select>
+              {Array.from(employeeRoles.entries()).map(([roleId, roleName]) => (
+                <Option
+                  defaultValue={employeeRegister.EmployeeType}
+                  onChange={(e) => handleEmployeeTypeChange(e)}
+                  key={roleId}
+                  value={roleId}>
+                  {roleName}
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
+
+          <Form.Item label="Factory ID" name="factory" rules={[{ required: true, message: 'Please enter factory ID' }]}>
+            <Input
+              defaultValue={selectedUser.FactoryID}
+              onChange={(e) => handleFactoryIDChange(e)}
+            />
+          </Form.Item>
+
+          {
+            isEdit != true ? (
+              <Form.Item label="Password" name="password" rules={[{ required: true, message: 'Please enter a password' }]}>
+                <Input.Password
+                  onChange={(e) => handlePasswordChange(e)}
+                  value={{}}
+                />
+              </Form.Item>
+            ) : (null
+            )
+          }
+          {/* <Form.Item label="Password" name="password" rules={[{ required: true, message: 'Please enter a password' }]}>
+            <Input.Password
+              onchange={(e) => handlePasswordChange(e)}
+              value={{}}
+            />
+          </Form.Item> */}
+
+          <Form.Item>
+            <Button type="primary" htmlType="submit" onClick={registerEmployee}>
+              Register Employee
+            </Button>
+          </Form.Item>
+        </Form>
+      </Modal>
+
+      <Modal 
+        title="Edit Employee"
+        open={openEdit}
+        onOk={handleOk}
+        confirmLoading={confirmLoading}
+        onCancel={handleCancel}
+      >
+        <p>{modalText}</p>
+        
+        <Form onFinish={onFinish} layout="vertical">
+          <Form.Item label="Employee Name" name="name" rules={[{ required: true, message: 'Please enter employee name' }]}>
+            <Input
               defaultValue={selectedUser.EmployeeName? selectedUser.EmployeeName : "N/A"}
               onchange={(e) => handleEmployeeNameChange(e)}
             />
@@ -404,6 +511,7 @@ const JobsModule = () => {
             </Button>
           </Form.Item>
         </Form>
+
       </Modal>
 
 
@@ -411,9 +519,11 @@ const JobsModule = () => {
       <Modal
         title="Employee Details"
         visible={display}
-        onOk={handleOk}
+        //onOk={handleOk}
+        cancelText="Close View"
+        okText=""
         confirmLoading={confirmLoading}
-        onCancel={handleCancel}
+        onCancel={handleDisplayCancel}
       >
         <Descriptions column={1}>
           <Descriptions.Item label="Employee ID"> 
