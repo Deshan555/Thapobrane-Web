@@ -286,7 +286,59 @@ const apiExecutions = {
             }
             return null;
         }
-    }
+    },
+    // /fieldInfo/:FieldID - update field information
+    
+    // {
+    //     "FieldName": "Field_815196623",
+    //     "FieldSize": 45,
+    //     "FieldType": "SMALL",
+    //     "FieldAddress": "dfdf",
+    //     "TeaType": "camellia cinensis",
+    //     "BaseLocation": "wedwew",
+    //     "BaseElevation": 322,
+    //     "SoilType": "Reddish Brown Earths",
+    //     "Attitude": 33,
+    //     "Longitude": 88,
+    //     "RouteID": 243118935,
+    //     "OwnerID": 786347225,
+    //     "ZoneID": 230527,
+    //     "FactoryID": 3
+    // }
+    updateFieldInfo: async (fieldID, values) => {
+        try {
+            const response = await axios.put(baseDetails.CORE_SERVICE_URL + '/fieldInfo/update/' + fieldID, {
+                fieldSize: values.FieldSize,
+                fieldType: values.FieldType,
+                fieldAddress: values.FieldAddress,
+                teaType: values.TeaType,
+                baseLocation: values.BaseLocation,
+                baseElevation: values.BaseElevation,
+                soilType: values.SoilType,
+                attitude: values.Attitude,
+                longitude: values.Longitude,
+                routeID: values.RouteID,
+                ownerID: values.OwnerID,
+                zoneID: values.ZoneID,
+                factoryID: values.FactoryID
+            }, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('atoken')}`
+                }
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Axios error:', error);
+            if (error.response) {
+                console.error('Server responded with:', error.response.data);
+            } else if (error.request) {
+                console.error('No response received:', error.request);
+            } else {
+                console.error('Error setting up the request:', error.message);
+            }
+            return null;
+        }
+    },
 };
 
 export { apiExecutions };
