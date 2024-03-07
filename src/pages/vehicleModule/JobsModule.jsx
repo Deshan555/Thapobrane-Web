@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { apiExecutions } from '../../api/api-call';
-import { Form, Input, Button, Select, Modal, Table, Space, Popover, Row, Descriptions, Tag} from 'antd';
-import { Dropdown, notification } from '../../../node_modules/antd/es/index';
+import { Form, Input, Button, Select, Modal, Table, Space, Descriptions, Tag} from 'antd';
+import { notification } from '../../../node_modules/antd/es/index';
 import {
   MailOutlined,
   DeleteOutlined,
@@ -201,10 +201,10 @@ const JobsModule = () => {
     setDisplay(false);
   };
 
-  const apiCall = async () => {
+  /*const apiCall = async () => {
     const response = await apiExecutions.authEmployee("john.doe@example5.com", "securePassword123");
     console.log(response);
-  }
+  }*/
 
   const getAllEmpRoles = async () => {
     const response = await apiExecutions.getAllEmployeeRoles();
@@ -361,6 +361,7 @@ const JobsModule = () => {
         onOk={handleOk}
         confirmLoading={confirmLoading}
         onCancel={handleCancel}
+        destroyOnClose={true}
       >
         <p>{modalText}</p>
 
@@ -441,6 +442,7 @@ const JobsModule = () => {
         onOk={handleOk}
         confirmLoading={confirmLoading}
         onCancel={handleCancel}
+        destroyOnClose={true}
       >
         <p>{modalText}</p>
         
@@ -524,6 +526,7 @@ const JobsModule = () => {
         okText=""
         confirmLoading={confirmLoading}
         onCancel={handleDisplayCancel}
+        destroyOnClose={true}
       >
         <Descriptions column={1}>
           <Descriptions.Item label="Employee ID"> 
