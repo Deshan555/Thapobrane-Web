@@ -287,24 +287,7 @@ const apiExecutions = {
             return null;
         }
     },
-    // /fieldInfo/:FieldID - update field information
-    
-    // {
-    //     "FieldName": "Field_815196623",
-    //     "FieldSize": 45,
-    //     "FieldType": "SMALL",
-    //     "FieldAddress": "dfdf",
-    //     "TeaType": "camellia cinensis",
-    //     "BaseLocation": "wedwew",
-    //     "BaseElevation": 322,
-    //     "SoilType": "Reddish Brown Earths",
-    //     "Attitude": 33,
-    //     "Longitude": 88,
-    //     "RouteID": 243118935,
-    //     "OwnerID": 786347225,
-    //     "ZoneID": 230527,
-    //     "FactoryID": 3
-    // }
+
     updateFieldInfo: async (fieldID, values) => {
         try {
             const response = await axios.put(baseDetails.CORE_SERVICE_URL + '/fieldInfo/update/' + fieldID, {
@@ -339,6 +322,105 @@ const apiExecutions = {
             return null;
         }
     },
+    
+    deleteFieldInfo: async (fieldID) => {
+        try {
+            const response = await axios.delete(baseDetails.CORE_SERVICE_URL + '/fieldInfo/drop/' + fieldID, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('atoken')}`
+                }
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Axios error:', error);
+            if (error.response) {
+                console.error('Server responded with:', error.response.data);
+            } else if (error.request) {
+                console.error('No response received:', error.request);
+            } else {
+                console.error('Error setting up the request:', error.message);
+            }
+            return null;
+        }
+    },
+    getAllRoadRoutings: async () => {
+        try {
+            const response = await axios.get(baseDetails.CORE_SERVICE_URL + '/roadRouting', {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('atoken')}`
+                }
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Axios error:', error);
+            if (error.response) {
+                console.error('Server responded with:', error.response.data);
+            } else if (error.request) {
+                console.error('No response received:', error.request);
+            } else {
+                console.error('Error setting up the request:', error.message);
+            }
+            return null;
+        }
+    },
+    addNewRoadRouting: async (values) => {
+        try {
+            const response = await axios.post(baseDetails.CORE_SERVICE_URL + '/roadRouting/add', {
+                SourceFactoryID: values.SourceFactoryID,
+                Destination: values.Destination,
+                RoundTrip: values.RoundTrip,
+                StartLongitude: values.StartLongitude,
+                StartLatitude: values.StartLatitude,
+                EndLongitude: values.EndLongitude,
+                EndLatitude: values.EndLatitude
+            }, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('atoken')}`
+                }
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Axios error:', error);
+            if (error.response) {
+                console.error('Server responded with:', error.response.data);
+            } else if (error.request) {
+                console.error('No response received:', error.request);
+            } else {
+                console.error('Error setting up the request:', error.message);
+            }
+            return null;
+        }
+    },
+    // /roadRouting/update/:RoadRoutingID
+    updateRoadRouting: async (roadRoutingID, values) => {
+        try {
+            const response = await axios.put(baseDetails.CORE_SERVICE_URL + '/roadRouting/update/' + roadRoutingID, {
+                SourceFactoryID: values.SourceFactoryID,
+                Destination: values.Destination,
+                RoundTrip: values.RoundTrip,
+                StartLongitude: values.StartLongitude,
+                StartLatitude: values.StartLatitude,
+                EndLongitude: values.EndLongitude,
+                EndLatitude: values.EndLatitude
+            }, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('atoken')}`
+                }
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Axios error:', error);
+            if (error.response) {
+                console.error('Server responded with:', error.response.data);
+            } else if (error.request) {
+                console.error('No response received:', error.request);
+            } else {
+                console.error('Error setting up the request:', error.message);
+            }
+            return null;
+        }
+    },
+
 };
 
 export { apiExecutions };
