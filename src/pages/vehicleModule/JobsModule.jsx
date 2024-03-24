@@ -368,28 +368,36 @@ const JobsModule = () => {
         {/*EmployeeName, EmployeeMobile, EmployeeEmail, EmployeeType, FactoryID, Password */}
 
         <Form onFinish={onFinish} layout="vertical">
-          <Form.Item label="Employee Name" name="name" rules={[{ required: true, message: 'Please enter employee name' }]}>
+          <Form.Item label="Employee Name" name="name" 
+          rules={[{ required: true, message: 'Please enter employee name' }]}
+          initialValue={selectedUser?.EmployeeName ? selectedUser?.EmployeeName : "N/A"}
+          >
             <Input
-              defaultValue={selectedUser.EmployeeName}
               onChange={(e) => handleEmployeeNameChange(e)}
             />
           </Form.Item>
 
-          <Form.Item label="Employee Mobile" name="mobile" rules={[{ required: true, message: 'Please enter employee mobile' }]}>
+          <Form.Item label="Employee Mobile" name="mobile" 
+          initialValue={selectedUser?.EmployeeMobile ? selectedUser?.EmployeeMobile : "N/A"}
+          rules={[{ required: true, message: 'Please enter employee mobile' }]}>
             <Input
-              defaultValue={selectedUser.EmployeeMobile}
+              type="tel"
               onChange={(e) => handleEmployeeMobileChange(e)}
             />
           </Form.Item>
 
-          <Form.Item label="Employee Email" name="email" rules={[{ required: true, type: 'email', message: 'Please enter a valid email' }]}>
+          <Form.Item label="Employee Email" name="email" 
+          initialValue={selectedUser?.EmployeeEmail ? selectedUser?.EmployeeEmail : "N/A"}
+          rules={[{ required: true, type: 'email', message: 'Please enter a valid email' }]}>
             <Input
-              defaultValue={selectedUser.EmployeeEmail}
+              type="email"
               onChange={(e) => handleEmployeeEmailChange(e)}
             />
           </Form.Item>
 
-          <Form.Item label="Employee Type" name="type" rules={[{ required: true, message: 'Please select employee type' }]}>
+          <Form.Item label="Employee Type" name="type" 
+          initialValue={selectedUser?.EmployeeType ? selectedUser?.EmployeeType : "N/A"}
+          rules={[{ required: true, message: 'Please select employee type' }]}>
             <Select>
               {Array.from(employeeRoles.entries()).map(([roleId, roleName]) => (
                 <Option
@@ -450,20 +458,26 @@ const JobsModule = () => {
           <Form.Item label="Employee Name" name="name" rules={[{ required: true, message: 'Please enter employee name' }]}>
             <Input
               defaultValue={selectedUser.EmployeeName? selectedUser.EmployeeName : "N/A"}
+              initialValue={selectedUser?.EmployeeName ? selectedUser?.EmployeeName : "N/A"}
               onchange={(e) => handleEmployeeNameChange(e)}
             />
           </Form.Item>
 
-          <Form.Item label="Employee Mobile" name="mobile" rules={[{ required: true, message: 'Please enter employee mobile' }]}>
+          <Form.Item label="Employee Mobile" name="mobile" 
+          rules={[{ required: true, message: 'Please enter employee mobile' }]}
+          initialValue={selectedUser?.EmployeeMobile ? selectedUser?.EmployeeMobile : "N/A"}
+          >
             <Input
-              defaultValue={selectedUser.EmployeeMobile}
               onchange={(e) => handleEmployeeMobileChange(e)}
             />
           </Form.Item>
 
-          <Form.Item label="Employee Email" name="email" rules={[{ required: true, type: 'email', message: 'Please enter a valid email' }]}>
+          <Form.Item label="Employee Email" name="email" 
+          rules={[{ required: true, type: 'email', message: 'Please enter a valid email' }]}
+          initialValue={selectedUser?.EmployeeEmail ? selectedUser?.EmployeeEmail : "N/A"}
+          >
             <Input
-              defaultValue={selectedUser.EmployeeEmail}
+              type="email"
               onchange={(e) => handleEmployeeEmailChange(e)}
             />
           </Form.Item>
@@ -482,7 +496,8 @@ const JobsModule = () => {
             </Select>
           </Form.Item>
 
-          <Form.Item label="Factory ID" name="factory" rules={[{ required: true, message: 'Please enter factory ID' }]}>
+          <Form.Item label="Factory ID" name="factory" 
+          rules={[{ required: true, message: 'Please enter factory ID' }]}>
             <Input
               defaultValue={selectedUser.FactoryID}
               onchange={(e) => handleFactoryIDChange(e)}
@@ -590,7 +605,7 @@ const JobsModule = () => {
         </Space>
       </div>
 
-      <div style={{ 
+      <div style={{
         padding: 10,
         background: 'white',
         borderRadius: 10,
