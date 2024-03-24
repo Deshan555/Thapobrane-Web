@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { apiExecutions } from '../../api/api-call';
+import { allCities } from '../../api/cities';
 import { Form, Input, Button, Select, Modal, Table, Space, Descriptions, Tag, Row, Col, DatePicker, Drawer, message } from 'antd';
 import moment from 'moment';
 import { CSVLink, CSVDownload } from "react-csv";
-import  History  from './History';
+import History from './History';
 import { GoogleMap, LoadScript, Marker } from '@react-google-maps/api';
 import {
     MailOutlined,
@@ -24,11 +25,11 @@ const FieldManagement = () => {
     const [zonesList, setZonesList] = useState([]);
     const [customersList, setCustomersList] = useState([]);
     const [roadRoutings, setRoadRoutings] = useState([]);
-    const [openCreate, setOpenCreate] = useState(false);
-    const [customFieldNames, setCustomFieldNames] = useState("");
     const [open, setOpen] = useState(false);
     const [openDetails, setOpenDetails] = useState(false);
     const [editStatus, setEditStatus] = useState(false);
+    const [filterValues, setFilterValues] = useState([]);
+    const [baseLocation, setBaseLocation] = useState(null);
     const [selectedField, setSelectedField] = useState({
         FieldID: 0,
         FieldName: "",
@@ -47,21 +48,24 @@ const FieldManagement = () => {
         ZoneID: null,
         FactoryID: null
     });
-
+    const [dropdownValues, setDropdownValues] = useState('all');
+    
     useEffect(() => {
+        fetchAllAPICalling();
+        fetchCityData();
+    }, []);
+
+    const fetchCityData = async () => {
+        setBaseLocation(allCities);
+    };
+
+    const fetchAllAPICalling = async () => {
         fetchAllFields();
         fetchAllRoadRoutings();
         fetchAllFactories();
         fetchAllZones();
-        fetchAllCustomers(); 
-    }, []);
-
-    const csvData = [
-        ["firstname", "lastname", "email"],
-        ["Ahmed", "Tomi", "ah@smthing.co.com"],
-        ["Raed", "Labes", "rl@smthing.co.com"],
-        ["Yezzi", "Min l3b", "ymin@cocococo.com"]
-    ];
+        fetchAllCustomers();
+    }
 
     const modelReset = () => {
         setEditStatus(false);
@@ -70,7 +74,7 @@ const FieldManagement = () => {
             FieldName: "",
             FieldSize: null,
             FieldType: "",
-            FieldAddress: "", 
+            FieldAddress: "",
             TeaType: "",
             BaseLocation: "",
             BaseElevation: null,
@@ -134,6 +138,7 @@ const FieldManagement = () => {
             if (response.success === true) {
                 message.success('Field Registered Successfully : ' + response.message);
                 fetchAllFields();
+                onClose();
             } else {
                 message.error('Failed to Register Field : ' + response.message);
             }
@@ -147,6 +152,9 @@ const FieldManagement = () => {
         if (response !== null && response !== undefined) {
             if (response.success === true) {
                 setRoadRoutings(response.data);
+                
+                // filterationByFieldType('all');
+                // setFilterValues(response.data);
             } else {
                 message.error('Failed to fetch Road Routings');
             }
@@ -157,6 +165,7 @@ const FieldManagement = () => {
         const response = await apiExecutions.getAllFieldInfo();
         if (response !== null && response !== undefined) {
             if (response.success === true) {
+                setFilterValues(response.data);
                 setFields(response.data);
             } else {
                 message.error('Failed to fetch Fields');
@@ -188,7 +197,7 @@ const FieldManagement = () => {
 
     const fetchAllCustomers = async () => {
         const response = await apiExecutions.getAllCustomers();
-        if (response !== null &&  response !== undefined) {
+        if (response !== null && response !== undefined) {
             if (response.success === true) {
                 setCustomersList(response.data);
             } else {
@@ -261,11 +270,38 @@ const FieldManagement = () => {
             if (response.success === true) {
                 message.success('Field Updated Successfully : ' + response.message);
                 fetchAllFields();
+                onClose();
             } else {
                 message.error('Failed to Update Field : ' + response.message);
             }
         } else {
             message.error('Failed to Update Field');
+        }
+    }
+
+    const confirmDeleteModel = (fieldID) => {
+        const { confirm } = Modal;
+        confirm({
+            title:
+                "Are You Want To Delete That Field?",
+            onOk: async () => {
+                deleteFieldByFieldID(fieldID);
+            },
+            onCancel() { },
+        });
+    };
+
+    const deleteFieldByFieldID = async (fieldID) => {
+        const response = await apiExecutions.deleteFieldInfo(fieldID);
+        if (response !== null && response !== undefined) {
+            if (response.success === true) {
+                message.success('Field Deleted Successfully : ' + response.message);
+                fetchAllFields();
+            } else {
+                message.error('Failed to Delete Field : ' + response.message);
+            }
+        } else {
+            message.error('Failed to Delete Field');
         }
     }
 
@@ -301,7 +337,7 @@ const FieldManagement = () => {
             }
         },
         {
-            title: 'FieldType',
+            title: 'Field Type',
             dataIndex: 'FieldType',
             key: 'FieldType',
             render: (value) => {
@@ -309,7 +345,7 @@ const FieldManagement = () => {
             }
         },
         {
-            title: 'TeaType',
+            title: 'Tea Type',
             dataIndex: 'TeaType',
             key: 'TeaType',
             render: (value) => {
@@ -317,7 +353,7 @@ const FieldManagement = () => {
             }
         },
         {
-            title: 'BaseLocation',
+            title: 'Base Location',
             dataIndex: 'BaseLocation',
             key: 'BaseLocation',
             render: (value) => {
@@ -325,7 +361,7 @@ const FieldManagement = () => {
             }
         },
         {
-            title: 'SoilType',
+            title: 'Soil Type',
             dataIndex: 'SoilType',
             key: 'SoilType',
             render: (value) => {
@@ -333,35 +369,39 @@ const FieldManagement = () => {
             }
         },
         {
-            title: 'RouteID',
+            title: 'Route ID',
             dataIndex: 'RouteID',
             key: 'RouteID',
             render: (value) => {
                 return <b>{value}</b>;
             }
         },
+        // {
+        //     title: 'OwnerID',
+        //     dataIndex: 'OwnerID',
+        //     key: 'OwnerID',
+        //     render: (value) => {
+        //         return <b>{value}</b>;
+        //     }
+        // },
+        // {
+        //     title: 'ZoneID',
+        //     dataIndex: 'ZoneID',
+        //     key: 'ZoneID',
+        //     render: (value) => {
+        //         return <b>{value}</b>;
+        //     }
+        // },
         {
-            title: 'OwnerID',
-            dataIndex: 'OwnerID',
-            key: 'OwnerID',
-            render: (value) => {
-                return <b>{value}</b>;
-            }
-        },
-        {
-            title: 'ZoneID',
-            dataIndex: 'ZoneID',
-            key: 'ZoneID',
-            render: (value) => {
-                return <b>{value}</b>;
-            }
-        },
-        {
-            title: 'FactoryID',
+            title: 'Factory ID',
             dataIndex: 'FactoryID',
             key: 'FactoryID',
             render: (value) => {
-                return <b>{value}</b>;
+                return <b>{factoriesList.map((factory) => {
+                    if (factory.FactoryID === value) {
+                        return factory.FactoryName;
+                    }
+                })}</b>;
             }
         },
         {
@@ -382,31 +422,13 @@ const FieldManagement = () => {
                     />
                     <DeleteOutlined
                         style={{ color: 'red' }}
-                        // onClick={() => showEditModel(record)}
+                        onClick={() => confirmDeleteModel(record.FieldID)}
                     />
                 </Space>
             ),
         },
     ];
-    /*
-      {
-        "FieldID": 425476744,
-        "FieldName": "Field_425476744",
-        "FieldSize": 100,
-        "FieldType": "Wheat",
-        "FieldAddress": "123 Main St, Cityville",
-        "TeaType": "Green Tea v1",
-        "BaseLocation": "Farmville",
-        "BaseElevation": 500,
-        "SoilType": "Loam",
-        "Attitude": 34.05,
-        "Longitude": -118.24,
-        "FieldRegistrationDate": "2024-01-04T18:30:00.000Z",
-        "RouteID": 243118935,
-        "OwnerID": 588240949,
-        "ZoneID": 584674,
-        "FactoryID": 1
-      }*/
+
 
     const handleFormSubmit = (values) => {
         // onClose();
@@ -441,7 +463,7 @@ const FieldManagement = () => {
         gridTemplateColumns: '1fr 1fr',
         gap: '10px',
         padding: '10px',
-        border: '1px solid #ddd', 
+        border: '1px solid #ddd',
         borderRadius: '10px',
         marginTop: '10px'
     };
@@ -450,17 +472,75 @@ const FieldManagement = () => {
         height: "300px",
         width: "100%",
         borderRadius: "10px"
-      };
-    
-      const defaultCenter = {
+    };
+
+    const defaultCenter = {
         lat: 40.7128,
         lng: -74.0060
-      };
+    };
 
+    const onFinishFilter = (values) => {
+        console.log(values);
+        const { searchField, filterFieldType } = values;
+        if (searchField !== undefined && filterFieldType !== undefined) {
+            const filteredData = fields.filter((field) => {
+                return field.FieldID === searchField || field.FieldType === filterFieldType.toUpperCase();
+            });
+            setFields(filteredData);
+        }
+    }
+
+    const DateTimeConverter = ({ isoDateTime }) =>  {
+        const dateObj = new Date(isoDateTime);
+        const formattedDateTime = dateObj.toLocaleString();
+        return formattedDateTime;
+    }
+
+    const filterationByFieldID = (value) => {
+        const dropdownValue = dropdownValues;
+        if ((value === undefined || value === null || value === "") && dropdownValue === "all") {
+            setFilterValues(fields);
+        } else if ((value !== undefined || value !== null || value !== "") && dropdownValue === "all") {
+            const filteredData = fields.filter((field) => {
+                return field.FieldID.toString().includes(value);
+            });
+            setFilterValues(filteredData);
+        } else if ((value !== undefined || value !== null || value !== "") && dropdownValue !== "all") {
+            const filteredData = fields.filter((field) => {
+                return field.FieldID.toString().includes(value) 
+                && field.FieldType === dropdownValue.toUpperCase();
+            });
+            setFilterValues(filteredData);
+        } else {
+            setFilterValues(fields);
+        }
+    }
+    
+
+    const filterationByFieldType = (value) => {
+        setDropdownValues(value);
+        if (value==="all") {
+            setFilterValues(fields);
+        } else if (value !== "") {
+            const filteredData = fields?.filter((field) => {
+                return field?.FieldType === value.toUpperCase();
+            });
+            setFilterValues(filteredData);
+        }
+    }
+
+    const resetAllFilters = () => {
+        setFilterValues(fields);
+        setDropdownValues('all');
+    }
+    
+    
     return (
         <>
             <Drawer
-                title="Register New Field"
+                title={
+                    editStatus == true ? "Update Field Information" : "Register New Field"
+                }
                 footer={true}
                 width={800}
                 onClose={onClose}
@@ -470,7 +550,7 @@ const FieldManagement = () => {
                 destroyOnClose={true}
             >
                 <Form
-                    labelCol={{ span: 10 }}
+                    labelCol={{ span: 15 }}
                     wrapperCol={{ span: 20 }}
                     layout="vertical"
                     onFinish={handleFormSubmit}
@@ -479,27 +559,27 @@ const FieldManagement = () => {
                     <div style={{ padding: '10px' }}>
                         <Row gutter={16}>
                             <Col span={12}>
-                                <Form.Item label="Field Name" 
-                                initialValue={selectedField?.FieldName ? selectedField?.FieldName : "Field_" + random(100000000, 999999999)}
-                                name="fieldName">
+                                <Form.Item label="Field Name"
+                                    initialValue={selectedField?.FieldName ? selectedField?.FieldName : "Field_" + random(100000000, 999999999)}
+                                    name="fieldName">
                                     <Input
                                         disabled
                                     />
                                 </Form.Item>
                             </Col>
                             <Col span={12}>
-                                <Form.Item label="Field Size (Hectare)" name="fieldSize" 
-                                initialValue={selectedField?.FieldSize}
-                                rules={[{ required: true, message: 'Please enter Field Size' }]}>
-                                    <Input type="number"/>
+                                <Form.Item label="Field Size (Hectare)" name="fieldSize"
+                                    initialValue={selectedField?.FieldSize}
+                                    rules={[{ required: true, message: 'Please enter Field Size' }]}>
+                                    <Input type="number" />
                                 </Form.Item>
                             </Col>
                         </Row>
                         <Row gutter={16}>
                             <Col span={12}>
-                                <Form.Item label="Field Type" name="fieldType" 
-                                rules={[{ required: true, message: 'Please enter Field Type' }]}
-                                initialValue={selectedField?.FieldType}
+                                <Form.Item label="Field Type" name="fieldType"
+                                    rules={[{ required: true, message: 'Please enter Field Type' }]}
+                                    initialValue={selectedField?.FieldType}
                                 >
                                     <Select
                                         placeholder="Select Field Type"
@@ -512,18 +592,18 @@ const FieldManagement = () => {
                                 </Form.Item>
                             </Col>
                             <Col span={12}>
-                                <Form.Item label="Field Address" name="fieldAddress" 
-                                initialValue={selectedField?.FieldAddress}
-                                rules={[{ required: true, message: 'Please enter Field Address' }]}>
+                                <Form.Item label="Field Address" name="fieldAddress"
+                                    initialValue={selectedField?.FieldAddress}
+                                    rules={[{ required: true, message: 'Please enter Field Address' }]}>
                                     <Input />
                                 </Form.Item>
                             </Col>
                         </Row>
                         <Row gutter={16}>
                             <Col span={12}>
-                                <Form.Item label="Tea Type" name="teaType" 
-                                initialValue={selectedField?.TeaType}
-                                rules={[{ required: true, message: 'Please enter Tea Type' }]}>
+                                <Form.Item label="Tea Type" name="teaType"
+                                    initialValue={selectedField?.TeaType}
+                                    rules={[{ required: true, message: 'Please enter Tea Type' }]}>
                                     <Select
                                         placeholder="Select Tea Type"
                                         showSearch>
@@ -533,25 +613,31 @@ const FieldManagement = () => {
                                 </Form.Item>
                             </Col>
                             <Col span={12}>
-                                <Form.Item label="Base Location" name="baseLocation" 
-                                initialValue={selectedField?.BaseLocation}
-                                rules={[{ required: true, message: 'Please enter Base Location' }]}>
-                                    <Input />
+                                <Form.Item label="Base Location" name="baseLocation"
+                                    initialValue={selectedField?.BaseLocation}
+                                    rules={[{ required: true, message: 'Please enter Base Location' }]}>
+                                    <Select
+                                        placeholder="Select Base Location"
+                                        showSearch>
+                                        {baseLocation?.map((city, index) => {
+                                            return <Option key={index} value={city}>{city}</Option>
+                                        })}
+                                    </Select>
                                 </Form.Item>
                             </Col>
                         </Row>
                         <Row gutter={16}>
                             <Col span={12}>
-                                <Form.Item label="Base Elevation (Degrees)" name="baseElevation" 
-                                initialValue={selectedField?.BaseElevation}
-                                rules={[{ required: true, message: 'Please enter Base Elevation' }]}>
+                                <Form.Item label="Base Elevation (Degrees)" name="baseElevation"
+                                    initialValue={selectedField?.BaseElevation}
+                                    rules={[{ required: true, message: 'Please enter Base Elevation' }]}>
                                     <Input type="number" />
                                 </Form.Item>
                             </Col>
                             <Col span={12}>
-                                <Form.Item label="Soil Type" name="soilType" 
-                                initialValue={selectedField?.SoilType}
-                                rules={[{ required: true, message: 'Please enter Soil Type' }]}>
+                                <Form.Item label="Soil Type" name="soilType"
+                                    initialValue={selectedField?.SoilType}
+                                    rules={[{ required: true, message: 'Please enter Soil Type' }]}>
                                     <Select
                                         placeholder="Select Soil Type"
                                         showSearch>
@@ -571,25 +657,25 @@ const FieldManagement = () => {
                         </Row>
                         <Row gutter={16}>
                             <Col span={12}>
-                                <Form.Item label="Latitude" name="latitude" 
-                                initialValue={selectedField?.Attitude}
-                                rules={[{ required: true, message: 'Please enter Latitude' }]}>
+                                <Form.Item label="Latitude" name="latitude"
+                                    initialValue={selectedField?.Attitude}
+                                    rules={[{ required: true, message: 'Please enter Latitude' }]}>
                                     <Input type="number" />
                                 </Form.Item>
                             </Col>
                             <Col span={12}>
-                                <Form.Item label="Longitude" name="longitude" 
-                                initialValue={selectedField?.Longitude}
-                                rules={[{ required: true, message: 'Please enter Longitude' }]}>
-                                    <Input type="number"  />
+                                <Form.Item label="Longitude" name="longitude"
+                                    initialValue={selectedField?.Longitude}
+                                    rules={[{ required: true, message: 'Please enter Longitude' }]}>
+                                    <Input type="number" />
                                 </Form.Item>
                             </Col>
                         </Row>
                         <Row gutter={16}>
                             <Col span={12}>
-                                <Form.Item label="Owner ID" name="ownerId" 
-                                initialValue={selectedField?.OwnerID}
-                                rules={[{ required: true, message: 'Please enter Owner ID' }]}>
+                                <Form.Item label="Owner ID" name="ownerId"
+                                    initialValue={selectedField?.OwnerID}
+                                    rules={[{ required: true, message: 'Please enter Owner ID' }]}>
                                     <Select
                                         placeholder="Select Owner ID"
                                         showSearch
@@ -604,9 +690,9 @@ const FieldManagement = () => {
                                 </Form.Item>
                             </Col>
                             <Col span={12}>
-                                <Form.Item label="Zone ID" name="zoneId" 
-                                initialValue={selectedField?.ZoneID}
-                                rules={[{ required: true, message: 'Please select Zone ID' }]}>
+                                <Form.Item label="Zone ID" name="zoneId"
+                                    initialValue={selectedField?.ZoneID}
+                                    rules={[{ required: true, message: 'Please select Zone ID' }]}>
                                     <Select
                                         placeholder="Select Base Zone Name"
                                         showSearch
@@ -622,9 +708,9 @@ const FieldManagement = () => {
                         </Row>
                         <Row gutter={16}>
                             <Col span={12}>
-                                <Form.Item label="Factory ID" name="factoryId" 
-                                initialValue={selectedField?.FactoryID}
-                                rules={[{ required: true, message: 'Please enter Factory ID' }]}>
+                                <Form.Item label="Factory ID" name="factoryId"
+                                    initialValue={selectedField?.FactoryID}
+                                    rules={[{ required: true, message: 'Please enter Factory ID' }]}>
                                     <Select
                                         placeholder="Select Base Factory Name"
                                         showSearch
@@ -642,9 +728,9 @@ const FieldManagement = () => {
                                 </Form.Item>
                             </Col>
                             <Col span={12}>
-                                <Form.Item label="Route ID" name="routeId" 
-                                initialValue={selectedField?.RouteID}
-                                rules={[{ required: true, message: 'Please enter Route ID' }]}>
+                                <Form.Item label="Route ID" name="routeId"
+                                    initialValue={selectedField?.RouteID}
+                                    rules={[{ required: true, message: 'Please enter Route ID' }]}>
                                     <Select
                                         placeholder="Select Route ID"
                                         showSearch>
@@ -658,13 +744,13 @@ const FieldManagement = () => {
                         <Row>
                             <Col >
                                 <Form.Item>
-                                    {editStatus == true ? 
-                                    <Button type="primary" htmlType="submit">
-                                        Update Field Info
-                                    </Button> :
-                                    <Button type="primary" htmlType="submit">
-                                        Register New Field
-                                    </Button>
+                                    {editStatus == true ?
+                                        <Button type="primary" htmlType="submit">
+                                            Update Field Info
+                                        </Button> :
+                                        <Button type="primary" htmlType="submit">
+                                            Register New Field
+                                        </Button>
                                     }
                                 </Form.Item>
                             </Col>
@@ -705,13 +791,18 @@ const FieldManagement = () => {
                             <p>Field Size : <strong>{selectedField.FieldSize}</strong></p>
                             <p>Field Type : <strong>{selectedField.FieldType}</strong></p>
                             <p>Field Address : <strong>{selectedField.FieldAddress}</strong></p>
-                            <p>Field Registration Date : <strong>{selectedField.FieldRegistrationDate}</strong></p>
+                            <p>Field Registration Date : <strong>{selectedField.FieldRegistrationDate ? 
+                            <DateTimeConverter isoDateTime={selectedField.FieldRegistrationDate} /> : ""}</strong></p>
                             <p>Route ID : <strong>{selectedField.RouteID}</strong></p>
                         </div>
                         <div>
                             <p>Owner ID : <strong>{selectedField.OwnerID}</strong></p>
                             <p>Zone ID : <strong>{selectedField.ZoneID}</strong></p>
-                            <p>Factory ID : <strong>{selectedField.FactoryID}</strong></p>
+                            <p>Factory ID : <strong>{factoriesList.map((factory) => {
+                                if (factory.FactoryID === selectedField.FactoryID) {
+                                    return factory.FactoryName;
+                                }
+                            })}</strong></p>
                             <p>Base Location : <strong>{selectedField.BaseLocation}</strong></p>
                             <p>Base Elevation : <strong>{selectedField.BaseElevation}</strong></p>
                             <p>Soil Type : <strong>{selectedField.SoilType}</strong></p>
@@ -721,31 +812,50 @@ const FieldManagement = () => {
                 </div>
             </Modal>
 
-            <h1>
+            <h3>
                 Field Management
-            </h1>
+            </h3>
 
             <div style={{ padding: 10, background: 'white', borderRadius: 10 }}>
                 <Space>
                     <div style={{ padding: 10, background: 'white', borderRadius: 10, display: 'flex', justifyContent: 'flex-end' }}>
                         <Space align="end">
-                            <Input
-                                placeholder="Search employee"
-                                // value={searchText}
-                                // onChange={searchCreadentials}
-                                suffix={<SearchOutlined />}
-                            />
-                            <Select style={{ width: 200 }} placeholder="Filter By Field Type">
-                                <Option value="small">Small</Option>
-                                <Option value="medium">Medium</Option>
-                                <Option value="large">Large</Option>
-                            </Select>
-                            <Button type="primary" style={{ borderRadius: "50px" }}>
-                                <SearchOutlined />
-                            </Button>
-                            <Button type="primary" danger style={{ borderRadius: "50px" }}>
-                                <CloseCircleOutlined />
-                            </Button>
+                            <Form
+                                onFinish={onFinishFilter}
+                                layout="inline">
+                                <Form.Item name="searchField">
+                                    <Input
+                                        placeholder="Search Field By ID"
+                                        suffix={<SearchOutlined />}
+                                        onChange={(e) => filterationByFieldID(e.target.value)}
+                                    />
+                                </Form.Item>
+                                <Form.Item name="filterFieldType">
+                                    <Select style={{ width: 200 }} 
+                                    placeholder="Filter By Field Type"
+                                    onChange={(value) => filterationByFieldType(value)}
+                                    defaultValue="all"
+                                    >
+                                        <Option value="all">All</Option>
+                                        <Option value="small">Small</Option>
+                                        <Option value="medium">Medium</Option>
+                                        <Option value="large">Large</Option>
+                                    </Select>
+                                </Form.Item>
+                                {/* <Form.Item>
+                                    <Button type="primary" htmlType="submit" style={{ borderRadius: "50px" }}>
+                                        <SearchOutlined />
+                                    </Button>
+                                </Form.Item> */}
+                                <Form.Item>
+                                    <Button type="primary" 
+                                    danger style={{ borderRadius: "50px" }}
+                                    onClick={resetAllFilters}
+                                    >
+                                        <CloseCircleOutlined />
+                                    </Button>
+                                </Form.Item>
+                            </Form>
                             <CSVLink
                                 data={fields}
                                 filename={`field-management_${new Date().toISOString()}.csv`}
@@ -763,9 +873,6 @@ const FieldManagement = () => {
                 </Space>
             </div>
 
-
-
-
             <div style={{
                 padding: 10,
                 background: 'white',
@@ -774,13 +881,13 @@ const FieldManagement = () => {
             }}>
                 <Table
                     columns={columns}
-                    dataSource={fields}
+                    dataSource={filterValues}
                     pagination={{ pageSize: 50 }}
                     loading={fields.length === 0}
                     size="small"
                 />
             </div>
-            
+
         </>
     )
 }
