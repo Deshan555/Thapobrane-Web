@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { apiExecutions } from '../../api/api-call';
 import { Form, Input, Button, Select, Modal, Table, Space, Descriptions, Tag} from 'antd';
-import { notification } from '../../../node_modules/antd/es/index';
+import { message, notification } from '../../../node_modules/antd/es/index';
 import {
   MailOutlined,
   DeleteOutlined,
@@ -12,6 +12,7 @@ import {
   CloseCircleOutlined,
   EyeOutlined,
 } from '@ant-design/icons';
+import { random } from 'lodash';
 const { Option } = Select;
 
 const JobsModule = () => {
@@ -43,228 +44,14 @@ const JobsModule = () => {
   const [filterData, setFilterData] = useState([]);
   const [isEdit, setIsEdit] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
-  // That Is Notification Function For Create Notifications Over Web Page
+  const [allFactories, setAllFactories] = useState([]);
+
+
   const openNotificationWithIcon = (type, message, title) => {
     api[type]({
       message: title,
       description: message,
     });
-  };
-
-  // That Is Handle Change Function For Employee Registeration Form
-  const handleEmployeeNameChange = (e) => {
-    setEmployeeRegister({ ...employeeRegister, EmployeeName: e });
-  }
-
-  const handleEmployeeMobileChange = (e) => {
-    setEmployeeRegister({ ...employeeRegister, EmployeeMobile: e });
-  }
-
-  const handleEmployeeEmailChange = (e) => {
-    setEmployeeRegister({ ...employeeRegister, EmployeeEmail: e });
-  }
-
-  const handleEmployeeTypeChange = (e) => {
-    setEmployeeRegister({ ...employeeRegister, EmployeeType: e });
-  }
-
-  const handleFactoryIDChange = (e) => {
-    setEmployeeRegister({ ...employeeRegister, FactoryID: e });
-  }
-
-  const handlePasswordChange = (e) => {
-    setEmployeeRegister({ ...employeeRegister, Password: e });
-  }
-
-  const filteredData = registeredUsers.filter((user) =>
-    Object.values(user).some((value) =>
-      value.toString().toLowerCase().includes(searchText.toLowerCase())
-    )
-  );
-
-  const handleSearch = () => {
-    // You can perform additional search logic here if needed
-    // For now, we are using a simple filter based on the search text
-    const filteredData = registeredUsers.filter((user) =>
-      Object.values(user).some((value) =>
-        value.toString().toLowerCase().includes(searchText.toLowerCase())
-      )
-    );
-    setFilterData(filteredData);
-  };
-
-
-
-
-  useEffect(() => {
-    getAllEmpRoles();
-    getAllRegisteredEmployees();
-  }, []);
-
-  useEffect(() => {
-    // Log employeeRoles when it changes
-    console.log(employeeRoles);
-  }, [employeeRoles]);
-
-  useEffect(() => {
-    // Log employeeRegister when it changes
-    console.log(employeeRegister);
-  }, [employeeRegister]);
-
-  useEffect(() => {
-    // Log selectedUser when it changes
-    console.log(selectedUser);
-  }, [selectedUser]);
-
-  const showModal = () => {
-    setOpen(true);
-  };
-
-  // const showEditModal = () => {
-  //   setOpenEdit(true);
-  // };
-
-  
-
-  const showDetailsModel = (userObj) => {
-    setSelectedUser({
-      EmployeeID : userObj.EmployeeID,
-      EmployeeName: userObj.EmployeeName,
-      EmployeeMobile: userObj.Mobile,
-      EmployeeEmail: userObj.Email,
-      EmployeeType: employeeRoles?.get(userObj?.RoleID)? employeeRoles?.get(userObj?.RoleID) : "N/A",
-      FactoryID: userObj.FactoryID,
-      RegisterDate: userObj.JoiningDate,
-    });
-    setDisplay(true);
-  };
-
-  const showEditModel = (userObj) => {
-    console.log(userObj);
-    setIsEdit(true);
-    setSelectedUser({
-      EmployeeID : userObj.EmployeeID,
-      EmployeeName: userObj.EmployeeName,
-      EmployeeMobile: userObj.Mobile,
-      EmployeeEmail: userObj.Email,
-      EmployeeType: employeeRoles?.get(userObj?.RoleID)? employeeRoles?.get(userObj?.RoleID) : "N/A",
-      FactoryID: userObj.FactoryID,
-      RegisterDate: userObj.JoiningDate,
-    });
-    console.log(selectedUser);
-    setOpen(true);
-  };
-
-  const resetSelectedData = () => {
-    setSelectedUser({
-      EmployeeID: "",
-      EmployeeName: "",
-      EmployeeMobile: "",
-      EmployeeEmail: "",
-      EmployeeType: "",
-      FactoryID: "",
-      RegisterDate: ""
-    });
-  }
-
-  const resetEmployeeRegisterData = () => {
-    setEmployeeRegister({
-      EmployeeName: "",
-      EmployeeMobile: "",
-      EmployeeEmail: "",
-      EmployeeType: "",
-      FactoryID: "",
-      Password: ""
-    });
-  }
-
-  const handleOk = () => {
-    setModalText('That Employee Registeration Process Related To Only That Digitalization Process');
-    setConfirmLoading(true);
-    registerEmployee();
-    setTimeout(() => {
-      setOpen(false);
-      setConfirmLoading(false);
-    }, 2000);
-  };
-
-  const handleCancel = () => {
-    resetEmployeeRegisterData();
-    setIsEdit(false);
-    resetSelectedData();
-    setOpen(false);
-  };
-
-  const handleDisplayCancel = () => {
-    resetSelectedData();
-    resetEmployeeRegisterData();
-    setDisplay(false);
-  };
-
-  /*const apiCall = async () => {
-    const response = await apiExecutions.authEmployee("john.doe@example5.com", "securePassword123");
-    console.log(response);
-  }*/
-
-  const getAllEmpRoles = async () => {
-    const response = await apiExecutions.getAllEmployeeRoles();
-    console.log(response);
-    if (response.success === true) {
-      console.log('==========================================================');
-
-      const rolesData = response.data || [];
-      const rolesMap = new Map();
-
-      rolesData.forEach(role => {
-        rolesMap.set(role.RoleID, role.RoleName);
-      });
-
-      setEmployeeRoles(rolesMap);
-
-      //setEmployeeRegister({...employeeRegister, EmployeeType: rolesData[0].EmployeeTypeID});
-
-      //console.log(rolesMap);
-      console.log(employeeRoles);
-    }
-  }
-
-  const registerEmployee = async (employeeRegisterInfo) => {
-    //const response = await apiExecutions.registerNewEmployee(employeeRegisterInfo);
-    notification.success(
-      {
-        message: 'Employee registeration successful',
-        description: 'Employee Registeration',
-      }
-    );
-
-    // openNotificationWithIcon('success', 'Employee registeration successful', 'Employee Registeration');
-    // console.log(response);
-    // if (response.success === true) {
-    //   console.log('=====================================================');
-    //   console.log("employee registeration sucessful");
-    // } else {
-    //   console.log('=====================================================');
-    //   console.log("employee registeration failed");
-    // }
-  }
-
-  const getAllRegisteredEmployees = async () => {
-    const response = await apiExecutions.getAllEmployees();
-    console.log(response);
-    if (response.success === true) {
-      console.log('==========================================================');
-      console.log(response.data);
-      setRegisteredUsers(response.data);
-    } else {
-      console.log('==========================================================');
-      console.log("employee registeration failed");
-    }
-  }
-
-  const onFinish = (values) => {
-    // Handle form submission here
-    console.log('Received values:', values);
-    registerEmployee(values);
   };
 
   const columns = [
@@ -347,6 +134,197 @@ const JobsModule = () => {
     },
   ];
 
+
+  const filteredData = registeredUsers.filter((user) =>
+    Object.values(user).some((value) =>
+      value.toString().toLowerCase().includes(searchText.toLowerCase())
+    )
+  );
+
+  const handleSearch = () => {
+    const filteredData = registeredUsers.filter((user) =>
+      Object.values(user).some((value) =>
+        value.toString().toLowerCase().includes(searchText.toLowerCase())
+      )
+    );
+    setFilterData(filteredData);
+  };
+
+
+  useEffect(() => {
+    getAllEmpRoles();
+    getAllRegisteredEmployees();
+    fetchAllFactories();
+  }, []);
+
+  const showModal = () => {
+    setOpen(true);
+  };
+
+
+  const showDetailsModel = (userObj) => {
+    setSelectedUser({
+      EmployeeID : userObj.EmployeeID,
+      EmployeeName: userObj.EmployeeName,
+      EmployeeMobile: userObj.Mobile,
+      EmployeeEmail: userObj.Email,
+      EmployeeType: employeeRoles?.get(userObj?.RoleID)? employeeRoles?.get(userObj?.RoleID) : "N/A",
+      FactoryID: userObj.FactoryID,
+      RegisterDate: userObj.JoiningDate,
+    });
+    setDisplay(true);
+  };
+
+  const showEditModel = (userObj) => {
+    console.log(userObj);
+    setIsEdit(true);
+    setSelectedUser({
+      EmployeeID : userObj.EmployeeID,
+      EmployeeName: userObj.EmployeeName,
+      EmployeeMobile: userObj.Mobile,
+      EmployeeEmail: userObj.Email,
+      EmployeeType: employeeRoles?.get(userObj?.RoleID)? employeeRoles?.get(userObj?.RoleID) : "N/A",
+      FactoryID: userObj.FactoryID,
+      RegisterDate: userObj.JoiningDate,
+    });
+    console.log(selectedUser);
+    setOpen(true);
+  };
+
+  const resetSelectedData = () => {
+    setSelectedUser({
+      EmployeeID: "",
+      EmployeeName: "",
+      EmployeeMobile: "",
+      EmployeeEmail: "",
+      EmployeeType: "",
+      FactoryID: "",
+      RegisterDate: ""
+    });
+  }
+
+  const resetEmployeeRegisterData = () => {
+    setEmployeeRegister({
+      EmployeeName: "",
+      EmployeeMobile: "",
+      EmployeeEmail: "",
+      EmployeeType: "",
+      FactoryID: "",
+      Password: ""
+    });
+  }
+
+  const handleOk = () => {
+    setModalText('That Employee Registeration Process Related To Only That Digitalization Process');
+    setConfirmLoading(true);
+    registerEmployee();
+    setTimeout(() => {
+      setOpen(false);
+      setConfirmLoading(false);
+    }, 2000);
+  };
+
+  const handleCancel = () => {
+    resetEmployeeRegisterData();
+    setIsEdit(false);
+    resetSelectedData();
+    setOpen(false);
+  };
+
+  const handleDisplayCancel = () => {
+    resetSelectedData();
+    resetEmployeeRegisterData();
+    setDisplay(false);
+  };
+
+  const getAllEmpRoles = async () => {
+    const response = await apiExecutions.getAllEmployeeRoles();
+    if (response.success === true) {
+      const rolesData = response.data || [];
+      const rolesMap = new Map();
+      rolesData.forEach(role => {
+        rolesMap.set(role.RoleID, role.RoleName);
+      });
+      setEmployeeRoles(rolesMap);
+    } else {
+      message.error('Failed to fetch employee roles');
+    }
+  }
+
+  const getAllRegisteredEmployees = async () => {
+    const response = await apiExecutions.getAllEmployees();
+    console.log(response);
+    if (response.success === true) {
+      setRegisteredUsers(response.data);
+    } else {
+      message.error('Failed to fetch registered employees');
+    }
+  }
+
+  const fetchAllFactories = async () => {
+    const response = await apiExecutions.getAllFactories();
+    if (response.success === true) {
+      setAllFactories(response.data);
+    } else {
+      message.error('Failed to fetch factories');
+    }
+  }
+
+  const registerEmployee = async (employeeRegisterInfo) => {
+    try {
+        const response = await apiExecutions.registerNewEmployee(employeeRegisterInfo);
+        console.log("Response:", response);
+
+        if (response && response.success === true) {
+            console.log('Employee registration successful');
+        } else {
+            console.error('Employee registration failed:', response);
+        }
+    } catch (error) {
+        console.error('Error registering employee:', error);
+    }
+}
+  
+
+  const employeeRegisteration = async (values) => {
+  }
+
+
+
+  const onFinish = async (values) => {
+    console.log(values);
+    // {
+    //   "name": "xcxc",
+    //   "mobile": "xcxcxc",
+    //   "email": "john.doe@example5.com",
+    //   "type": 7,
+    //   "factory": "xcxc",
+    //   "password": "securePassword123"
+    // }
+    // EmployeeName: employeeDetails.name,
+    // EmployeeMobile: employeeDetails.mobile,
+    // EmployeeEmail: employeeDetails.email,
+    // EmployeeType: employeeDetails.type,
+    // FactoryID: employeeDetails.factory,
+    // Password: employeeDetails.password
+    const randomPassword = Math.random().toString(36).slice(-8);
+
+    try {
+      const employeeDetails = {
+        name: values.name,
+        mobile: values.mobile,
+        email: values.email,
+        type: values.type,
+        factory: values.factory,
+        password: randomPassword
+      };
+      await registerEmployee(employeeDetails);
+  } catch (error) {
+      console.error('Error registering employee:', error);
+  }
+  };
+
+
   const searchCreadentials = (e) => {
     setSearchText(e.target.value);
     handleSearch();
@@ -356,7 +334,13 @@ const JobsModule = () => {
   return (
     <>
       <Modal
-        title="Register New Employee"
+        title={
+          isEdit != true ? (
+            "Register Employee"
+          ) : (
+            "Update Employee"
+          )
+        }
         open={open}
         onOk={handleOk}
         confirmLoading={confirmLoading}
@@ -370,39 +354,36 @@ const JobsModule = () => {
         <Form onFinish={onFinish} layout="vertical">
           <Form.Item label="Employee Name" name="name" 
           rules={[{ required: true, message: 'Please enter employee name' }]}
-          initialValue={selectedUser?.EmployeeName ? selectedUser?.EmployeeName : "N/A"}
+          initialValue={selectedUser?.EmployeeName ? selectedUser?.EmployeeName : ""}
           >
             <Input
-              onChange={(e) => handleEmployeeNameChange(e)}
+            type="text"
             />
           </Form.Item>
 
           <Form.Item label="Employee Mobile" name="mobile" 
-          initialValue={selectedUser?.EmployeeMobile ? selectedUser?.EmployeeMobile : "N/A"}
+          initialValue={selectedUser?.EmployeeMobile ? selectedUser?.EmployeeMobile : ""}
           rules={[{ required: true, message: 'Please enter employee mobile' }]}>
             <Input
               type="tel"
-              onChange={(e) => handleEmployeeMobileChange(e)}
             />
           </Form.Item>
 
           <Form.Item label="Employee Email" name="email" 
-          initialValue={selectedUser?.EmployeeEmail ? selectedUser?.EmployeeEmail : "N/A"}
+          initialValue={selectedUser?.EmployeeEmail ? selectedUser?.EmployeeEmail : ""}
           rules={[{ required: true, type: 'email', message: 'Please enter a valid email' }]}>
             <Input
               type="email"
-              onChange={(e) => handleEmployeeEmailChange(e)}
             />
           </Form.Item>
 
           <Form.Item label="Employee Type" name="type" 
-          initialValue={selectedUser?.EmployeeType ? selectedUser?.EmployeeType : "N/A"}
-          rules={[{ required: true, message: 'Please select employee type' }]}>
+          initialValue={selectedUser?.EmployeeType ? selectedUser?.EmployeeType : ""}
+          rules={[{ required: true, message: 'Please select employee type' }]}
+          >
             <Select>
               {Array.from(employeeRoles.entries()).map(([roleId, roleName]) => (
                 <Option
-                  defaultValue={employeeRegister.EmployeeType}
-                  onChange={(e) => handleEmployeeTypeChange(e)}
                   key={roleId}
                   value={roleId}>
                   {roleName}
@@ -411,126 +392,46 @@ const JobsModule = () => {
             </Select>
           </Form.Item>
 
-          <Form.Item label="Factory ID" name="factory" rules={[{ required: true, message: 'Please enter factory ID' }]}>
-            <Input
-              defaultValue={selectedUser.FactoryID}
-              onChange={(e) => handleFactoryIDChange(e)}
-            />
-          </Form.Item>
-
-          {
-            isEdit != true ? (
-              <Form.Item label="Password" name="password" rules={[{ required: true, message: 'Please enter a password' }]}>
-                <Input.Password
-                  onChange={(e) => handlePasswordChange(e)}
-                  value={{}}
-                />
-              </Form.Item>
-            ) : (null
-            )
-          }
-          {/* <Form.Item label="Password" name="password" rules={[{ required: true, message: 'Please enter a password' }]}>
-            <Input.Password
-              onchange={(e) => handlePasswordChange(e)}
-              value={{}}
-            />
-          </Form.Item> */}
-
-          <Form.Item>
-            <Button type="primary" htmlType="submit" onClick={registerEmployee}>
-              Register Employee
-            </Button>
-          </Form.Item>
-        </Form>
-      </Modal>
-
-      <Modal 
-        title="Edit Employee"
-        open={openEdit}
-        onOk={handleOk}
-        confirmLoading={confirmLoading}
-        onCancel={handleCancel}
-        destroyOnClose={true}
-      >
-        <p>{modalText}</p>
-        
-        <Form onFinish={onFinish} layout="vertical">
-          <Form.Item label="Employee Name" name="name" rules={[{ required: true, message: 'Please enter employee name' }]}>
-            <Input
-              defaultValue={selectedUser.EmployeeName? selectedUser.EmployeeName : "N/A"}
-              initialValue={selectedUser?.EmployeeName ? selectedUser?.EmployeeName : "N/A"}
-              onchange={(e) => handleEmployeeNameChange(e)}
-            />
-          </Form.Item>
-
-          <Form.Item label="Employee Mobile" name="mobile" 
-          rules={[{ required: true, message: 'Please enter employee mobile' }]}
-          initialValue={selectedUser?.EmployeeMobile ? selectedUser?.EmployeeMobile : "N/A"}
-          >
-            <Input
-              onchange={(e) => handleEmployeeMobileChange(e)}
-            />
-          </Form.Item>
-
-          <Form.Item label="Employee Email" name="email" 
-          rules={[{ required: true, type: 'email', message: 'Please enter a valid email' }]}
-          initialValue={selectedUser?.EmployeeEmail ? selectedUser?.EmployeeEmail : "N/A"}
-          >
-            <Input
-              type="email"
-              onchange={(e) => handleEmployeeEmailChange(e)}
-            />
-          </Form.Item>
-
-          <Form.Item label="Employee Type" name="type" rules={[{ required: true, message: 'Please select employee type' }]}>
-            <Select>
-              {Array.from(employeeRoles.entries()).map(([roleId, roleName]) => (
-                <Option
-                  defaultValue={employeeRegister.EmployeeType}
-                  onchange={(e) => handleEmployeeTypeChange(e)}
-                  key={roleId}
-                  value={roleId}>
-                  {roleName}
-                </Option>
-              ))}
-            </Select>
-          </Form.Item>
-
-          <Form.Item label="Factory ID" name="factory" 
+          <Form.Item label="Factory Name"
+          name="factory" 
+          initialValue={selectedUser?.FactoryID ? selectedUser?.FactoryID : ""}
           rules={[{ required: true, message: 'Please enter factory ID' }]}>
-            <Input
-              defaultValue={selectedUser.FactoryID}
-              onchange={(e) => handleFactoryIDChange(e)}
-            />
+            <Select
+              placeholder="Select Factory"
+              style={{ width: '100%' }}
+            >
+              {allFactories.map((factory) => (
+                <Option key={factory.FactoryID} value={factory.FactoryID}>
+                  {factory.FactoryName}
+                </Option>
+              ))}
+            </Select>
           </Form.Item>
 
           {
             isEdit != true ? (
-              <Form.Item label="Password" name="password" rules={[{ required: true, message: 'Please enter a password' }]}>
+              <Form.Item label="Password" name="password" 
+              rules={[{ required: true, message: 'Please enter a password' }]}>
                 <Input.Password
-                  onchange={(e) => handlePasswordChange(e)}
-                  value={{}}
+                  type="password"
                 />
               </Form.Item>
             ) : (null
             )
           }
-          {/* <Form.Item label="Password" name="password" rules={[{ required: true, message: 'Please enter a password' }]}>
-            <Input.Password
-              onchange={(e) => handlePasswordChange(e)}
-              value={{}}
-            />
-          </Form.Item> */}
-
           <Form.Item>
             <Button type="primary" htmlType="submit" onClick={registerEmployee}>
-              Register Employee
+              {
+                isEdit != true ? (
+                  "Register Employee"
+                ) : (
+                  "Update Employee"
+                )
+              }
             </Button>
           </Form.Item>
         </Form>
-
       </Modal>
-
 
       {/* Model For Show Selected Employee Details */}
       <Modal
