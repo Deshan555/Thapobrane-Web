@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { apiExecutions } from '../../api/api-call';
-import { Form, Input, Button, Select, Modal, Table, Space, Descriptions, Tag} from 'antd';
-import { message, notification } from '../../../node_modules/antd/es/index';
+import { Form, Input, Button, Select, Modal, Table, Space, Descriptions, Tag, message} from 'antd';
+import { notification } from '../../../node_modules/antd/es/index';
 import {
   MailOutlined,
   DeleteOutlined,
@@ -12,14 +12,15 @@ import {
   CloseCircleOutlined,
   EyeOutlined,
 } from '@ant-design/icons';
-import { random } from 'lodash';
+import { CSVLink, CSVDownload } from "react-csv";
+import './style.css';
 const { Option } = Select;
 
 const JobsModule = () => {
   const [open, setOpen] = useState(false);
   const [display, setDisplay] = useState(false);
   const [confirmLoading, setConfirmLoading] = useState(false);
-  const [modalText, setModalText] = useState('Content of the modal');
+  const [employeeTypes, setEmployeeTypes] = useState([]);
   const [employeeRegister, setEmployeeRegister] = useState({
     EmployeeName: "",
     EmployeeMobile: "",
@@ -45,88 +46,96 @@ const JobsModule = () => {
   const [isEdit, setIsEdit] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
   const [allFactories, setAllFactories] = useState([]);
+  const [filterROLE, setFilterROLE] = useState('ALL');
 
-
-  const openNotificationWithIcon = (type, message, title) => {
-    api[type]({
-      message: title,
-      description: message,
-    });
-  };
 
   const columns = [
     {
-      title: 'Employee Name',
-      dataIndex: 'EmployeeName',
-      key: 'EmployeeName',
-      render: (name) => {
-        return <b>{name}</b>;
+      title: <span className='textStyles-small'>Employee ID</span>,
+      dataIndex: 'EmployeeID',
+      key: 'EmployeeID',
+      render: (id) => {
+        return <span className='textStyle-small'>EID_{id}</span>;
       }
     },
     {
-      title: 'Employee Mobile',
+      title: <span className='textStyles-small'>Employee Name</span>,
+      dataIndex: 'EmployeeName',
+      key: 'EmployeeName',
+      render: (name) => {
+        return <span className='textStyle-small'>{name}</span>;
+      }
+    },
+    {
+      title: <span className='textStyles-small'>Employee Mobile</span>,
       dataIndex: 'Mobile',
       key: 'Mobile',
       render: (mobile) => {
         return (
-          <a href={`tel:${mobile}`}>
-            <b>
+          <a href={`tel:${mobile}`} className='textStyle-small'>
+            <span>
               <PhoneOutlined /> {mobile}
-            </b>
+            </span>
           </a>
         );
       }
     },
     {
-      title: 'Employee Email',
+      title: <span className='textStyles-small'>Employee Email</span>,
       dataIndex: 'Email',
       key: 'Email',
       render: (email) => {
         return (
-          <a href={`mailto:${email}`}>
-            <b>
+          <a href={`mailto:${email}`}className='textStyle-small'>
+            <span>
               <MailOutlined /> {email}
-            </b>
+            </span>
           </a>
         );
       }
     },
     {
-      title: 'Employee Type',
+      title: <span className='textStyles-small'>Employee Type</span>,
       dataIndex: 'RoleID',
       key: 'EmployeeType',
       render: (roleId) => {
-        return <b>{employeeRoles.get(roleId) ? employeeRoles.get(roleId) : "N/A"}</b>;
+        return <span style={{ textTransform: 'capitalize' }} className='textStyle-small'>
+          {employeeRoles.get(roleId) ? employeeRoles.get(roleId).split('ROLE.').join('').toLowerCase() : "N/A"}
+        </span>;
       }
     },
     {
-      title: 'Factory ID',
+      title: <span className='textStyles-small'>Factory ID</span>,
       dataIndex: 'FactoryID',
       key: 'FactoryID',
       render: (factoryId) => {
-        return <b>FID_{factoryId}</b>;
+        return <span className='textStyle-small'>FID_{factoryId}</span>;
       }
     },
     {
-      title: 'Action',
+      title: <span className='textStyles-small'>Action</span>,
       key: 'action',
       render: (text, record) => (
         <Space size="middle">
           <a>
             <EyeOutlined
+              className='textStyle-small'
               style={{ color: 'blue' }}
               onClick={() => showDetailsModel(record)}
             />
           </a>
           <a>
             <EditOutlined
+              className='textStyle-small'
               style={{ color: 'blue' }}
               onClick={() => showEditModel(record)}
             />
           </a>
           <a>
             <DeleteOutlined
+              className='textStyle-small'
               style={{ color: 'red' }}
+              onClick={() => handleDelete(record.EmployeeID)}
             />
           </a>
         </Space>
@@ -176,7 +185,6 @@ const JobsModule = () => {
   };
 
   const showEditModel = (userObj) => {
-    console.log(userObj);
     setIsEdit(true);
     setSelectedUser({
       EmployeeID : userObj.EmployeeID,
@@ -187,7 +195,6 @@ const JobsModule = () => {
       FactoryID: userObj.FactoryID,
       RegisterDate: userObj.JoiningDate,
     });
-    console.log(selectedUser);
     setOpen(true);
   };
 
@@ -215,7 +222,6 @@ const JobsModule = () => {
   }
 
   const handleOk = () => {
-    setModalText('That Employee Registeration Process Related To Only That Digitalization Process');
     setConfirmLoading(true);
     registerEmployee();
     setTimeout(() => {
@@ -240,6 +246,7 @@ const JobsModule = () => {
   const getAllEmpRoles = async () => {
     const response = await apiExecutions.getAllEmployeeRoles();
     if (response.success === true) {
+      setEmployeeTypes(response.data);
       const rolesData = response.data || [];
       const rolesMap = new Map();
       rolesData.forEach(role => {
@@ -256,6 +263,7 @@ const JobsModule = () => {
     console.log(response);
     if (response.success === true) {
       setRegisteredUsers(response.data);
+      setFilterData(response.data);
     } else {
       message.error('Failed to fetch registered employees');
     }
@@ -270,46 +278,42 @@ const JobsModule = () => {
     }
   }
 
-  const registerEmployee = async (employeeRegisterInfo) => {
-    try {
-        const response = await apiExecutions.registerNewEmployee(employeeRegisterInfo);
-        console.log("Response:", response);
+const handleDelete = (id) => {
+  Modal.confirm({
+      title: "Confirm Delete",
+      content: `Are you sure you want to delete this employee?`,
+      onOk: () => {
+          deleteEmplyeeFunction(id);
+      },
+      onCancel: () => { },
+  });
+};
 
-        if (response && response.success === true) {
-            console.log('Employee registration successful');
-        } else {
-            console.error('Employee registration failed:', response);
-        }
-    } catch (error) {
-        console.error('Error registering employee:', error);
-    }
-}
-  
+const handleUpdate = (id, record) => {
+  Modal.confirm({
+      title: "Confirm Update",
+      content: `Are you sure you want to update this employee?`,
+      onOk: () => {
+          updateEmployeeFunction(id, record);
+      },
+      onCancel: () => { },
+  });
+};
 
-  const employeeRegisteration = async (values) => {
-  }
+const handleRegister = (record) => {
+  Modal.confirm({
+      title: "Confirm Register",
+      content: `Are you sure you want to register this employee?`,
+      onOk: () => {
+          registerNewEmployeeFunction(record);
+      },
+      onCancel: () => { },
+  });
+};
 
-
-
-  const onFinish = async (values) => {
-    console.log(values);
-    // {
-    //   "name": "xcxc",
-    //   "mobile": "xcxcxc",
-    //   "email": "john.doe@example5.com",
-    //   "type": 7,
-    //   "factory": "xcxc",
-    //   "password": "securePassword123"
-    // }
-    // EmployeeName: employeeDetails.name,
-    // EmployeeMobile: employeeDetails.mobile,
-    // EmployeeEmail: employeeDetails.email,
-    // EmployeeType: employeeDetails.type,
-    // FactoryID: employeeDetails.factory,
-    // Password: employeeDetails.password
-    const randomPassword = Math.random().toString(36).slice(-8);
-
-    try {
+  const onFinish = (values) => {
+    if (isEdit != true) {
+      const randomPassword = Math.random().toString(36).slice(-8);
       const employeeDetails = {
         name: values.name,
         mobile: values.mobile,
@@ -318,18 +322,102 @@ const JobsModule = () => {
         factory: values.factory,
         password: randomPassword
       };
-      await registerEmployee(employeeDetails);
-  } catch (error) {
-      console.error('Error registering employee:', error);
+      handleRegister(employeeDetails);
+    } else {
+    console.log("update modal");
+    console.log(values);
+      const employeeDetails = {
+        name: values.name,
+        mobile: values.mobile,
+        email: values.email,
+        type: values.type,
+        factory: values.factory
+      };
+      handleUpdate(selectedUser.EmployeeID, employeeDetails);
+    }
   }
-  };
 
-
-  const searchCreadentials = (e) => {
-    setSearchText(e.target.value);
-    handleSearch();
+  const registerNewEmployeeFunction = async (requestJson) => {
+      try {
+        const response = await apiExecutions.registerNewEmployee(requestJson);
+        console.log(response);
+        if (response !== null) {
+          if (response?.data?.success) {
+            message.success('Employee registered successfully');
+            getAllRegisteredEmployees();
+            handleCancel();
+          } else {
+            message.error('Failed to register employee : '+response?.message);
+          }
+        }
+      } catch (error) {
+        message.error('Error registering employee:', error);
+      }
   }
 
+  const updateEmployeeFunction = async (empID, requestJson) => {
+    try {
+      const response = await apiExecutions.updateEmployee(empID, requestJson);
+      if (response !== null) {
+        if (response?.data?.success) {
+          message.success('Employee updated successfully');
+          getAllRegisteredEmployees();
+          handleCancel();
+        } else {
+          message.error('Failed to update employee : '+response?.message);
+        }
+      }
+    } catch (error) {
+      message.error('Error updating employee:', error);
+    }
+  }
+
+  const deleteEmplyeeFunction = async (empID) => {
+    try {
+      const response = await apiExecutions.deleteEmployee(empID);
+      if (response !== null) {
+        if (response?.data?.success) {
+          message.success('Employee deleted successfully');
+          getAllRegisteredEmployees();
+        } else {
+          message.error('Failed to delete employee : '+response?.message);
+        }
+      }
+    } catch (error) {
+      message.error('Error deleting employee:', error);
+    }
+  }
+
+  const filterByROLES = (e) => {
+    setFilterData([]);
+    setFilterROLE(e);
+    if (e === 'ALL') {
+      setFilterData(registeredUsers);
+    } else {
+      const filteredData = registeredUsers.filter((user) => user.RoleID === e);
+      setFilterData(filteredData);
+    }
+  }
+
+  const filterByUserName = (e) => {
+  console.log(e);
+    if (e === '' && filterROLE !== 'ALL') {
+      const filteredData = registeredUsers.filter((user) => user.RoleID === filterROLE);
+      setFilterData(filteredData);
+    } else if(e === '' && filterROLE === 'ALL') {
+      setFilterData(registeredUsers);
+    } else if (e !== 'ALL') {
+      const filteredData = registeredUsers.filter((user) =>
+        user.EmployeeName.toLowerCase().includes(e.toLowerCase()) && user.RoleID === filterROLE
+      );
+      setFilterData(filteredData);
+    } else {
+      const filteredData = registeredUsers.filter((user) =>
+        user.EmployeeName.toLowerCase().includes(e.toLowerCase())
+      );
+      setFilterData(filteredData);
+    }
+  }
 
   return (
     <>
@@ -347,8 +435,6 @@ const JobsModule = () => {
         onCancel={handleCancel}
         destroyOnClose={true}
       >
-        <p>{modalText}</p>
-
         {/*EmployeeName, EmployeeMobile, EmployeeEmail, EmployeeType, FactoryID, Password */}
 
         <Form onFinish={onFinish} layout="vertical">
@@ -382,11 +468,9 @@ const JobsModule = () => {
           rules={[{ required: true, message: 'Please select employee type' }]}
           >
             <Select>
-              {Array.from(employeeRoles.entries()).map(([roleId, roleName]) => (
-                <Option
-                  key={roleId}
-                  value={roleId}>
-                  {roleName}
+              {employeeTypes.map((type) => (
+                <Option key={type.RoleID} value={type.RoleID}>
+                  {type.RoleName}
                 </Option>
               ))}
             </Select>
@@ -407,20 +491,8 @@ const JobsModule = () => {
               ))}
             </Select>
           </Form.Item>
-
-          {
-            isEdit != true ? (
-              <Form.Item label="Password" name="password" 
-              rules={[{ required: true, message: 'Please enter a password' }]}>
-                <Input.Password
-                  type="password"
-                />
-              </Form.Item>
-            ) : (null
-            )
-          }
           <Form.Item>
-            <Button type="primary" htmlType="submit" onClick={registerEmployee}>
+            <Button type="primary" htmlType="submit">
               {
                 isEdit != true ? (
                   "Register Employee"
@@ -475,31 +547,30 @@ const JobsModule = () => {
             <Space align="end">
               <Input
                 placeholder="Search employee"
-                value={searchText}
-                onChange={searchCreadentials}
+                onChange={(e) => filterByUserName(e.target.value)}
                 suffix={<SearchOutlined />}
               />
-              <Select style={{ width: 200 }} placeholder="Select employee type">
+              <Select style={{ width: 200, textTransform: 'capitalize'}} placeholder="Select employee type"
+                 defaultValue={filterROLE} 
+                //  onChange={(e) => setFilterROLE(e)}
+                  onChange={filterByROLES}
+              >
+                <Option value="ALL">All</Option>
                 {Array.from(employeeRoles.entries()).map(([roleId, roleName]) => (
                   <Option
-                    onchange={(e) => handleEmployeeTypeChange(e)}
                     key={roleId}
-                    value={roleId}>
-                    {roleName}
+                    value={roleId}
+                    style={{ textTransform: 'capitalize' }}
+                    >
+                    {roleName.split('ROLE.').join('').toLowerCase()}
                   </Option>
                 ))}
               </Select>
-              <Button type="primary" onClick={handleSearch} style={{ borderRadius: "50px"}}>
-                <SearchOutlined />
-              </Button>
-              <Button type="primary" danger style={{ borderRadius: "50px"}}>
-                <CloseCircleOutlined /> 
-              </Button>
               <Button type="primary" style={{ borderRadius: "50px"}}>
-                <CloseCircleOutlined /> Export List
+                <CloseCircleOutlined /> <span className='textStyle-small'>Export List</span>
               </Button>
               <Button type="primary" onClick={showModal} style={{ borderRadius: "50px"}}>
-                <PlusOutlined /> Add Employee
+                <PlusOutlined /> <span className='textStyle-small'>New Employee</span>
               </Button>
             </Space>
           </div>
@@ -513,7 +584,7 @@ const JobsModule = () => {
         marginTop: 10,
       }}>
         <Table
-          dataSource={filterData.length > 0 ? filterData : registeredUsers}
+          dataSource={filterData}
           columns={columns}
           pagination={true}
           loading={registeredUsers.length > 0 ? false : true}
