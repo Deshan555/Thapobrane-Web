@@ -80,6 +80,10 @@ const apiExecutions = {
                 localStorage.setItem('atoken', responseData.data.accessToken);
                 localStorage.setItem('rtoken', responseData.data.refreshToken);
                 localStorage.setItem('loginTime', new Date().getTime());
+                localStorage.setItem('atokenExpireDate', responseData.data.accessTokenExpireDate);
+                localStorage.setItem('rtokenExpireDate', responseData.data.refreshTokenExpireDate);
+                localStorage.setItem('userRole', responseData.data.userRole);
+                localStorage.setItem('isAuthenticated', true);
             }
     
             //return responseData;
@@ -122,6 +126,31 @@ const apiExecutions = {
             });
             return response;
         } catch (error) {
+            if (error.response) {
+                return error.response.data;
+            } else if (error.request) {
+                return error.request.data;
+            } else {
+                console.error('Error setting up the request:', error.message);
+            }
+            return null;
+        }
+    },
+    // router.put('/employees/update/:EmployeeID', EmployeeController.updateEmployee);
+    updateEmployee: async (employeeID, employeeDetails) => {
+        try {
+            const response = await axios.put(baseDetails.CORE_SERVICE_URL + '/employees/update/' + employeeID, {
+                // headers: {
+                //     Authorization: `Bearer ${LocalStroage.getItem('token')}`
+                // },
+                EmployeeName: employeeDetails.name,
+                EmployeeMobile: employeeDetails.mobile,
+                EmployeeEmail: employeeDetails.email,
+                EmployeeType: employeeDetails.type,
+                FactoryID: employeeDetails.factory,
+            });
+            return response;
+        } catch (error) {
             console.error('Axios error:', error);
             if (error.response) {
                 console.error('Server responded with:', error.response.data);
@@ -129,8 +158,7 @@ const apiExecutions = {
                 console.error('No response received:', error.request);
             } else {
                 console.error('Error setting up the request:', error.message);
-            }
-            return null;
+            } return null;
         }
     },
     getAllEmployees: async () => {
@@ -149,6 +177,23 @@ const apiExecutions = {
                 console.error('No response received:', error.request);
             } else {
                 console.error('Error setting up the request:', error.message);
+            }
+            return null;
+        }
+    },
+    // delete 
+    deleteEmployee: async (employeeID) => {
+        try {
+            const response = await axios.delete(baseDetails.CORE_SERVICE_URL + '/employees/drop/' + employeeID, {
+                // headers: {
+                //     Authorization: `Bearer ${LocalStroage.getItem('token')}`
+                // }
+            });
+            return response;
+        } catch (error) {
+            console.error('Axios error:', error);
+            if (error.response) {
+                return error.response.data;
             }
             return null;
         }
@@ -420,7 +465,337 @@ const apiExecutions = {
             return null;
         }
     },
-
+    deleteRoutes : async (routeID) => {
+        try {
+            const response = await axios.delete(baseDetails.CORE_SERVICE_URL + '/roadRouting/drop/' + routeID, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('atoken')}`
+                }
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Axios error:', error);
+            if (error.response) {
+                console.error('Server responded with:', error.response.data);
+            } else if (error.request) {
+                console.error('No response received:', error.request);
+            } else {
+                console.error('Error setting up the request:', error.message);
+            }
+            return null;
+        }
+    },
+    getRoadRoutingDetailsByID: async (routeID) => {
+        try {
+            const response = await axios.get(baseDetails.CORE_SERVICE_URL + '/roadRouting/' + routeID, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('atoken')}`
+                }
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Axios error:', error);
+            if (error.response) {
+                console.error('Server responded with:', error.response.data);
+            } else if (error.request) {
+                console.error('No response received:', error.request);
+            } else {
+                console.error('Error setting up the request:', error.message);
+            }
+            return null;
+        }
+    },
+    getAllCoordinates: async () => {
+        try {
+            const response = await axios.get(baseDetails.CORE_SERVICE_URL + '/location', {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('atoken')}`
+                }
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Axios error:', error);
+            if (error.response) {
+                console.error('Server responded with:', error.response.data);
+            } else if (error.request) {
+                console.error('No response received:', error.request);
+            } else {
+                console.error('Error setting up the request:', error.message);
+            }
+            return null;
+        }
+    },
+    // customerName: values?.customerName,
+    // customerMobile: values?.customerMobile,
+    // customerAddress: values?.customerAddress,
+    // customerEmail: values?.customerEmail,
+    // customerType: 'ROLE.CUSTOMER',
+    // customerPassword: randomPassword(),
+    // factoryID: values?.factoryID,
+    // customerNIC: values?.customerNIC
+    registerCustomer: async (data) => {
+        try {
+            const response = await axios.post(baseDetails.CORE_SERVICE_URL + '/customers/add', {
+                customerName: data.customerName,
+                customerMobile: data.customerMobile,
+                customerAddress: data.customerAddress,
+                customerEmail: data.customerEmail,
+                customerType: data.customerType,
+                customerPassword: data.customerPassword,
+                factoryID: data.factoryID,
+                customerNIC: data.customerNIC
+            }, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('atoken')}`
+                }
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Axios error:', error);
+            if (error.response) {
+                return error.response.data;
+            } else if (error.request) {
+                return error.request.data;
+            } else {
+                console.error('Error setting up the request:', error.message);
+            }
+            return null;
+        }
+    },
+    getCustomerByCustomerID: async (customerID) => {
+        try {
+            const response = await axios.get(baseDetails.CORE_SERVICE_URL + '/customers/getById/' + customerID, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('atoken')}`
+                }
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Axios error:', error);
+            if (error.response) {
+                return error.response.data;
+            } else if (error.request) {
+                return error.request.data;
+            } else {
+                console.error('Error setting up the request:', error.message);
+            }
+            return null;
+        }
+    },
+    updateCustomerDetailsById: async (customerID, data) => {
+        console.log(data);
+        try {
+            const response = await axios.put(baseDetails.CORE_SERVICE_URL + '/customers/update/' + customerID, {
+                CustomerName: data.customerName,
+                CustomerMobile: data.customerMobile,
+                CustomerAddress: data.customerAddress,
+                CustomerEmail: data.customerEmail,
+                CustomerType: data.customerType,
+                FactoryID: data.factoryID
+            }, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('atoken')}`
+                }
+            }); return response.data;
+        } catch (error) {
+            console.error('Axios error:', error);
+            if (error.response) {
+                return error.response.data;
+            } else if (error.request) {
+                return error.request.data;
+            } else {
+                console.error('Error setting up the request:', error.message);
+            }
+            return null;
+        }
+    },
+    deleteCustomerAccount: async (customerID) => {
+        try {
+            const response = await axios.delete(baseDetails.CORE_SERVICE_URL + '/customers/drop/' + customerID, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('atoken')}`
+                }
+            }); return response.data;
+        } catch (error) {
+            console.error('Axios error:', error);
+            if (error.response) {
+                return error.response.data;
+            } else if (error.request) {
+                return error.request.data;
+            } else {
+                console.error('Error setting up the request:', error.message);
+            }
+            return null;
+        }
+    },
+    // vehicles
+    getAllVehicles: async () => {
+        try {
+            const response = await axios.get(baseDetails.CORE_SERVICE_URL + '/vehicles', {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('atoken')}`
+                }
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Axios error:', error);
+            if (error.response) {
+                return error.response.data;
+            } else if (error.request) {
+                return error.request.data;
+            } else {
+                console.error('Error setting up the request:', error.message);
+            }
+            return null;
+        }
+    },
+//     router.post('/vehicles/add', VehicleController.addVehicleMappings);
+// router.get('/vehicles/:VehicleID', VehicleController.getAllVehicleMappingsByID);
+// router.put('/vehicles/update/:VehicleID', VehicleController.updateVehicleMappings);
+// router.delete('/vehicles/drop/:VehicleID', VehicleController.deleteVehicleMappings);
+    addVehicle: async (data) => {
+        try {
+            const response = await axios.post(baseDetails.CORE_SERVICE_URL + '/vehicles/add', {
+                VehicleNumber: data.VehicleNumber,
+                VehicleType: data.VehicleType,
+                VehicleCapacity: data.VehicleCapacity,
+                VehicleOwner: data.VehicleOwner,
+                VehicleOwnerContact: data.VehicleOwnerContact,
+                VehicleOwnerEmail: data.VehicleOwnerEmail,
+                VehicleOwnerNIC: data.VehicleOwnerNIC,
+                VehicleOwnerAddress: data.VehicleOwnerAddress,
+                FactoryID: data.FactoryID
+            }, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('atoken')}`
+                }
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Axios error:', error);
+            if (error.response) {
+                return error.response.data;
+            } else if (error.request) {
+                return error.request.data;
+            } else {
+                console.error('Error setting up the request:', error.message);
+            }
+            return null;
+        }
+    }
+    ,
+    getVehicleDetailsByID: async (vehicleID) => {
+        try {
+            const response = await axios.get(baseDetails.CORE_SERVICE_URL + '/vehicles/' + vehicleID, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('atoken')}`
+                }
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Axios error:', error);
+            if (error.response) {
+                return error.response.data;
+            } else if (error.request) {
+                return error.request.data;
+            } else {
+                console.error('Error setting up the request:', error.message);
+            }
+            return null;
+        }
+    },
+    updateVehicleDetailsByID: async (vehicleID, data) => {
+        try {
+            const response = await axios.put(baseDetails.CORE_SERVICE_URL + '/vehicles/update/' + vehicleID, {
+                VehicleNumber: data.VehicleNumber,
+                VehicleType: data.VehicleType,
+                VehicleCapacity: data.VehicleCapacity,
+                VehicleOwner: data.VehicleOwner,
+                VehicleOwnerContact: data.VehicleOwnerContact,
+                VehicleOwnerEmail: data.VehicleOwnerEmail,
+                VehicleOwnerNIC: data.VehicleOwnerNIC,
+                VehicleOwnerAddress: data.VehicleOwnerAddress,
+                FactoryID: data.FactoryID
+            }, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('atoken')}`
+                }
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Axios error:', error);
+            if (error.response) {
+                return error.response.data;
+            } else if (error.request) {
+                return error.request.data;
+            } else {
+                console.error('Error setting up the request:', error.message);
+            }
+            return null;
+        }
+    },
+    deleteVehicleByID: async (vehicleID) => {
+        try {
+            const response = await axios.delete(baseDetails.CORE_SERVICE_URL + '/vehicles/drop/' + vehicleID, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('atoken')}`
+                }
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Axios error:', error);
+            if (error.response) {
+                return error.response.data;
+            } else if (error.request) {
+                return error.request.data;
+            } else {
+                console.error('Error setting up the request:', error.message);
+            }
+            return null;
+        }
+    },
+    ///employees/driversWithNoVehicleMappings
+    getAllDriversWithNoVehicleMappings: async () => {
+        try {
+            const response = await axios.get(baseDetails.CORE_SERVICE_URL + '/employees/drivers', {
+                // headers: {
+                //     Authorization: `Bearer ${localStorage.getItem('atoken')}`
+                // }
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Axios error:', error);
+            if (error.response) {
+                return error.response.data;
+            } else if (error.request) {
+                return error.request.data;
+            } else {
+                console.error('Error setting up the request:', error.message);
+            }
+            return null;
+        }
+    },
+    // /v01/roadRouting/withoutMappings
+    getAllRoadRoutingsWithoutMappings: async () => {
+        try {
+            const response = await axios.get(baseDetails.CORE_SERVICE_URL + '/roadRouting/withoutMappings', {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('atoken')}`
+                }
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Axios error:', error);
+            if (error.response) {
+                return error.response.data;
+            } else if (error.request) {
+                return error.request.data;
+            } else {
+                console.error('Error setting up the request:', error.message);
+            }
+            return null;
+        }
+    },
 };
 
 export { apiExecutions };
