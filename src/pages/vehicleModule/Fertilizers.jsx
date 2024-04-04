@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-const Admin = () => {
+const Fertilizers = () => {
     return (
         <>
         <h1>
@@ -10,4 +10,4 @@ const Admin = () => {
     )
 }
 
-export default Admin;
+export default Fertilizers;
