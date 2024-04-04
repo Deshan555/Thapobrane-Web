@@ -654,17 +654,25 @@ const apiExecutions = {
 // router.put('/vehicles/update/:VehicleID', VehicleController.updateVehicleMappings);
 // router.delete('/vehicles/drop/:VehicleID', VehicleController.deleteVehicleMappings);
     addVehicle: async (data) => {
+        console.log(data);
         try {
             const response = await axios.post(baseDetails.CORE_SERVICE_URL + '/vehicles/add', {
+                // VehicleNumber: values.VehicleNumber,
+                // VehicleType: values.VehicleType,
+                // VolumeCapacity: values.VolumeCapacity,
+                // WeightCapacity: values.WeightCapacity,
+                // NumberPlateID: values.NumberPlateID,
+                // FactoryID: values.FactoryID,
+                // DriverID: values.DriverID,
+                // RouteID: values.RouteID
                 VehicleNumber: data.VehicleNumber,
                 VehicleType: data.VehicleType,
-                VehicleCapacity: data.VehicleCapacity,
-                VehicleOwner: data.VehicleOwner,
-                VehicleOwnerContact: data.VehicleOwnerContact,
-                VehicleOwnerEmail: data.VehicleOwnerEmail,
-                VehicleOwnerNIC: data.VehicleOwnerNIC,
-                VehicleOwnerAddress: data.VehicleOwnerAddress,
-                FactoryID: data.FactoryID
+                VolumeCapacity: data.VolumeCapacity,
+                WeightCapacity: data.WeightCapacity,
+                NumberPlateID: data.NumberPlateID,
+                FactoryID: data.FactoryID,
+                DriverID: data.DriverID,
+                RouteID: data.RouteID
             }, {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem('atoken')}`
@@ -709,13 +717,12 @@ const apiExecutions = {
             const response = await axios.put(baseDetails.CORE_SERVICE_URL + '/vehicles/update/' + vehicleID, {
                 VehicleNumber: data.VehicleNumber,
                 VehicleType: data.VehicleType,
-                VehicleCapacity: data.VehicleCapacity,
-                VehicleOwner: data.VehicleOwner,
-                VehicleOwnerContact: data.VehicleOwnerContact,
-                VehicleOwnerEmail: data.VehicleOwnerEmail,
-                VehicleOwnerNIC: data.VehicleOwnerNIC,
-                VehicleOwnerAddress: data.VehicleOwnerAddress,
-                FactoryID: data.FactoryID
+                VolumeCapacity: data.VolumeCapacity,
+                WeightCapacity: data.WeightCapacity,
+                NumberPlateID: data.NumberPlateID,
+                FactoryID: data.FactoryID,
+                DriverID: data.DriverID,
+                RouteID: data.RouteID
             }, {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem('atoken')}`
