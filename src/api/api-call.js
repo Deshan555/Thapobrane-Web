@@ -803,6 +803,214 @@ const apiExecutions = {
             return null;
         }
     },
+    // dailyTeaCollection
+    getAllDailyTeaCollection: async () => {
+        try {
+            const response = await axios.get(baseDetails.CORE_SERVICE_URL + '/dailyTeaCollection', {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('atoken')}`
+                }
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Axios error:', error);
+            if (error.response) {
+                return error.response.data;
+            } else if (error.request) {
+                return error.request.data;
+            } else {
+                console.error('Error setting up the request:', error.message);
+            }
+            return null;
+        }
+    },
+    // /dailyTeaCollection/getDataBetweenTwoDates
+    getDailyTeaCollectionBetweenTwoDates: async (startDate, endDate) => {
+        try {
+            const response = await axios.post(baseDetails.CORE_SERVICE_URL + '/dailyTeaCollection/getDataBetweenTwoDates', {
+                    startDate: startDate,
+                    endDate: endDate
+                },{
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('atoken')}`
+                },
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Axios error:', error);
+            if (error.response) {
+                return error.response.data;
+            } else if (error.request) {
+                return error.request.data;
+            } else {
+                console.error('Error setting up the request:', error.message);
+            }
+            return null;
+        }
+    },
+    // /dailyTeaCollection/add
+    addDailyTeaCollection: async (data) => {
+        try {
+            const response = await axios.post(baseDetails.CORE_SERVICE_URL + '/dailyTeaCollection/add', {
+                FactoryID: data.FactoryID,
+                FieldID: data.FieldID,
+                CollectionDate: data.CollectionDate,
+                CollectionTime: data.CollectionTime,
+                CollectionWeight: data.CollectionWeight,
+                CollectionType: data.CollectionType
+            }, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('atoken')}`
+                }
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Axios error:', error);
+            if (error.response) {
+                return error.response.data;
+            } else if (error.request) {
+                return error.request.data;
+            } else {
+                console.error('Error setting up the request:', error.message);
+            }
+            return null;
+        }
+    },
+    // /dailyTeaCollection/update/:DailyTeaCollectionID
+    updateDailyTeaCollection: async (dailyTeaCollectionID, data) => {
+        try {
+            const response = await axios.put(baseDetails.CORE_SERVICE_URL + '/dailyTeaCollection/update/' + dailyTeaCollectionID, {
+                FactoryID: data.FactoryID,
+                FieldID: data.FieldID,
+                CollectionDate: data.CollectionDate,
+                CollectionTime: data.CollectionTime,
+                CollectionWeight: data.CollectionWeight,
+                CollectionType: data.CollectionType
+            }, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('atoken')}`
+                }
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Axios error:', error);
+            if (error.response) {
+                return error.response.data;
+            } else if (error.request) {
+                return error.request.data;
+            } else {
+                console.error('Error setting up the request:', error.message);
+            }
+            return null;
+        }
+    },
+    // /dailyTeaCollection/:DailyTeaCollectionID
+    getDailyTeaCollectionByID: async (dailyTeaCollectionID) => {
+        try {
+            const response = await axios.get(baseDetails.CORE_SERVICE_URL + '/dailyTeaCollection/' + dailyTeaCollectionID, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('atoken')}`
+                }
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Axios error:', error);
+            if (error.response) {
+                return error.response.data;
+            } else if (error.request) {
+                return error.request.data;
+            } else {
+                console.error('Error setting up the request:', error.message);
+            }
+            return null;
+        }
+    },
+    // /dailyTeaCollection/drop/:DailyTeaCollectionID
+    deleteDailyTeaCollectionByID: async (dailyTeaCollectionID) => {
+        try {
+            const response = await axios.delete(baseDetails.CORE_SERVICE_URL + '/dailyTeaCollection/drop/' + dailyTeaCollectionID, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('atoken')}`
+                }
+            }); return response.data;
+        } catch (error) {
+            console.error('Axios error:', error);
+            if (error.response) {
+                return error.response.data;
+            } else if (error.request) {
+                return error.request.data;
+            } else {
+                console.error('Error setting up the request:', error.message);
+            }
+            return null;
+        }
+    },
+    bulkEmployeeRegistration: async (data) => {
+        try {
+            const response = await axios.post(baseDetails.CORE_SERVICE_URL + '/employees/addBulkEmployees', {
+                data
+            }, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('atoken')}`
+                }
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Axios error:', error);
+            if (error.response) {
+                return error.response.data;
+            } else if (error.request) {
+                return error.request.data;
+            } else {
+                console.error('Error setting up the request:', error.message);
+            }
+            return null;
+        }
+    },
+    bulkDailyTeaCollection: async (data) => {
+        try {
+            const response = await axios.post(baseDetails.CORE_SERVICE_URL + '/dailyTeaCollection/admin/addBulk', {
+                data : data
+            }, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('atoken')}`
+                }
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Axios error:', error);
+            if (error.response) {
+                return error.response.data;
+            } else if (error.request) {
+                return error.request.data;
+            } else {
+                console.error('Error setting up the request:', error.message);
+            }
+            return null;
+        }
+    },
+    bulkCustomerRegisteration : async (data) => {
+        try {
+            const response = await axios.post(baseDetails.CORE_SERVICE_URL + '/customers/addBulk', {
+                data : data
+            }, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('atoken')}`
+                }
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Axios error:', error);
+            if (error.response) {
+                return error.response.data;
+            } else if (error.request) {
+                return error.request.data;
+            } else {
+                console.error('Error setting up the request:', error.message);
+            }
+            return null;
+        }
+    }
 };
 
 export { apiExecutions };
