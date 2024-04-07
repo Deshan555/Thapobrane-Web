@@ -143,23 +143,6 @@ const JobsModule = () => {
     },
   ];
 
-
-  const filteredData = registeredUsers.filter((user) =>
-    Object.values(user).some((value) =>
-      value.toString().toLowerCase().includes(searchText.toLowerCase())
-    )
-  );
-
-  const handleSearch = () => {
-    const filteredData = registeredUsers.filter((user) =>
-      Object.values(user).some((value) =>
-        value.toString().toLowerCase().includes(searchText.toLowerCase())
-      )
-    );
-    setFilterData(filteredData);
-  };
-
-
   useEffect(() => {
     getAllEmpRoles();
     getAllRegisteredEmployees();
@@ -169,7 +152,6 @@ const JobsModule = () => {
   const showModal = () => {
     setOpen(true);
   };
-
 
   const showDetailsModel = (userObj) => {
     setSelectedUser({
@@ -435,8 +417,6 @@ const handleRegister = (record) => {
         onCancel={handleCancel}
         destroyOnClose={true}
       >
-        {/*EmployeeName, EmployeeMobile, EmployeeEmail, EmployeeType, FactoryID, Password */}
-
         <Form onFinish={onFinish} layout="vertical">
           <Form.Item label="Employee Name" name="name" 
           rules={[{ required: true, message: 'Please enter employee name' }]}
