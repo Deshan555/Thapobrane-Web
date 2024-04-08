@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { apiExecutions } from '../../api/api-call';
 import { allCities } from '../../api/cities';
-import { Form, Input, Button, Select, Modal, Table, Space, Descriptions, Tag, Row, Col, DatePicker, Drawer, message } from 'antd';
+import { Form, Input, Button, Select, Modal, Table, Space, Descriptions, Tag, Row, Col, DatePicker, Drawer, message, Breadcrumb } from 'antd';
 import moment from 'moment';
 import { CSVLink, CSVDownload } from "react-csv";
 import History from './History';
@@ -15,6 +15,7 @@ import {
     SearchOutlined,
     CloseCircleOutlined,
     EyeOutlined,
+    HomeOutlined
 } from '@ant-design/icons';
 import { random, set } from 'lodash';
 const { Option } = Select;
@@ -815,6 +816,30 @@ const FieldManagement = () => {
             <h3>
                 Field Management
             </h3>
+
+            <h1 className="headingStyle2">Tea Collection</h1>
+            <Breadcrumb
+                size="small"
+                className="textStyle-small"
+                style={{ marginBottom: 20 }}
+                items={[
+                    {
+                        href: '/free',
+                        title: <HomeOutlined />,
+                    },
+                    {
+                        title: (
+                            <>
+                                <span>Management</span>
+                            </>
+                        ),
+                    },
+                    {
+                        href: '',
+                        title: 'Tea Collection',
+                    },
+                ]}
+            />
 
             <div style={{ padding: 10, background: 'white', borderRadius: 10 }}>
                 <Space>
