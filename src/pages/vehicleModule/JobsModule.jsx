@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { apiExecutions } from '../../api/api-call';
-import { Form, Input, Button, Select, Modal, Table, Space, Descriptions, Tag, message} from 'antd';
+import { Form, Input, Button, Select, Modal, Table, Space, Descriptions, Tag, message, Breadcrumb, Row, Col } from 'antd';
 import { notification } from '../../../node_modules/antd/es/index';
 import {
   MailOutlined,
@@ -11,6 +11,8 @@ import {
   SearchOutlined,
   CloseCircleOutlined,
   EyeOutlined,
+  HomeOutlined,
+  DownloadOutlined
 } from '@ant-design/icons';
 import { CSVLink, CSVDownload } from "react-csv";
 import './style.css';
@@ -86,7 +88,7 @@ const JobsModule = () => {
       key: 'Email',
       render: (email) => {
         return (
-          <a href={`mailto:${email}`}className='textStyle-small'>
+          <a href={`mailto:${email}`} className='textStyle-small'>
             <span>
               <MailOutlined /> {email}
             </span>
@@ -117,27 +119,28 @@ const JobsModule = () => {
       key: 'action',
       render: (text, record) => (
         <Space size="middle">
-          <a>
-            <EyeOutlined
-              className='textStyle-small'
-              style={{ color: 'blue' }}
-              onClick={() => showDetailsModel(record)}
-            />
-          </a>
-          <a>
-            <EditOutlined
-              className='textStyle-small'
-              style={{ color: 'blue' }}
-              onClick={() => showEditModel(record)}
-            />
-          </a>
-          <a>
-            <DeleteOutlined
-              className='textStyle-small'
-              style={{ color: 'red' }}
-              onClick={() => handleDelete(record.EmployeeID)}
-            />
-          </a>
+          <Button
+            type="primary"
+            shape="circle"
+            icon={<EyeOutlined style={{ color: 'white', fontSize: 12 }} />}
+            onClick={() => showDetailsModel(record)}
+            size="small"
+          />
+          <Button
+            type="primary"
+            shape="circle"
+            icon={<EditOutlined style={{ color: 'white', fontSize: 12 }} />}
+            onClick={() => showEditModel(record)}
+            size="small"
+          />
+          <Button
+            type="primary"
+            shape="circle"
+            icon={<DeleteOutlined style={{ color: 'white', fontSize: 12 }} />}
+            onClick={() => handleDelete(record.EmployeeID)}
+            size="small"
+            danger
+          />
         </Space>
       ),
     },
@@ -155,11 +158,11 @@ const JobsModule = () => {
 
   const showDetailsModel = (userObj) => {
     setSelectedUser({
-      EmployeeID : userObj.EmployeeID,
+      EmployeeID: userObj.EmployeeID,
       EmployeeName: userObj.EmployeeName,
       EmployeeMobile: userObj.Mobile,
       EmployeeEmail: userObj.Email,
-      EmployeeType: employeeRoles?.get(userObj?.RoleID)? employeeRoles?.get(userObj?.RoleID) : "N/A",
+      EmployeeType: employeeRoles?.get(userObj?.RoleID) ? employeeRoles?.get(userObj?.RoleID) : "N/A",
       FactoryID: userObj.FactoryID,
       RegisterDate: userObj.JoiningDate,
     });
@@ -169,11 +172,11 @@ const JobsModule = () => {
   const showEditModel = (userObj) => {
     setIsEdit(true);
     setSelectedUser({
-      EmployeeID : userObj.EmployeeID,
+      EmployeeID: userObj.EmployeeID,
       EmployeeName: userObj.EmployeeName,
       EmployeeMobile: userObj.Mobile,
       EmployeeEmail: userObj.Email,
-      EmployeeType: employeeRoles?.get(userObj?.RoleID)? employeeRoles?.get(userObj?.RoleID) : "N/A",
+      EmployeeType: employeeRoles?.get(userObj?.RoleID) ? employeeRoles?.get(userObj?.RoleID) : "N/A",
       FactoryID: userObj.FactoryID,
       RegisterDate: userObj.JoiningDate,
     });
@@ -260,38 +263,38 @@ const JobsModule = () => {
     }
   }
 
-const handleDelete = (id) => {
-  Modal.confirm({
+  const handleDelete = (id) => {
+    Modal.confirm({
       title: "Confirm Delete",
       content: `Are you sure you want to delete this employee?`,
       onOk: () => {
-          deleteEmplyeeFunction(id);
+        deleteEmplyeeFunction(id);
       },
       onCancel: () => { },
-  });
-};
+    });
+  };
 
-const handleUpdate = (id, record) => {
-  Modal.confirm({
+  const handleUpdate = (id, record) => {
+    Modal.confirm({
       title: "Confirm Update",
       content: `Are you sure you want to update this employee?`,
       onOk: () => {
-          updateEmployeeFunction(id, record);
+        updateEmployeeFunction(id, record);
       },
       onCancel: () => { },
-  });
-};
+    });
+  };
 
-const handleRegister = (record) => {
-  Modal.confirm({
+  const handleRegister = (record) => {
+    Modal.confirm({
       title: "Confirm Register",
       content: `Are you sure you want to register this employee?`,
       onOk: () => {
-          registerNewEmployeeFunction(record);
+        registerNewEmployeeFunction(record);
       },
       onCancel: () => { },
-  });
-};
+    });
+  };
 
   const onFinish = (values) => {
     if (isEdit != true) {
@@ -306,8 +309,8 @@ const handleRegister = (record) => {
       };
       handleRegister(employeeDetails);
     } else {
-    console.log("update modal");
-    console.log(values);
+      console.log("update modal");
+      console.log(values);
       const employeeDetails = {
         name: values.name,
         mobile: values.mobile,
@@ -320,21 +323,21 @@ const handleRegister = (record) => {
   }
 
   const registerNewEmployeeFunction = async (requestJson) => {
-      try {
-        const response = await apiExecutions.registerNewEmployee(requestJson);
-        console.log(response);
-        if (response !== null) {
-          if (response?.data?.success) {
-            message.success('Employee registered successfully');
-            getAllRegisteredEmployees();
-            handleCancel();
-          } else {
-            message.error('Failed to register employee : '+response?.message);
-          }
+    try {
+      const response = await apiExecutions.registerNewEmployee(requestJson);
+      console.log(response);
+      if (response !== null) {
+        if (response?.data?.success) {
+          message.success('Employee registered successfully');
+          getAllRegisteredEmployees();
+          handleCancel();
+        } else {
+          message.error('Failed to register employee : ' + response?.message);
         }
-      } catch (error) {
-        message.error('Error registering employee:', error);
       }
+    } catch (error) {
+      message.error('Error registering employee:', error);
+    }
   }
 
   const updateEmployeeFunction = async (empID, requestJson) => {
@@ -346,7 +349,7 @@ const handleRegister = (record) => {
           getAllRegisteredEmployees();
           handleCancel();
         } else {
-          message.error('Failed to update employee : '+response?.message);
+          message.error('Failed to update employee : ' + response?.message);
         }
       }
     } catch (error) {
@@ -362,7 +365,7 @@ const handleRegister = (record) => {
           message.success('Employee deleted successfully');
           getAllRegisteredEmployees();
         } else {
-          message.error('Failed to delete employee : '+response?.message);
+          message.error('Failed to delete employee : ' + response?.message);
         }
       }
     } catch (error) {
@@ -382,11 +385,11 @@ const handleRegister = (record) => {
   }
 
   const filterByUserName = (e) => {
-  console.log(e);
+    console.log(e);
     if (e === '' && filterROLE !== 'ALL') {
       const filteredData = registeredUsers.filter((user) => user.RoleID === filterROLE);
       setFilterData(filteredData);
-    } else if(e === '' && filterROLE === 'ALL') {
+    } else if (e === '' && filterROLE === 'ALL') {
       setFilterData(registeredUsers);
     } else if (e !== 'ALL') {
       const filteredData = registeredUsers.filter((user) =>
@@ -416,61 +419,84 @@ const handleRegister = (record) => {
         confirmLoading={confirmLoading}
         onCancel={handleCancel}
         destroyOnClose={true}
+        footer={null}
+        width={800}
       >
-        <Form onFinish={onFinish} layout="vertical">
-          <Form.Item label="Employee Name" name="name" 
-          rules={[{ required: true, message: 'Please enter employee name' }]}
-          initialValue={selectedUser?.EmployeeName ? selectedUser?.EmployeeName : ""}
-          >
-            <Input
-            type="text"
-            />
-          </Form.Item>
+        <Form
+          onFinish={onFinish} layout="vertical">
 
-          <Form.Item label="Employee Mobile" name="mobile" 
-          initialValue={selectedUser?.EmployeeMobile ? selectedUser?.EmployeeMobile : ""}
-          rules={[{ required: true, message: 'Please enter employee mobile' }]}>
-            <Input
-              type="tel"
-            />
-          </Form.Item>
+          <Row>
+            <Col span={12}>
+              <Form.Item label={<span className='textStyle-small'>Employee Name</span>}
+                name="name"
+                rules={[{ required: true, message: 'Please enter employee name' }]}
+                initialValue={selectedUser?.EmployeeName ? selectedUser?.EmployeeName : ""}
+              >
+                <Input
+                  type="text" style={{ width: '90%' }}
+                />
+              </Form.Item>
+            </Col>
 
-          <Form.Item label="Employee Email" name="email" 
-          initialValue={selectedUser?.EmployeeEmail ? selectedUser?.EmployeeEmail : ""}
-          rules={[{ required: true, type: 'email', message: 'Please enter a valid email' }]}>
-            <Input
-              type="email"
-            />
-          </Form.Item>
+            <Col span={12}>
+              <Form.Item label={<span className='textStyle-small'>Employee Mobile </span>}
+                name="mobile"
+                initialValue={selectedUser?.EmployeeMobile ? selectedUser?.EmployeeMobile : ""}
+                rules={[{ required: true, message: 'Please enter employee mobile' }]}>
+                <Input
+                  type="tel" style={{ width: '90%' }}
+                />
+              </Form.Item>
+            </Col>
+          </Row>
 
-          <Form.Item label="Employee Type" name="type" 
-          initialValue={selectedUser?.EmployeeType ? selectedUser?.EmployeeType : ""}
-          rules={[{ required: true, message: 'Please select employee type' }]}
-          >
-            <Select>
-              {employeeTypes.map((type) => (
-                <Option key={type.RoleID} value={type.RoleID}>
-                  {type.RoleName}
-                </Option>
-              ))}
-            </Select>
-          </Form.Item>
+          <Row>
+            <Col span={12}>
+              <Form.Item label={<span className='textStyle-small'>Employee Email</span>}
+                name="email"
+                initialValue={selectedUser?.EmployeeEmail ? selectedUser?.EmployeeEmail : ""}
+                rules={[{ required: true, type: 'email', message: 'Please enter a valid email' }]}>
+                <Input
+                  type="email" style={{ width: '90%' }}
+                />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item label={<span className='textStyle-small'>Employee Type</span>}
+                name="type"
+                initialValue={selectedUser?.EmployeeType ? selectedUser?.EmployeeType : ""}
+                rules={[{ required: true, message: 'Please select employee type' }]}
+              >
+                <Select style={{ width: '90%' }}>
+                  {employeeTypes.map((type) => (
+                    <Option key={type.RoleID} value={type.RoleID}>
+                      {type.RoleName}
+                    </Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </Col>
+          </Row>
 
-          <Form.Item label="Factory Name"
-          name="factory" 
-          initialValue={selectedUser?.FactoryID ? selectedUser?.FactoryID : ""}
-          rules={[{ required: true, message: 'Please enter factory ID' }]}>
-            <Select
-              placeholder="Select Factory"
-              style={{ width: '100%' }}
-            >
-              {allFactories.map((factory) => (
-                <Option key={factory.FactoryID} value={factory.FactoryID}>
-                  {factory.FactoryName}
-                </Option>
-              ))}
-            </Select>
-          </Form.Item>
+          <Row>
+            <Col span={12}>
+              <Form.Item label={<span className='textStyle-small'>Factory Name</span>}
+                name="factory"
+                initialValue={selectedUser?.FactoryID ? selectedUser?.FactoryID : ""}
+                rules={[{ required: true, message: 'Please enter factory ID' }]}>
+                <Select
+                  placeholder="Select Factory"
+                  style={{ width: '90%' }}
+                >
+                  {allFactories.map((factory) => (
+                    <Option key={factory.FactoryID} value={factory.FactoryID}>
+                      {factory.FactoryName}
+                    </Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </Col>
+          </Row>
           <Form.Item>
             <Button type="primary" htmlType="submit">
               {
@@ -495,19 +521,20 @@ const handleRegister = (record) => {
         confirmLoading={confirmLoading}
         onCancel={handleDisplayCancel}
         destroyOnClose={true}
+        footer={null}
       >
         <Descriptions column={1}>
-          <Descriptions.Item label="Employee ID"> 
+          <Descriptions.Item label="Employee ID">
             <b>EID_{selectedUser.EmployeeID ? selectedUser.EmployeeID : <Tag color="default">N/A</Tag>}</b>
           </Descriptions.Item>
           <Descriptions.Item label="Employee Name">
             <b>{selectedUser.EmployeeName ? selectedUser.EmployeeName : <Tag color="default">N/A</Tag>}</b>
           </Descriptions.Item>
           <Descriptions.Item label="Employee Mobile">
-            <b><a href={`tel:${selectedUser.EmployeeMobile}`}><PhoneOutlined/> {selectedUser.EmployeeMobile ? selectedUser.EmployeeMobile : <Tag color="default">N/A</Tag>}</a></b>
+            <b><a href={`tel:${selectedUser.EmployeeMobile}`}><PhoneOutlined /> {selectedUser.EmployeeMobile ? selectedUser.EmployeeMobile : <Tag color="default">N/A</Tag>}</a></b>
           </Descriptions.Item>
           <Descriptions.Item label="Employee Email">
-            <b><a href={`mailto:${selectedUser.EmployeeEmail}`}><MailOutlined/> {selectedUser.EmployeeEmail ? selectedUser.EmployeeEmail : <Tag color="default">N/A</Tag>}</a></b>
+            <b><a href={`mailto:${selectedUser.EmployeeEmail}`}><MailOutlined /> {selectedUser.EmployeeEmail ? selectedUser.EmployeeEmail : <Tag color="default">N/A</Tag>}</a></b>
           </Descriptions.Item>
           <Descriptions.Item label="Employee Type">
             <b>{selectedUser.EmployeeType ? selectedUser.EmployeeType : <Tag color="default">N/A</Tag>}</b>
@@ -521,19 +548,43 @@ const handleRegister = (record) => {
         </Descriptions>
       </Modal>
 
+      <h1 className="headingStyle2">Employee Management</h1>
+      <Breadcrumb
+        size="small"
+        className="textStyle-small"
+        style={{ marginBottom: 20 }}
+        items={[
+          {
+            href: '/free',
+            title: <HomeOutlined />,
+          },
+          {
+            title: (
+              <>
+                <span>Management</span>
+              </>
+            ),
+          },
+          {
+            href: '',
+            title: 'Employee Management',
+          },
+        ]}
+      />
+
       <div style={{ padding: 10, background: 'white', borderRadius: 10 }}>
         <Space>
-          <div style={{ padding: 10, background: 'white', borderRadius: 10,  display: 'flex', justifyContent: 'flex-end'}}>
+          <div style={{ padding: 10, background: 'white', borderRadius: 10, display: 'flex', justifyContent: 'flex-end' }}>
             <Space align="end">
               <Input
                 placeholder="Search employee"
                 onChange={(e) => filterByUserName(e.target.value)}
                 suffix={<SearchOutlined />}
               />
-              <Select style={{ width: 200, textTransform: 'capitalize'}} placeholder="Select employee type"
-                 defaultValue={filterROLE} 
+              <Select style={{ width: 200, textTransform: 'capitalize' }} placeholder="Select employee type"
+                defaultValue={filterROLE}
                 //  onChange={(e) => setFilterROLE(e)}
-                  onChange={filterByROLES}
+                onChange={filterByROLES}
               >
                 <Option value="ALL">All</Option>
                 {Array.from(employeeRoles.entries()).map(([roleId, roleName]) => (
@@ -541,15 +592,23 @@ const handleRegister = (record) => {
                     key={roleId}
                     value={roleId}
                     style={{ textTransform: 'capitalize' }}
-                    >
+                  >
                     {roleName.split('ROLE.').join('').toLowerCase()}
                   </Option>
                 ))}
               </Select>
-              <Button type="primary" style={{ borderRadius: "50px"}}>
-                <CloseCircleOutlined /> <span className='textStyle-small'>Export List</span>
-              </Button>
-              <Button type="primary" onClick={showModal} style={{ borderRadius: "50px"}}>
+              <CSVLink
+                data={registeredUsers}
+                filename={`Employees_${new Date().toISOString()}.csv`}
+                target='_blank'
+              >
+                <Button type="primary"
+                  className="textStyles-small"
+                  style={{ borderRadius: "50px", background: '#3bb64b', borderColor: '#3bb64b' }}>
+                  <DownloadOutlined /> Export List
+                </Button>
+              </CSVLink>
+              <Button type="primary" onClick={showModal} style={{ borderRadius: "50px" }}>
                 <PlusOutlined /> <span className='textStyle-small'>New Employee</span>
               </Button>
             </Space>
