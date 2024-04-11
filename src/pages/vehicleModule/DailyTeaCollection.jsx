@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef  } from 'react';
 import { apiExecutions } from '../../api/api-call';
 import { allCities } from '../../api/cities';
 import { Form, Input, Button, Select, Modal, Table, Space, Descriptions, Tag, Row, Col, DatePicker, Drawer, message, Breadcrumb } from 'antd';
 import { CSVLink, CSVDownload } from "react-csv";
-import { GoogleMap, LoadScript, Marker } from '@react-google-maps/api';
+import { GoogleMap, Marker, DirectionsService, DirectionsRenderer, Polyline } from '@react-google-maps/api';
 import {
   MailOutlined,
   DeleteOutlined,
@@ -23,6 +23,9 @@ import { duration } from '../../../node_modules/moment/moment';
 // SourceFactoryID, Destination, RoundTrip, StartLongitude, StartLatitude, EndLongitude, EndLatitude
 
 const DailyTeaCollection = () => {
+  const mapRef = useRef(null);
+  const directionsRendererRef = useRef(null);
+  const [directions, setDirections] = useState(null);
   const [allRoadRoutings, setAllRoadRoutings] = useState([]);
   const [allCollectors, setAllCollectors] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -352,6 +355,59 @@ const DailyTeaCollection = () => {
     setIsModalVisible(false);
   }
 
+  const parseLocation = (latitude, longitude) => ({
+    lat: parseFloat(latitude),
+    lng: parseFloat(longitude),
+});
+
+const startLocation = selectedDetails ? parseLocation(selectedDetails.StartLatitude, selectedDetails.StartLongitude) : null;
+const endLocation = selectedDetails ? parseLocation(selectedDetails.EndLatitude, selectedDetails.EndLongitude) : null;
+
+
+  const columnStyle = {
+    display: 'grid',
+    gridTemplateColumns: '1fr 1fr',
+    gap: '10px',
+    padding: '10px',
+    border: '1px solid #ddd',
+    borderRadius: '10px',
+    marginTop: '10px'
+};
+
+const mapStyles = {
+    height: "200px",
+    width: "100%",
+    borderRadius: "10px"
+};
+
+const defaultCenter = {
+    lat: 40.7128,
+    lng: -74.0060
+};
+
+useEffect(() => {
+  if (!mapRef.current || !selectedDetails) return;
+
+  const directionsService = new window.google.maps.DirectionsService();
+
+  const start = parseLocation(selectedDetails.StartLatitude, selectedDetails.StartLongitude);
+  const end = parseLocation(selectedDetails.EndLatitude, selectedDetails.EndLongitude);
+
+  const request = {
+      origin: start,
+      destination: end,
+      travelMode: 'DRIVING', // You can change the travel mode as per your requirement
+  };
+
+  directionsService.route(request, (result, status) => {
+      if (status === 'OK') {
+          setDirections(result);
+      } else {
+          console.error('Directions request failed:', status);
+      }
+  });
+}, [selectedDetails]);
+
   return (
     <>
       <h1 className="headingStyle2">Route Management</h1>
@@ -450,7 +506,30 @@ const DailyTeaCollection = () => {
 
         {
           isView === true ?
-            (<Descriptions bordered column={2} size="small">
+            (<>
+            
+            {/* <GoogleMap
+                            mapContainerStyle={mapStyles}
+                            zoom={15}
+                            center={defaultCenter}
+                        >
+                            <Marker position={defaultCenter} />
+                        </GoogleMap> */}
+        <GoogleMap
+            mapContainerStyle={mapStyles}
+            zoom={15}
+            center={parseLocation(selectedDetails?.StartLatitude, selectedDetails?.StartLongitude)}
+            ref={mapRef}
+        >
+            {selectedDetails && (
+                <>
+                    <Marker position={parseLocation(selectedDetails.StartLatitude, selectedDetails.StartLongitude)} />
+                    <Marker position={parseLocation(selectedDetails.EndLatitude, selectedDetails.EndLongitude)} />
+                    {directions && <DirectionsRenderer directions={directions} />}
+                </>
+            )}
+        </GoogleMap>
+            <Descriptions bordered column={2} size="small">
               <Descriptions.Item label="Routing ID" className='textStyles-small' style={{ fontSize: '12px' }}>{selectedDetails?.RoutingID}</Descriptions.Item>
               <Descriptions.Item label="Source Factory ID" className='textStyles-small' style={{ fontSize: '12px' }}>FID_{selectedDetails?.SourceFactoryID}</Descriptions.Item>
               <Descriptions.Item label="Destination" className='textStyles-small' style={{ fontSize: '12px' }}>{selectedDetails?.Destination}</Descriptions.Item>
@@ -462,7 +541,7 @@ const DailyTeaCollection = () => {
               <Descriptions.Item label="Total Stops" className='textStyles-small' style={{ fontSize: '12px' }}>{selectedDetails?.TotalStops}</Descriptions.Item>
               <Descriptions.Item label="Duration" className='textStyles-small' style={{ fontSize: '12px' }}>{selectedDetails?.Duration ? selectedDetails?.Duration : 0} mins</Descriptions.Item>
               <Descriptions.Item label="Collector ID" className='textStyles-small' style={{ fontSize: '12px' }}>{selectedDetails?.CollectorID ? selectedDetails?.CollectorID : 'Not Assigned'}</Descriptions.Item>
-            </Descriptions>) : (
+            </Descriptions></>) : (
               <Form
                 layout="vertical"
                 className="textStyles-small"
