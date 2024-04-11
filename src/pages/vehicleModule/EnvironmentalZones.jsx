@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css'; 
+import 'leaflet/dist/leaflet.css';
 import { apiExecutions } from '../../api/api-call';
-import {Table, Space} from 'antd';
+import { Table, Space, Breadcrumb } from 'antd';
 import {
     MailOutlined,
     DeleteOutlined,
@@ -12,101 +12,93 @@ import {
     SearchOutlined,
     CloseCircleOutlined,
     EyeOutlined,
-    AimOutlined
-  } from '@ant-design/icons';
+    AimOutlined,
+    HomeOutlined,
+    DownloadOutlined
+} from '@ant-design/icons';
+import './style.css';
 
 const EnvironmentalZones = () => {
 
     const [EnvironmentalZones, setEnvironmentalZones] = useState([]);
 
-
     const fetchAllEnvironmentalZones = async () => {
         const response = await apiExecutions.getAllEnvironmentZoneInfo();
-        console.log(response);
-        setEnvironmentalZones(response.data);
-        //setAllBaseLocations(response.data[0].BaseLocation);
+        if (response !== null) {
+            if (response.success === true) {
+                setEnvironmentalZones(response.data);
+            }
+        }
     }
 
+    const columns = [
+        {
+            title: 'ZoneID',
+            dataIndex: 'ZoneID',
+            key: 'ZoneID',
+            render: (value) => {
+                return <span className='textStyle-small'>{value}</span>;
+            }
+        },
+        {
+            title: 'ZoneName',
+            dataIndex: 'ZoneName',
+            key: 'ZoneName',
+            render: (value) => {
+                return <span className='textStyle-small'>{value}</span>;
+            }
+        },
+        {
+            title: 'BaseLocation',
+            dataIndex: 'BaseLocation',
+            key: 'BaseLocation',
+            render: (value) => {
+                const [latitude, longitude] = value.split(',').map(Number);
+                return <span className='textStyle-small'>
+                    <a href="#" onClick={() => openLocationGoogleMaps(latitude, longitude)}>
+                        <AimOutlined /> {value}
+                    </a>
+                </span>;
+            }
+        },
+        {
+            title: 'CreationDate',
+            dataIndex: 'CreationDate',
+            key: 'CreationDate',
+            render: (value) => {
+                return <span className='textStyle-small'>{value}</span>;
+            }
+        },
+        {
+            title: 'Number Of Fields',
+            dataIndex: 'NumberOfFields',
+            key: 'NumberOfFields',
+            render: (value) => {
+                return <span className='textStyle-small'>{value ? value : 0}</span>;
+            }
+        },
+        {
+            title: 'Production (KG)',
+            dataIndex: 'Production',
+            key: 'Production',
+            render: (value) => {
+                return <span className='textStyle-small'>{value ? value : 0} KG</span>;
+            }
+        },
+    ];
 
-
-const columns = [
-    {
-        title: 'ZoneID',
-        dataIndex: 'ZoneID',
-        key: 'ZoneID',
-        render : (value) => {
-            return <b>{value}</b>;
-        }
-    },
-    {
-        title: 'ZoneName',
-        dataIndex: 'ZoneName',
-        key: 'ZoneName',
-        render : (value) => {
-            return <b>{value}</b>;
-        }
-    },
-    {
-        title: 'BaseLocation',
-        dataIndex: 'BaseLocation',
-        key: 'BaseLocation',
-        render : (value) => {
-            const [latitude, longitude] = value.split(',').map(Number);
-            return <b>
-                <a href="#" onClick={() => openLocationGoogleMaps(latitude, longitude)}>
-                    <AimOutlined /> {value}
-                </a>
-            </b>;
-        }
-    },
-    {
-        title: 'CreationDate',
-        dataIndex: 'CreationDate',
-        key: 'CreationDate',
-        render : (value) => {
-            return <b>{value}</b>;
-        }
-    },
-    {
-        title: 'Number Of Fields',
-        dataIndex: 'NumberOfFields',
-        key: 'NumberOfFields',
-        render : (value) => {
-            return <b>{value? value : 0}</b>;
-        }
-    },
-    {
-        title: 'Production (KG)',
-        dataIndex: 'Production',
-        key: 'Production',
-        render : (value) => {
-            return <b>{value? value : 0} KG</b>;
-        }
-    },
-    {
-        title: 'Action',
-        key: 'action',
-        render: (text, record) => (
-            <Space size="middle">
-                <a href="#"><EditOutlined /></a>
-                <a href="#"><DeleteOutlined style={{ color: 'red' }} /></a>
-            </Space>
-        ),
-    },
-];
-
-const openLocationGoogleMaps = (latitude, longitude) => {
-    const googleMapsUrl = `https://www.google.com/maps?q=${latitude},${longitude}`;
-    window.open(googleMapsUrl, '_blank');
-};
-
-const locations = EnvironmentalZones.map((zone) => {
-    const [latitude, longitude] = zone.BaseLocation.split(',').map(Number);
-    return {
-        name: zone.ZoneName,
-        coordinates: [latitude, longitude]
+    const openLocationGoogleMaps = (latitude, longitude) => {
+        const googleMapsUrl = `https://www.google.com/maps?q=${latitude},${longitude}`;
+        window.open(googleMapsUrl, '_blank');
     };
-});
+
+    const locations = EnvironmentalZones.map((zone) => {
+        const [latitude, longitude] = zone.BaseLocation.split(',').map(Number);
+        return {
+            name: zone.ZoneName,
+            coordinates: [latitude, longitude]
+        };
+    });
 
 
 
@@ -120,21 +112,42 @@ const locations = EnvironmentalZones.map((zone) => {
         zIndex: 1,
         borderRadius: '15px',
     };
+    const customIcon = new L.Icon({
+        iconUrl: 'https://leafletjs.com/examples/custom-icons/leaf-green.png', // You can use your own marker icon URL
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+    });
 
-        // Define a custom marker icon
-        const customIcon = new L.Icon({
-            iconUrl: 'https://leafletjs.com/examples/custom-icons/leaf-green.png', // You can use your own marker icon URL
-            iconSize: [25, 41],
-            iconAnchor: [12, 41],
-            popupAnchor: [1, -34],
-        });
 
-  
 
     return (
-        <>
-            <h1>Environmental Zones</h1>
-            
+        <>            
+        <h1 className="headingStyle2">Environmental Zones</h1>
+      <Breadcrumb
+        size="small"
+        className="textStyle-small"
+        style={{ marginBottom: 20 }}
+        items={[
+          {
+            href: '/free',
+            title: <HomeOutlined />,
+          },
+          {
+            title: (
+              <>
+                <span>Management</span>
+              </>
+            ),
+          },
+          {
+            href: '',
+            title: 'Environmental Zones',
+          },
+        ]}
+      />
+
+
             <MapContainer center={[7.8731, 80.7718]} zoom={7} style={mapContainerStyle}>
                 <TileLayer
                     attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
@@ -150,14 +163,14 @@ const locations = EnvironmentalZones.map((zone) => {
                     </Marker>
                 ))}
             </MapContainer>
-            <div style={{ 
-        padding: 10,
-        background: 'white',
-        borderRadius: 10,
-        marginTop: 10,
-      }}>
+            <div style={{
+                padding: 10,
+                background: 'white',
+                borderRadius: 10,
+                marginTop: 10,
+            }}>
 
-            <Table dataSource={EnvironmentalZones} columns={columns} />
+                <Table dataSource={EnvironmentalZones} columns={columns} />
 
             </div>
         </>
