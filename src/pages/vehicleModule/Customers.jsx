@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { apiExecutions } from '../../api/api-call';
-import { Form, Input, Button, Select, Modal, Table, Space, Descriptions, Tag, message, Row, Col } from 'antd';
+import { Form, Input, Button, Select, Modal, Table, Space, Descriptions, Tag, message, Row, Col, Breadcrumb } from 'antd';
 import {
   MailOutlined,
   DeleteOutlined,
@@ -11,6 +11,8 @@ import {
   SearchOutlined,
   CloseCircleOutlined,
   EyeOutlined,
+  HomeOutlined,
+  DownloadOutlined
 } from '@ant-design/icons';
 import { number } from 'prop-types';
 import { CSVLink, CSVDownload } from "react-csv";
@@ -54,12 +56,6 @@ const Customers = () => {
   //   }
   // }
 
-  // sample login auth 
-  const apiCall = async () => {
-    const response = await apiExecutions.authEmployee("john.doe@example5.com", "securePassword123");
-    console.log(response);
-  }
-
   const getAllCustomers = async () => {
     console.log('getAllCustomers-----------------------------------------------------------');
     const customers = await apiExecutions.getAllCustomers();
@@ -75,21 +71,6 @@ const Customers = () => {
       message.error('Failed to fetch factories');
     }
   }
-
-
-
-  /*
-        "CustomerID": 629,
-    "CustomerName": "Eva Wilson",
-    "CustomerMobile": "6789012345",
-    "CustomerAddress": "303 Maple St, Suburbia",
-    "CustomerEmail": "eva.wilson@example.com",
-    "CustomerType": "",
-    "RegistrationDate": "2023-11-30T18:30:00.000Z",
-    "Password": "$2b$10$YYXdHq3BDWaPtOQZ6dQZf.8DfMUA2WRwAAAi93lKLelzk9urRv5jO",
-    "FactoryID": 6,
-    "IdentitiCardNumber": null
-    */
 
   const columns = [
     {
@@ -165,24 +146,27 @@ const Customers = () => {
       key: 'action',
       render: (text, record) => (
         <Space size="middle">
-          <a>
-            <EyeOutlined
-              style={{ color: 'blue' }}
-              onClick={() => getCustomersByCustomerID(record.CustomerID, 'INFO')}
-            />
-          </a>
-          <a>
-            <EditOutlined
-              style={{ color: 'blue' }}
-              onClick={() => getCustomersByCustomerID(record.CustomerID, 'EDIT')}
-            />
-          </a>
-          <a>
-            <DeleteOutlined
-              style={{ color: 'red' }}
-              onClick={() => confirmationModelDelete(record.CustomerID)}
-            />
-          </a>
+          <Button
+            shape="circle"
+            size="small"
+            icon={<EyeOutlined style={{ color: 'white', fontSize: '12px' }} />}
+            style={{ background: 'blue', borderColor: 'blue' }}
+            onClick={() => getCustomersByCustomerID(record.CustomerID, 'INFO')}
+          />
+          <Button
+            shape="circle"
+            size="small"
+            icon={<EditOutlined style={{ color: 'white', fontSize: '12px' }} />}
+            style={{ background: 'blue', borderColor: 'blue' }}
+            onClick={() => getCustomersByCustomerID(record.CustomerID, 'EDIT')}
+          />
+          <Button
+            shape="circle"
+            size="small"
+            icon={<DeleteOutlined style={{ color: 'white', fontSize: '12px' }} />}
+            style={{ background: 'red', borderColor: 'red' }}
+            onClick={() => confirmationModelDelete(record.CustomerID)}
+          />
         </Space>
       ),
     },
@@ -340,9 +324,31 @@ const Customers = () => {
 
   return (
     <>
-      <h1>
-        Customers
-      </h1>
+      <h1 className="headingStyle2">Customers</h1>
+      <Breadcrumb
+        size="small"
+        className="textStyle-small"
+        style={{ marginBottom: 20 }}
+        items={[
+          {
+            href: '/free',
+            title: <HomeOutlined />,
+          },
+          {
+            title: (
+              <>
+                <span>Management</span>
+              </>
+            ),
+          },
+          {
+            href: '',
+            title: 'Customers',
+          },
+        ]}
+      />
+
+
       <div style={{ padding: 10, background: 'white', borderRadius: 10 }}>
         <Space>
           <div style={{ padding: 10, background: 'white', borderRadius: 10, display: 'flex', justifyContent: 'flex-end' }}>
@@ -352,9 +358,17 @@ const Customers = () => {
                 // onChange={(e) => filterByUserName(e.target.value)}
                 suffix={<SearchOutlined />}
               />
-              <Button type="primary" style={{ borderRadius: "50px" }}>
-                <CloseCircleOutlined /> <span className='textStyle-small'>Export List</span>
-              </Button>
+              <CSVLink
+                data={customers}
+                filename={`Customers_${new Date().toISOString()}.csv`}
+                target='_blank'
+              >
+                <Button type="primary"
+                  className="textStyles-small"
+                  style={{ borderRadius: "50px", background: '#3bb64b', borderColor: '#3bb64b' }}>
+                  <DownloadOutlined /> Export List
+                </Button>
+              </CSVLink>
               <Button type="primary"
                 onClick={showModel}
                 style={{ borderRadius: "50px" }}>
