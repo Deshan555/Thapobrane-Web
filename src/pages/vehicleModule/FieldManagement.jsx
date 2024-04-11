@@ -15,9 +15,11 @@ import {
     SearchOutlined,
     CloseCircleOutlined,
     EyeOutlined,
-    HomeOutlined
+    HomeOutlined,
+    DownloadOutlined
 } from '@ant-design/icons';
 import { random, set } from 'lodash';
+import './style.css';
 const { Option } = Select;
 
 const FieldManagement = () => {
@@ -306,35 +308,13 @@ const FieldManagement = () => {
         }
     }
 
-    /*
-    [
-  {
-    "FieldID": 425476744,
-    "FieldName": "Field_425476744",
-    "FieldSize": 100,
-    "FieldType": "Wheat",
-    "FieldAddress": "123 Main St, Cityville",
-    "TeaType": "Green Tea v1",
-    "BaseLocation": "Farmville",
-    "BaseElevation": 500,
-    "SoilType": "Loam",
-    "Attitude": 34.05,
-    "Longitude": -118.24,
-    "FieldRegistrationDate": "2024-01-04T18:30:00.000Z",
-    "RouteID": 243118935,
-    "OwnerID": 588240949,
-    "ZoneID": 584674,
-    "FactoryID": 1
-  }
-] */
-
     const columns = [
         {
             title: 'FieldID',
             dataIndex: 'FieldID',
             key: 'FieldID',
             render: (value) => {
-                return <b>{value}</b>;
+                return <span className='textStyle-small'>{value}</span>;
             }
         },
         {
@@ -342,7 +322,7 @@ const FieldManagement = () => {
             dataIndex: 'FieldType',
             key: 'FieldType',
             render: (value) => {
-                return <b>{value}</b>;
+                return <span className='textStyle-small'>{value}</span>;
             }
         },
         {
@@ -350,7 +330,9 @@ const FieldManagement = () => {
             dataIndex: 'TeaType',
             key: 'TeaType',
             render: (value) => {
-                return <b>{value}</b>;
+                return <span className='textStyle-small' style={{textTransform: 'lowercase'}}>
+                    {value}
+                </span>;
             }
         },
         {
@@ -358,7 +340,7 @@ const FieldManagement = () => {
             dataIndex: 'BaseLocation',
             key: 'BaseLocation',
             render: (value) => {
-                return <b>{value}</b>;
+                return <span className='textStyle-small'>{value}</span>;
             }
         },
         {
@@ -366,7 +348,7 @@ const FieldManagement = () => {
             dataIndex: 'SoilType',
             key: 'SoilType',
             render: (value) => {
-                return <b>{value}</b>;
+                return <span className='textStyle-small'>{value}</span>;
             }
         },
         {
@@ -374,35 +356,19 @@ const FieldManagement = () => {
             dataIndex: 'RouteID',
             key: 'RouteID',
             render: (value) => {
-                return <b>{value}</b>;
+                return <span className='textStyle-small'>{value}</span>;
             }
         },
-        // {
-        //     title: 'OwnerID',
-        //     dataIndex: 'OwnerID',
-        //     key: 'OwnerID',
-        //     render: (value) => {
-        //         return <b>{value}</b>;
-        //     }
-        // },
-        // {
-        //     title: 'ZoneID',
-        //     dataIndex: 'ZoneID',
-        //     key: 'ZoneID',
-        //     render: (value) => {
-        //         return <b>{value}</b>;
-        //     }
-        // },
         {
             title: 'Factory ID',
             dataIndex: 'FactoryID',
             key: 'FactoryID',
             render: (value) => {
-                return <b>{factoriesList.map((factory) => {
+                return <span className='textStyle-small'>{factoriesList.map((factory) => {
                     if (factory.FactoryID === value) {
                         return factory.FactoryName;
                     }
-                })}</b>;
+                })}</span>;
             }
         },
         {
@@ -410,19 +376,25 @@ const FieldManagement = () => {
             key: 'action',
             render: (text, record) => (
                 <Space size="middle">
-                    {/* <Button type="default" icon={<EyeOutlined />} onClick={setSelectedDetails(record)}>
-                    View
-                </Button> */}
-                    <EyeOutlined
-                        style={{ color: 'blue' }}
+                    <Button
+                        shape="circle"
+                        size="small"
+                        icon={<EyeOutlined style={{ color: 'white', fontSize: '12px' }} />}
+                        style={{ background: 'blue', borderColor: 'blue' }}
                         onClick={() => setSelectedDetails(record)}
                     />
-                    <EditOutlined
-                        style={{ color: 'blue' }}
+                    <Button
+                        shape="circle"
+                        size="small"
+                        icon={<EditOutlined style={{ color: 'white', fontSize: '12px' }} />}
+                        style={{ background: 'blue', borderColor: 'blue' }}
                         onClick={() => showEditDrawer(record)}
                     />
-                    <DeleteOutlined
-                        style={{ color: 'red' }}
+                    <Button
+                        shape="circle"
+                        size="small"
+                        icon={<DeleteOutlined style={{ color: 'white', fontSize: '12px' }} />}
+                        style={{ background: 'red', borderColor: 'red' }}
                         onClick={() => confirmDeleteModel(record.FieldID)}
                     />
                 </Space>
@@ -539,9 +511,8 @@ const FieldManagement = () => {
     return (
         <>
             <Drawer
-                title={
-                    editStatus == true ? "Update Field Information" : "Register New Field"
-                }
+                title={<span className='textStyle-small' style={{ fontSize: '14px' }}>
+                    { editStatus == true ? "Update Field Information" : "Register New Field" }</span>}
                 footer={true}
                 width={800}
                 onClose={onClose}
@@ -560,7 +531,10 @@ const FieldManagement = () => {
                     <div style={{ padding: '10px' }}>
                         <Row gutter={16}>
                             <Col span={12}>
-                                <Form.Item label="Field Name"
+                                <Form.Item label={<span className='textStyle-small'>
+                                    Field Name 
+                                </span>}
+                                    className='textStyle-small'
                                     initialValue={selectedField?.FieldName ? selectedField?.FieldName : "Field_" + random(100000000, 999999999)}
                                     name="fieldName">
                                     <Input
@@ -569,7 +543,8 @@ const FieldManagement = () => {
                                 </Form.Item>
                             </Col>
                             <Col span={12}>
-                                <Form.Item label="Field Size (Hectare)" name="fieldSize"
+                                <Form.Item label={<span className='textStyle-small'>Field Size (Hectare)</span>}
+                                    name="fieldSize" className='textStyle-small'
                                     initialValue={selectedField?.FieldSize}
                                     rules={[{ required: true, message: 'Please enter Field Size' }]}>
                                     <Input type="number" />
@@ -578,7 +553,8 @@ const FieldManagement = () => {
                         </Row>
                         <Row gutter={16}>
                             <Col span={12}>
-                                <Form.Item label="Field Type" name="fieldType"
+                                <Form.Item label={<span className='textStyle-small'>Field Type</span>} 
+                                name="fieldType" className='textStyle-small'
                                     rules={[{ required: true, message: 'Please enter Field Type' }]}
                                     initialValue={selectedField?.FieldType}
                                 >
@@ -593,7 +569,8 @@ const FieldManagement = () => {
                                 </Form.Item>
                             </Col>
                             <Col span={12}>
-                                <Form.Item label="Field Address" name="fieldAddress"
+                                <Form.Item label={<span className='textStyle-small'>Field Address</span>} 
+                                    name="fieldAddress" className='textStyle-small'
                                     initialValue={selectedField?.FieldAddress}
                                     rules={[{ required: true, message: 'Please enter Field Address' }]}>
                                     <Input />
@@ -602,7 +579,8 @@ const FieldManagement = () => {
                         </Row>
                         <Row gutter={16}>
                             <Col span={12}>
-                                <Form.Item label="Tea Type" name="teaType"
+                                <Form.Item label={<span className='textStyle-small'>Tea Type</span>} 
+                                name="teaType" className='textStyle-small'
                                     initialValue={selectedField?.TeaType}
                                     rules={[{ required: true, message: 'Please enter Tea Type' }]}>
                                     <Select
@@ -614,7 +592,7 @@ const FieldManagement = () => {
                                 </Form.Item>
                             </Col>
                             <Col span={12}>
-                                <Form.Item label="Base Location" name="baseLocation"
+                                <Form.Item label={<span className='textStyle-small'>Base Location</span>} name="baseLocation"
                                     initialValue={selectedField?.BaseLocation}
                                     rules={[{ required: true, message: 'Please enter Base Location' }]}>
                                     <Select
@@ -629,14 +607,15 @@ const FieldManagement = () => {
                         </Row>
                         <Row gutter={16}>
                             <Col span={12}>
-                                <Form.Item label="Base Elevation (Degrees)" name="baseElevation"
+                                <Form.Item label={<span className='textStyle-small'>Base Elevation (Degrees)</span>} name="baseElevation"
                                     initialValue={selectedField?.BaseElevation}
                                     rules={[{ required: true, message: 'Please enter Base Elevation' }]}>
                                     <Input type="number" />
                                 </Form.Item>
                             </Col>
                             <Col span={12}>
-                                <Form.Item label="Soil Type" name="soilType"
+                                <Form.Item label={<span className='textStyle-small'>Soil Type</span>} 
+                                name="soilType"
                                     initialValue={selectedField?.SoilType}
                                     rules={[{ required: true, message: 'Please enter Soil Type' }]}>
                                     <Select
@@ -658,14 +637,16 @@ const FieldManagement = () => {
                         </Row>
                         <Row gutter={16}>
                             <Col span={12}>
-                                <Form.Item label="Latitude" name="latitude"
+                                <Form.Item label={<span className='textStyle-small'>Latitude</span>} 
+                                name="latitude"
                                     initialValue={selectedField?.Attitude}
                                     rules={[{ required: true, message: 'Please enter Latitude' }]}>
                                     <Input type="number" />
                                 </Form.Item>
                             </Col>
                             <Col span={12}>
-                                <Form.Item label="Longitude" name="longitude"
+                                <Form.Item label={<span className='textStyle-small'>Longitude</span>} 
+                                name="longitude"
                                     initialValue={selectedField?.Longitude}
                                     rules={[{ required: true, message: 'Please enter Longitude' }]}>
                                     <Input type="number" />
@@ -674,7 +655,8 @@ const FieldManagement = () => {
                         </Row>
                         <Row gutter={16}>
                             <Col span={12}>
-                                <Form.Item label="Owner ID" name="ownerId"
+                                <Form.Item label={<span className='textStyle-small'>Owner Name</span>}
+                                    name="ownerId"
                                     initialValue={selectedField?.OwnerID}
                                     rules={[{ required: true, message: 'Please enter Owner ID' }]}>
                                     <Select
@@ -691,7 +673,7 @@ const FieldManagement = () => {
                                 </Form.Item>
                             </Col>
                             <Col span={12}>
-                                <Form.Item label="Zone ID" name="zoneId"
+                                <Form.Item label={<span className='textStyle-small'>Zone Name</span>} name="zoneId"
                                     initialValue={selectedField?.ZoneID}
                                     rules={[{ required: true, message: 'Please select Zone ID' }]}>
                                     <Select
@@ -709,7 +691,7 @@ const FieldManagement = () => {
                         </Row>
                         <Row gutter={16}>
                             <Col span={12}>
-                                <Form.Item label="Factory ID" name="factoryId"
+                                <Form.Item label={<span className='textStyle-small'>Factory Name</span>} name="factoryId"
                                     initialValue={selectedField?.FactoryID}
                                     rules={[{ required: true, message: 'Please enter Factory ID' }]}>
                                     <Select
@@ -729,7 +711,7 @@ const FieldManagement = () => {
                                 </Form.Item>
                             </Col>
                             <Col span={12}>
-                                <Form.Item label="Route ID" name="routeId"
+                                <Form.Item label={<span className='textStyle-small'>Route ID</span>} name="routeId"
                                     initialValue={selectedField?.RouteID}
                                     rules={[{ required: true, message: 'Please enter Route ID' }]}>
                                     <Select
@@ -746,10 +728,10 @@ const FieldManagement = () => {
                             <Col >
                                 <Form.Item>
                                     {editStatus == true ?
-                                        <Button type="primary" htmlType="submit">
+                                        <Button type="primary" htmlType="submit" className='textStyle-small'>
                                             Update Field Info
                                         </Button> :
-                                        <Button type="primary" htmlType="submit">
+                                        <Button type="primary" htmlType="submit" className='textStyle-small'>
                                             Register New Field
                                         </Button>
                                     }
@@ -813,11 +795,7 @@ const FieldManagement = () => {
                 </div>
             </Modal>
 
-            <h3>
-                Field Management
-            </h3>
-
-            <h1 className="headingStyle2">Tea Collection</h1>
+            <h1 className="headingStyle2">Fields Management</h1>
             <Breadcrumb
                 size="small"
                 className="textStyle-small"
@@ -836,7 +814,7 @@ const FieldManagement = () => {
                     },
                     {
                         href: '',
-                        title: 'Tea Collection',
+                        title: 'Fields Management',
                     },
                 ]}
             />
@@ -850,9 +828,11 @@ const FieldManagement = () => {
                                 layout="inline">
                                 <Form.Item name="searchField">
                                     <Input
+                                        className='textStyle-small'
                                         placeholder="Search Field By ID"
                                         suffix={<SearchOutlined />}
                                         onChange={(e) => filterationByFieldID(e.target.value)}
+                                        style={{ width: 200 }} 
                                     />
                                 </Form.Item>
                                 <Form.Item name="filterFieldType">
@@ -860,18 +840,14 @@ const FieldManagement = () => {
                                     placeholder="Filter By Field Type"
                                     onChange={(value) => filterationByFieldType(value)}
                                     defaultValue="all"
+                                    className='textStyle-small'
                                     >
-                                        <Option value="all">All</Option>
-                                        <Option value="small">Small</Option>
-                                        <Option value="medium">Medium</Option>
-                                        <Option value="large">Large</Option>
+                                        <Option value="all" className='textStyle-small'>All</Option>
+                                        <Option value="small" className='textStyle-small'>Small</Option>
+                                        <Option value="medium" className='textStyle-small'>Medium</Option>
+                                        <Option value="large" className='textStyle-small'>Large</Option>
                                     </Select>
                                 </Form.Item>
-                                {/* <Form.Item>
-                                    <Button type="primary" htmlType="submit" style={{ borderRadius: "50px" }}>
-                                        <SearchOutlined />
-                                    </Button>
-                                </Form.Item> */}
                                 <Form.Item>
                                     <Button type="primary" 
                                     danger style={{ borderRadius: "50px" }}
@@ -886,11 +862,11 @@ const FieldManagement = () => {
                                 filename={`field-management_${new Date().toISOString()}.csv`}
                                 target='_blank'
                             >
-                                <Button type="primary" style={{ borderRadius: "50px" }}>
-                                    <CloseCircleOutlined /> Export List
+                                <Button type="primary" style={{ borderRadius: "50px", background: "#3bb64b", borderColor: "#3bb64b" }} className='textStyle-small'>
+                                    <DownloadOutlined /> Export List
                                 </Button>
                             </CSVLink>
-                            <Button type="primary" onClick={showDrawer} style={{ borderRadius: "50px" }}>
+                            <Button type="primary" onClick={showDrawer} style={{ borderRadius: "50px" }} className='textStyle-small'>
                                 <PlusOutlined /> New Field
                             </Button>
                         </Space>
