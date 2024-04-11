@@ -417,7 +417,9 @@ const apiExecutions = {
                 StartLongitude: values.StartLongitude,
                 StartLatitude: values.StartLatitude,
                 EndLongitude: values.EndLongitude,
-                EndLatitude: values.EndLatitude
+                EndLatitude: values.EndLatitude,
+                CollectorID: values.CollectorID,
+                Duration: values.duration,
             }, {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem('atoken')}`
@@ -446,7 +448,9 @@ const apiExecutions = {
                 StartLongitude: values.StartLongitude,
                 StartLatitude: values.StartLatitude,
                 EndLongitude: values.EndLongitude,
-                EndLatitude: values.EndLatitude
+                EndLatitude: values.EndLatitude,
+                CollectorID: values.CollectorID,
+                Duration: values.duration,
             }, {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem('atoken')}`
@@ -649,22 +653,10 @@ const apiExecutions = {
             return null;
         }
     },
-//     router.post('/vehicles/add', VehicleController.addVehicleMappings);
-// router.get('/vehicles/:VehicleID', VehicleController.getAllVehicleMappingsByID);
-// router.put('/vehicles/update/:VehicleID', VehicleController.updateVehicleMappings);
-// router.delete('/vehicles/drop/:VehicleID', VehicleController.deleteVehicleMappings);
     addVehicle: async (data) => {
         console.log(data);
         try {
             const response = await axios.post(baseDetails.CORE_SERVICE_URL + '/vehicles/add', {
-                // VehicleNumber: values.VehicleNumber,
-                // VehicleType: values.VehicleType,
-                // VolumeCapacity: values.VolumeCapacity,
-                // WeightCapacity: values.WeightCapacity,
-                // NumberPlateID: values.NumberPlateID,
-                // FactoryID: values.FactoryID,
-                // DriverID: values.DriverID,
-                // RouteID: values.RouteID
                 VehicleNumber: data.VehicleNumber,
                 VehicleType: data.VehicleType,
                 VolumeCapacity: data.VolumeCapacity,
@@ -765,6 +757,27 @@ const apiExecutions = {
     getAllDriversWithNoVehicleMappings: async () => {
         try {
             const response = await axios.get(baseDetails.CORE_SERVICE_URL + '/employees/drivers', {
+                // headers: {
+                //     Authorization: `Bearer ${localStorage.getItem('atoken')}`
+                // }
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Axios error:', error);
+            if (error.response) {
+                return error.response.data;
+            } else if (error.request) {
+                return error.request.data;
+            } else {
+                console.error('Error setting up the request:', error.message);
+            }
+            return null;
+        }
+    },
+    // /employees/collectors
+    getAllCollectors: async () => {
+        try {
+            const response = await axios.get(baseDetails.CORE_SERVICE_URL + '/employees/collectors', {
                 // headers: {
                 //     Authorization: `Bearer ${localStorage.getItem('atoken')}`
                 // }
@@ -994,6 +1007,150 @@ const apiExecutions = {
             const response = await axios.post(baseDetails.CORE_SERVICE_URL + '/customers/addBulk', {
                 data : data
             }, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('atoken')}`
+                }
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Axios error:', error);
+            if (error.response) {
+                return error.response.data;
+            } else if (error.request) {
+                return error.request.data;
+            } else {
+                console.error('Error setting up the request:', error.message);
+            }
+            return null;
+        }
+    },
+    getAllFertilizerInfo: async () => {
+        try {
+            const response = await axios.get(baseDetails.CORE_SERVICE_URL + '/fertilizers', {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('atoken')}`
+                }
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Axios error:', error);
+            if (error.response) {
+                return error.response.data;
+            } else if (error.request) {
+                return error.request.data;
+            } else {
+                console.error('Error setting up the request:', error.message);
+            }
+            return null;
+        }
+    }
+    ,
+    addFertilizerInfo: async (data) => {
+        try {
+            const response = await axios.post(baseDetails.CORE_SERVICE_URL + '/fertilizers/add', {
+                FertilizerName: data.FertilizerName,
+                FertilizerType: data.FertilizerType,
+                FertilizerPrice: data.FertilizerPrice,
+                FertilizerQuantity: data.FertilizerQuantity,
+                VendorName: data.VendorName,
+                CodeName: data.CodeName,
+                InstructionsToStore: data.InstructionsToStore,
+                InstructionsToUse: data.InstructionsToUse,
+                FertilizerDescription: data.FertilizerDescription
+            }, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('atoken')}`
+                }
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Axios error:', error);
+            if (error.response) {
+                return error.response.data;
+            } else if (error.request) {
+                return error.request.data;
+            } else {
+                console.error('Error setting up the request:', error.message);
+            }
+            return null;
+        }
+    },
+    getFertilizerInfoByID: async (fertilizerID) => {
+        try {
+            const response = await axios.get(baseDetails.CORE_SERVICE_URL + '/fertilizers/' + fertilizerID, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('atoken')}`
+                }
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Axios error:', error);
+            if (error.response) {
+                return error.response.data;
+            } else if (error.request) {
+                return error.request.data;
+            } else {
+                console.error('Error setting up the request:', error.message);
+            }
+            return null;
+        }
+    },
+    updateFertilizerInfo: async (fertilizerID, data) => {
+        try {
+            const response = await axios.put(baseDetails.CORE_SERVICE_URL + '/fertilizers/update/' + fertilizerID, {
+                FertilizerName: data.FertilizerName,
+                FertilizerType: data.FertilizerType,
+                FertilizerPrice: data.FertilizerPrice,
+                FertilizerQuantity: data.FertilizerQuantity,
+                VendorName: data.VendorName,
+                CodeName: data.CodeName,
+                InstructionsToStore: data.InstructionsToStore,
+                InstructionsToUse: data.InstructionsToUse,
+                FertilizerDescription: data.FertilizerDescription
+            }, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('atoken')}`
+                }
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Axios error:', error);
+            if (error.response) {
+                return error.response.data;
+            } else if (error.request) {
+                return error.request.data;
+            } else {
+                console.error('Error setting up the request:', error.message);
+            }
+            return null;
+        }
+    },
+    deleteFertilizerInfo: async (fertilizerID) => {
+        try {
+            const response = await axios.delete(baseDetails.CORE_SERVICE_URL + '/fertilizers/drop/' + fertilizerID, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('atoken')}`
+                }
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Axios error:', error);
+            if (error.response) {
+                return error.response.data;
+            } else if (error.request) {
+                return error.request.data;
+            } else {
+                console.error('Error setting up the request:', error.message);
+            }
+            return null;
+        }
+    },
+    getBulkSumOfTeaCollection: async (data) => {
+        try {
+            const response = await axios.post(baseDetails.CORE_SERVICE_URL + '/dailyTeaCollection/bulkSum', {
+                startDate : data?.startDate, 
+                numOfDays : data?.numOfDays
+            },{
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem('atoken')}`
                 }
