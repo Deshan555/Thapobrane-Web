@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types';
 import { useState, useEffect } from 'react';
+import { apiExecutions } from '../../api/api-call';
 
 // material-ui
 import { useTheme } from '@mui/material/styles';
@@ -32,13 +33,41 @@ const areaChartOptions = {
 
 const IncomeAreaChart = ({ slot }) => {
   const theme = useTheme();
-
   const { primary, secondary } = theme.palette.text;
   const line = theme.palette.divider;
-
   const [options, setOptions] = useState(areaChartOptions);
+  const [weeklyWiseCollection, setWeeklyWiseCollection] = useState([]);
+  const [lastWeekCollection, setLastWeekCollection] = useState([]);
+  
+  const fetchWeeklyCollectionSum = async () => {
+    const requestJson = {
+      startDate: new Date().toISOString().split('T')[0],
+      numOfDays: 7
+    }
+    const response = await apiExecutions.getBulkSumOfTeaCollection(requestJson);
+    if (response !== null) {
+      if (response.success === true) {
+        setWeeklyWiseCollection(response.data);
+      }
+    }
+  }
+
+  const fetchLastWeekCollectionSum = async () => {
+    const requestJson = {
+      startDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      numOfDays: 7
+    };
+    const response = await apiExecutions.getBulkSumOfTeaCollection(requestJson);
+    if (response !== null) {
+      if (response.success === true) {
+        setLastWeekCollection(response.data);
+      }
+    }
+  }
 
   useEffect(() => {
+    fetchWeeklyCollectionSum();
+    fetchLastWeekCollectionSum();
     setOptions((prevState) => ({
       ...prevState,
       colors: [theme.palette.primary.main, theme.palette.primary[700]],
@@ -46,7 +75,7 @@ const IncomeAreaChart = ({ slot }) => {
         categories:
           slot === 'month'
             ? ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-            : ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+            : weeklyWiseCollection.map((item) => item.date),
         labels: {
           style: {
             colors: [
