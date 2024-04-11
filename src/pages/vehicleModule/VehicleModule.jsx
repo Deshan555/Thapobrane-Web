@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { apiExecutions } from '../../api/api-call';
-import { Form, Input, Button, Select, Modal, Table, Space, Descriptions, Tag, message, Row, Col } from 'antd';
+import { Form, Input, Button, Select, Modal, Table, Space, Descriptions, Tag, message, Row, Col, Breadcrumb } from 'antd';
 import {
   MailOutlined,
   DeleteOutlined,
@@ -11,6 +11,7 @@ import {
   SearchOutlined,
   CloseCircleOutlined,
   EyeOutlined,
+  HomeOutlined
 } from '@ant-design/icons';
 import { number } from 'prop-types';
 import { CSVLink, CSVDownload } from "react-csv";
@@ -72,162 +73,147 @@ const VehicleModule = () => {
     }
   }
 
-    const fetchAllVehicles = async () => {
-        const response = await apiExecutions.getAllVehicles();
-        if (response !== null) {
-            if (response.success === true) {
-                setAllVehicles(response.data);
-            } else {
-                message.error('Failed to fetch vehicles');
-            }
-        }
+  const fetchAllVehicles = async () => {
+    const response = await apiExecutions.getAllVehicles();
+    if (response !== null) {
+      if (response.success === true) {
+        setAllVehicles(response.data);
+      } else {
+        message.error('Failed to fetch vehicles');
+      }
     }
+  }
 
-    const allDriversForMapping = async () => {
-        const response = await apiExecutions.getAllDriversWithNoVehicleMappings();
-        if (response !== null) {
-            if (response.success === true) {
-                setAllDrivers(response.data);
-            } else {
-                message.error('Failed to fetch drivers');
-            }
-        }
-    } 
-
-    const getAllAvailableRoutes = async () => {
-        const response = await apiExecutions.getAllRoadRoutingsWithoutMappings();
-        if (response !== null) {
-            if (response.success === true) {
-                setAllRoutes(response.data);
-            } else {
-                message.error('Failed to fetch routes');
-            }
-        }
+  const allDriversForMapping = async () => {
+    const response = await apiExecutions.getAllDriversWithNoVehicleMappings();
+    if (response !== null) {
+      if (response.success === true) {
+        setAllDrivers(response.data);
+      } else {
+        message.error('Failed to fetch drivers');
+      }
     }
+  }
 
-    // {
-    //     "0": {
-    //         "VehicleID": 398711975,
-    //         "VehicleNumber": "675363CV",
-    //         "VehicleType": "TRUCK",
-    //         "VolumeCapacity": 100,
-    //         "WeightCapacity": 5000,
-    //         "NumberPlateID": "SL1234",
-    //         "FactoryID": 1,
-    //         "DriverID": 1,
-    //         "RouteID": 393001318
-    //     }
-    // }
-
+  const getAllAvailableRoutes = async () => {
+    const response = await apiExecutions.getAllRoadRoutingsWithoutMappings();
+    if (response !== null) {
+      if (response.success === true) {
+        setAllRoutes(response.data);
+      } else {
+        message.error('Failed to fetch routes');
+      }
+    }
+  }
 
   const columns = [
     {
-        title: <span className='textStyles-small'>Vehicle Master Number</span>,
-        dataIndex: 'VehicleNumber',
-        key: 'VehicleNumber',
-        render: (value) => {
-            return <span className='textStyle-small'>
-                {value}
-            </span>
-        }
+      title: <span className='textStyles-small'>Vehicle Master Number</span>,
+      dataIndex: 'VehicleNumber',
+      key: 'VehicleNumber',
+      render: (value) => {
+        return <span className='textStyle-small'>
+          {value}
+        </span>
+      }
     },
     {
-        title: <span className='textStyles-small'>Vehicle Type</span>,
-        dataIndex: 'VehicleType',
-        key: 'VehicleType',
-        render: (value) => {
-            return <span className='textStyle-small'>
-                {value}
-            </span>
-        }
+      title: <span className='textStyles-small'>Vehicle Type</span>,
+      dataIndex: 'VehicleType',
+      key: 'VehicleType',
+      render: (value) => {
+        return <span className='textStyle-small'>
+          {value}
+        </span>
+      }
     },
     {
-        title: <span className='textStyles-small'>Volume Capacity</span>,
-        dataIndex: 'VolumeCapacity',
-        key: 'VolumeCapacity',
-        render: (value) => {
-            return <span className='textStyle-small'>
-                {value}
-            </span>
-        }
+      title: <span className='textStyles-small'>Volume Capacity</span>,
+      dataIndex: 'VolumeCapacity',
+      key: 'VolumeCapacity',
+      render: (value) => {
+        return <span className='textStyle-small'>
+          {value}
+        </span>
+      }
     },
     {
-        title: <span className='textStyles-small'>Weight Capacity</span>,
-        dataIndex: 'WeightCapacity',
-        key: 'WeightCapacity',
-        render: (value) => {
-            return <span className='textStyle-small'>
-                {value}
-            </span>
-        }
+      title: <span className='textStyles-small'>Weight Capacity</span>,
+      dataIndex: 'WeightCapacity',
+      key: 'WeightCapacity',
+      render: (value) => {
+        return <span className='textStyle-small'>
+          {value}
+        </span>
+      }
     },
     {
-        title: <span className='textStyles-small'>Number Plate ID</span>,
-        dataIndex: 'NumberPlateID',
-        key: 'NumberPlateID',
-        render: (value) => {
-            return <span className='textStyle-small'>
-                {value}
-            </span>
-        }
+      title: <span className='textStyles-small'>Number Plate ID</span>,
+      dataIndex: 'NumberPlateID',
+      key: 'NumberPlateID',
+      render: (value) => {
+        return <span className='textStyle-small'>
+          {value}
+        </span>
+      }
     },
     {
-        title: <span className='textStyles-small'>Factory ID</span>,
-        dataIndex: 'FactoryID',
-        key: 'FactoryID',
-        render: (value) => {
-            return <span className='textStyle-small'>
-                {value}
-            </span>
-        }
+      title: <span className='textStyles-small'>Factory ID</span>,
+      dataIndex: 'FactoryID',
+      key: 'FactoryID',
+      render: (value) => {
+        return <span className='textStyle-small'>
+          {value}
+        </span>
+      }
     },
     {
-        title: <span className='textStyles-small'>Driver ID</span>,
-        dataIndex: 'DriverID',
-        key: 'DriverID',
-        render: (value) => {
-            return <span className='textStyle-small'>
-                {value}
-            </span>
-        }
+      title: <span className='textStyles-small'>Driver ID</span>,
+      dataIndex: 'DriverID',
+      key: 'DriverID',
+      render: (value) => {
+        return <span className='textStyle-small'>
+          {value}
+        </span>
+      }
     },
     {
-        title: <span className='textStyles-small'>Route ID</span>,
-        dataIndex: 'RouteID',
-        key: 'RouteID',
-        render: (value) => {
-            return <span className='textStyle-small'>
-                {value}
-            </span>
-        }
+      title: <span className='textStyles-small'>Route ID</span>,
+      dataIndex: 'RouteID',
+      key: 'RouteID',
+      render: (value) => {
+        return <span className='textStyle-small'>
+          {value}
+        </span>
+      }
     },
 
-    // {
-    //   title: <span className='textStyles-small'>Action</span>,
-    //   key: 'action',
-    //   render: (text, record) => (
-    //     <Space size="middle">
-    //       <a>
-    //         <EyeOutlined
-    //           style={{ color: 'blue' }}
-    //           onClick={() => getCustomersByCustomerID(record.CustomerID, 'INFO')}
-    //         />
-    //       </a>
-    //       <a>
-    //         <EditOutlined
-    //           style={{ color: 'blue' }}
-    //           onClick={() => getCustomersByCustomerID(record.CustomerID, 'EDIT')}
-    //         />
-    //       </a>
-    //       <a>
-    //         <DeleteOutlined
-    //           style={{ color: 'red' }}
-    //           onClick={() => confirmationModelDelete(record.CustomerID)}
-    //         />
-    //       </a>
-    //     </Space>
-    //   ),
-    // },
+    {
+      title: <span className='textStyles-small'>Action</span>,
+      key: 'action',
+      render: (text, record) => (
+        <Space size="middle">
+          <a>
+            <EyeOutlined
+              style={{ color: 'blue' }}
+              onClick={() => getVehicleDetailsByIDFunction(record.VehicleID, 'VIEW')}
+            />
+          </a>
+          <a>
+            <EditOutlined
+              style={{ color: 'blue' }}
+              onClick={() => getVehicleDetailsByIDFunction(record.VehicleID, 'EDIT')}
+            />
+          </a>
+          <a>
+            <DeleteOutlined
+              style={{ color: 'red' }}
+              onClick={() => deleteVehicleByID(record.VehicleID)}
+            />
+          </a>
+        </Space>
+      ),
+    },
   ];
 
   const confirmationModelDelete = (fieldID) => {
@@ -276,42 +262,51 @@ const VehicleModule = () => {
 
   const onFinish = (values) => {
     console.log(values);
-    if (isEdit === true) {
+    // {
+    //   "VehicleNumber": "kl;l;k;k;lkl;",
+    //   "VehicleType": "333",
+    //   "VolumeCapacity": "33",
+    //   "WeightCapacity": "33",
+    //   "NumberPlateID": "jojlkjljljlkljk",
+    //   "FactoryID": 1,
+    //   "DriverID": 10001,
+    //   "RouteID": 393001318
+    // }
+
+    if (isEdit !== true) {
       const requestJson = {
-        customerID: customerDetails?.CustomerID,
-        customerName: values?.customerName,
-        customerMobile: values?.customerMobile,
-        customerAddress: values?.customerAddress,
-        customerEmail: values?.customerEmail,
-        customerType: 'ROLE.CUSTOMER',
-        registrationDate: customerDetails?.RegistrationDate,
-        factoryID: values?.factoryID,
-        identitiCardNumber: values?.customerNIC
+        VehicleNumber: values.VehicleNumber,
+        VehicleType: values.VehicleType,
+        VolumeCapacity: values.VolumeCapacity,
+        WeightCapacity: values.WeightCapacity,
+        NumberPlateID: values.NumberPlateID,
+        FactoryID: values.FactoryID,
+        DriverID: values.DriverID,
+        RouteID: values.RouteID
       }
-      updateCustomerFunction(customerDetails?.CustomerID, requestJson);
-      // confirmationModelEdit(customerDetails?.CustomerID, requestJson);
+
+      registerNewVehicle(requestJson);
     } else {
-      const requestJson = {
-        customerName: values?.customerName,
-        customerMobile: values?.customerMobile,
-        customerAddress: values?.customerAddress,
-        customerEmail: values?.customerEmail,
-        customerType: 'ROLE.CUSTOMER',
-        customerPassword: randomPassword(),
-        factoryID: values?.factoryID,
-        customerNIC: values?.customerNIC
+      const requestBody = {
+        VehicleNumber: values.VehicleNumber,
+        VehicleType: values.VehicleType,
+        VolumeCapacity: values.VolumeCapacity,
+        WeightCapacity: values.WeightCapacity,
+        NumberPlateID: values.NumberPlateID,
+        FactoryID: values.FactoryID,
+        DriverID: values.DriverID,
+        RouteID: values.RouteID
       }
-      registerCustomerFunction(requestJson);
-      // confirmationRegisterCustomer(requestJson);
+      updateVehicleFunction(vehicleDetails?.VehicleID, requestBody);
     }
   }
 
-  const registerCustomerFunction = async (requestJson) => {
-    const result = await apiExecutions.registerCustomer(requestJson);
+  const registerNewVehicle = async (requestJson) => {
+    const result = await apiExecutions.addVehicle(requestJson);
     if (result !== null) {
       if (result.success === true) {
-        message.success('Customer Registered Successfully');
-        getAllCustomers();
+        message.success('Vehicle Registered Successfully');
+        fetchAllVehicles();
         modelClose();
       } else {
         message.error('Error : ' + result.message);
@@ -319,13 +314,12 @@ const VehicleModule = () => {
     }
   }
 
-  const updateCustomerFunction = async (customerID, requestJson) => {
-    console.log(requestJson);
-    const result = await apiExecutions.updateCustomerDetailsById(customerID, requestJson);
+  const updateVehicleFunction = async (vehicleID, requestJson) => {
+    const result = await apiExecutions.updateVehicleDetailsByID(vehicleID, requestJson);
     if (result !== null) {
       if (result.success === true) {
-        message.success('Customer Updated Successfully');
-        getAllCustomers();
+        message.success('Vehicle Updated Successfully');
+        fetchAllVehicles();
         modelClose();
       } else {
         message.error('Error : ' + result.message);
@@ -333,31 +327,31 @@ const VehicleModule = () => {
     }
   }
 
-  const deleteCustomerFunction = async (customerID) => {
-    const result = await apiExecutions.deleteCustomerAccount(customerID);
+  const deleteVehicleByID = async (vehicleID) => {
+    const result = await apiExecutions.deleteVehicleByID(vehicleID);
     if (result !== null) {
       if (result.success === true) {
-        message.success('Customer Deleted Successfully');
-        getAllCustomers();
+        message.success('Vehicle Deleted Successfully');
+        fetchAllVehicles();
       } else {
         message.error('Error : ' + result.message);
       }
     }
   }
 
-  const getCustomersByCustomerID = async (customerID, type) => {
-    const fetchCustomerInfo = await apiExecutions.getCustomerByCustomerID(customerID);
-    console.log(fetchCustomerInfo);
-    if (fetchCustomerInfo !== null) {
-      if (fetchCustomerInfo.success === true) {
-        setCustomerDetails(fetchCustomerInfo?.data[0]);
+  const getVehicleDetailsByIDFunction = async (vehicleID, type) => {
+    const fetchVehicleInfo = await apiExecutions.getVehicleDetailsByID(vehicleID);
+    console.log(fetchVehicleInfo);
+    if (fetchVehicleInfo !== null) {
+      if (fetchVehicleInfo.success === true) {
+        setVehicleDetails(fetchVehicleInfo?.data[0]);
         if (type === 'EDIT') {
           showModel(true);
         } else {
           showDetailsModel();
         }
       } else {
-        message.error('Failed to fetch customer details');
+        message.error('Failed to fetch vehicle details');
       }
     }
   }
@@ -382,9 +376,29 @@ const VehicleModule = () => {
 
   return (
     <>
-      <h1>
-        Customers
-      </h1>
+      <h1 className="headingStyle2">Vehicles Management</h1>
+      <Breadcrumb
+        size="small"
+        className="textStyle-small"
+        style={{ marginBottom: 20 }}
+        items={[
+          {
+            href: '/free',
+            title: <HomeOutlined />,
+          },
+          {
+            title: (
+              <>
+                <span>Management</span>
+              </>
+            ),
+          },
+          {
+            href: '',
+            title: 'Vehicles Management',
+          },
+        ]}
+      />
       <div style={{ padding: 10, background: 'white', borderRadius: 10 }}>
         <Space>
           <div style={{ padding: 10, background: 'white', borderRadius: 10, display: 'flex', justifyContent: 'flex-end' }}>
@@ -400,23 +414,28 @@ const VehicleModule = () => {
               <Button type="primary"
                 onClick={showModel}
                 style={{ borderRadius: "50px" }}>
-                <PlusOutlined /> <span className='textStyle-small'>New Employee</span>
+                <PlusOutlined /> <span className='textStyle-small'>New Vehicle</span>
               </Button>
             </Space>
           </div>
         </Space>
       </div>
-      <Table
-        dataSource={getAllVehicles}
-        columns={columns}
-        loading={getAllVehicles.length === 0 ? true : false}
-        pagination={true}
-      />
+
+      <div style={{ padding: 10, background: 'white', borderRadius: 10 }}>
+        <Table
+          dataSource={getAllVehicles}
+          columns={columns}
+          loading={getAllVehicles.length === 0 ? true : false}
+          pagination={true}
+          size="small"
+        />
+      </div>
+
 
       <Modal
         title={
           <span className="textStyles-small" style={{ fontSize: 16 }}>
-            Customer Details
+            Vehicle Details - VID{vehicleDetails?.VehicleID}
           </span>
         }
         visible={infoMoadl}
@@ -429,35 +448,26 @@ const VehicleModule = () => {
           bordered
           size="small"
           column={2}
+          style={{ marginTop: 20 }}
         >
-          <Descriptions.Item label="Customer Name" className="textStyles-small" style={{ fontSize: 12 }}>
-            {customerDetails?.CustomerName}
-          </Descriptions.Item>
-          <Descriptions.Item label="Customer Mobile" className="textStyles-small" style={{ fontSize: 12 }}>
-            {customerDetails?.CustomerMobile}
-          </Descriptions.Item>
-          <Descriptions.Item label="Customer Address" className="textStyles-small" style={{ fontSize: 12 }}>
-            {customerDetails?.CustomerAddress}
-          </Descriptions.Item>
-          <Descriptions.Item label="Customer Email" className="textStyles-small" style={{ fontSize: 12 }}>
-            {customerDetails?.CustomerEmail}
-          </Descriptions.Item>
-          <Descriptions.Item label="Factory ID" className="textStyles-small" style={{ fontSize: 12 }}>
-            {customerDetails?.FactoryID}
-          </Descriptions.Item>
-          <Descriptions.Item label="Customer NIC" className="textStyles-small" style={{ fontSize: 12 }}>
-            {customerDetails?.IdentitiCardNumber}
-          </Descriptions.Item>
+          <Descriptions.Item label="Vehicle Number" className="textStyles-small" style={{ fontSize: 12 }}>{vehicleDetails?.VehicleNumber}</Descriptions.Item>
+          <Descriptions.Item label="Vehicle Type" className="textStyles-small" style={{ fontSize: 12 }}>{vehicleDetails?.VehicleType}</Descriptions.Item>
+          <Descriptions.Item label="Volume Capacity" className="textStyles-small" style={{ fontSize: 12 }}>{vehicleDetails?.VolumeCapacity}</Descriptions.Item>
+          <Descriptions.Item label="Weight Capacity" className="textStyles-small" style={{ fontSize: 12 }}>{vehicleDetails?.WeightCapacity}</Descriptions.Item>
+          <Descriptions.Item label="Number Plate ID" className="textStyles-small" style={{ fontSize: 12 }}>{vehicleDetails?.NumberPlateID}</Descriptions.Item>
+          <Descriptions.Item label="Factory ID" className="textStyles-small" style={{ fontSize: 12 }}>{vehicleDetails?.FactoryID}</Descriptions.Item>
+          <Descriptions.Item label="Driver ID" className="textStyles-small" style={{ fontSize: 12 }}>{vehicleDetails?.DriverID}</Descriptions.Item>
+          <Descriptions.Item label="Route ID" className="textStyles-small" style={{ fontSize: 12 }}>{vehicleDetails?.RouteID}</Descriptions.Item>
         </Descriptions>
       </Modal>
 
       <Modal
         title={
           isEdit === true ? <span className='textStyles-small' style={{ fontSize: 16 }}>
-            Edit Customer Details
+            Edit Vehicle Details
           </span> :
             <span className='textStyles-small' style={{ fontSize: 16 }}>
-              Register New Customer</span>
+              Register New Vehicle</span>
         }
         visible={isModalVisible}
         onOk={modelClose}
@@ -474,10 +484,10 @@ const VehicleModule = () => {
           <Row>
             <Col span={12}>
               <Form.Item
-                label={<span className="textStyles-small">Customer Name</span>}
-                name="customerName"
-                rules={[{ required: true, message: 'Please input customer name!' }]}
-                initialValue={customerDetails?.CustomerName}
+                label={<span className="textStyles-small">Vehicle Number</span>}
+                name="VehicleNumber"
+                rules={[{ required: true, message: 'Please input vehicle number!' }]}
+                initialValue={vehicleDetails?.VehicleNumber}
                 style={{ width: '90%' }}
               >
                 <Input type="text" />
@@ -485,158 +495,131 @@ const VehicleModule = () => {
             </Col>
             <Col span={12}>
               <Form.Item
-                label={<span className="textStyles-small">Customer Mobile</span>}
-                name="customerMobile"
-                rules={[{ required: true, message: 'Please input customer mobile!' },
-                { pattern: new RegExp(/^[0-9\b]+$/), message: 'Please enter only number' },
-                { max: 10, message: 'Please enter 10 digit number' },
-                { min: 10, message: 'Please enter 10 digit number' }]}
-                initialValue={customerDetails?.CustomerMobile}
+                label={<span className="textStyles-small">Vehicle Type</span>}
+                name="VehicleType"
+                rules={[{ required: true, message: 'Please input vehicle type!' }]}
+                initialValue={vehicleDetails?.VehicleType}
+                style={{ width: '90%' }}
+              >
+                <Select
+                  placeholder="Select Vehicle Type"
+                  allowClear
+                >
+                  <Select.Option value="TRUCK">Truck</Select.Option>
+                  <Select.Option value="LORRY">Lorry</Select.Option>
+                  <Select.Option value="MINI_LORRY">Mini Lorry</Select.Option>
+                </Select>
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Row>
+            <Col span={12}>
+              <Form.Item
+                label={<span className="textStyles-small">Volume Capacity</span>}
+                name="VolumeCapacity"
+                rules={[{ required: true, message: 'Please input volume capacity!' }]}
+                initialValue={vehicleDetails?.VolumeCapacity}
+                style={{ width: '90%' }}
+              >
+                <Input type="number" />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                label={<span className="textStyles-small">Weight Capacity</span>}
+                name="WeightCapacity"
+                rules={[{ required: true, message: 'Please input weight capacity!' }]}
+                initialValue={vehicleDetails?.WeightCapacity}
+                style={{ width: '90%' }}
+              >
+                <Input type="number" />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Row>
+            <Col span={12}>
+              <Form.Item
+                label={<span className="textStyles-small">Number Plate ID</span>}
+                name="NumberPlateID"
+                rules={[{ required: true, message: 'Please input number plate ID!' }]}
+                initialValue={vehicleDetails?.NumberPlateID}
                 style={{ width: '90%' }}
               >
                 <Input type="text" />
               </Form.Item>
             </Col>
+            <Col span={12}>
+              <Form.Item
+                label={<span className="textStyles-small">Factory ID</span>}
+                name="FactoryID"
+                rules={[{ required: true, message: 'Please input factory ID!' }]}
+                initialValue={vehicleDetails?.FactoryID}
+                style={{ width: '90%' }}
+              >
+                <Select
+                  placeholder="Select Factory"
+                  allowClear
+                >
+                  {
+                    factoryList.map((item, index) => {
+                      return <Select.Option key={index} value={item.FactoryID}>{item.FactoryName}</Select.Option>
+                    })
+                  }
+                </Select>
+              </Form.Item>
+            </Col>
           </Row>
 
-          {/* VehicleNumber,
-            VehicleType,
-            VolumeCapacity,
-            WeightCapacity,
-            NumberPlateID,
-            FactoryID,
-            DriverID,
-            RouteID */}
-
-                  <Row>
-                      <Col span={12}>
-                          <Form.Item
-                              label={<span className="textStyles-small">Vehicle Number</span>}
-                              name="VehicleNumber"
-                              rules={[{ required: true, message: 'Please input vehicle number!' }]}
-                              initialValue={vehicleDetails?.VehicleNumber}
-                              style={{ width: '90%' }}
-                          >
-                              <Input type="text" />
-                          </Form.Item>
-                      </Col>
-                      <Col span={12}>
-                          <Form.Item
-                              label={<span className="textStyles-small">Vehicle Type</span>}
-                              name="VehicleType"
-                              rules={[{ required: true, message: 'Please input vehicle type!' }]}
-                              initialValue={vehicleDetails?.VehicleType}
-                              style={{ width: '90%' }}
-                          >
-                              <Input type="text" />
-                          </Form.Item>
-                      </Col>
-                  </Row>
-
-                  <Row>
-                        <Col span={12}>
-                            <Form.Item
-                                label={<span className="textStyles-small">Volume Capacity</span>}
-                                name="VolumeCapacity"
-                                rules={[{ required: true, message: 'Please input volume capacity!' }]}
-                                initialValue={vehicleDetails?.VolumeCapacity}
-                                style={{ width: '90%' }}
-                            >
-                                <Input type="number" />
-                            </Form.Item>
-                        </Col>
-                        <Col span={12}>
-                            <Form.Item
-                                label={<span className="textStyles-small">Weight Capacity</span>}
-                                name="WeightCapacity"
-                                rules={[{ required: true, message: 'Please input weight capacity!' }]}
-                                initialValue={vehicleDetails?.WeightCapacity}
-                                style={{ width: '90%' }}
-                            >
-                                <Input type="number" />
-                            </Form.Item>
-                        </Col>
-                  </Row>
-
-                  <Row>
-                        <Col span={12}>
-                            <Form.Item
-                                label={<span className="textStyles-small">Number Plate ID</span>}
-                                name="NumberPlateID"
-                                rules={[{ required: true, message: 'Please input number plate ID!' }]}
-                                initialValue={vehicleDetails?.NumberPlateID}
-                                style={{ width: '90%' }}
-                            >
-                                <Input type="text" />
-                            </Form.Item>
-                        </Col>
-                        <Col span={12}>
-                            <Form.Item
-                                label={<span className="textStyles-small">Factory ID</span>}
-                                name="FactoryID"
-                                rules={[{ required: true, message: 'Please input factory ID!' }]}
-                                initialValue={vehicleDetails?.FactoryID}
-                                style={{ width: '90%' }}
-                            >
-                                <Select
-                                    placeholder="Select Factory"
-                                    allowClear
-                                >
-                                    {
-                                        factoryList.map((item, index) => {
-                                            return <Select.Option key={index} value={item.FactoryID}>{item.FactoryName}</Select.Option>
-                                        })
-                                    }
-                                </Select>
-                            </Form.Item>
-                        </Col>
-                    </Row>
-
-                    <Row>
-                        <Col span={12}>
-                            <Form.Item
-                                label={<span className="textStyles-small">Driver ID</span>}
-                                name="DriverID"
-                                rules={[{ required: true, message: 'Please input driver ID!' }]}
-                                initialValue={vehicleDetails?.DriverID}
-                                style={{ width: '90%' }}
-                            >
-                                <Select
-                                    placeholder="Select Driver"
-                                    allowClear
-                                >
-                                    {
-                                        getAllDrivers?.map((item, index) => {
-                                            return <Select.Option key={index} value={item.EmployeeID}>{item.EmployeeName}</Select.Option>
-                                        })
-                                    }
-                                </Select>
-                            </Form.Item>
-                        </Col>
-                        <Col span={12}>
-                            <Form.Item
-                                label={<span className="textStyles-small">Route ID</span>}
-                                name="RouteID"
-                                rules={[{ required: true, message: 'Please input route ID!' }]}
-                                initialValue={vehicleDetails?.RouteID}
-                                style={{ width: '90%' }}
-                            >
-                                <Select
-                                    placeholder="Select Route"
-                                    allowClear
-                                >
-                                    {
-                                        getAllRoutes?.map((item, index) => {
-                                            return <Select.Option key={index} value={item.RoutingID}>{item.RoutingID}</Select.Option>
-                                        })
-                                    }
-                                </Select>
-                            </Form.Item>
-                        </Col>
-                    </Row>
-
-
-
+          <Row>
+            <Col span={12}>
+              <Form.Item
+                label={<span className="textStyles-small">Driver ID</span>}
+                name="DriverID"
+                rules={[{ required: true, message: 'Please input driver ID!' }]}
+                initialValue={vehicleDetails?.DriverID}
+                style={{ width: '90%' }}
+              >
+                <Select
+                  placeholder="Select Driver"
+                  allowClear
+                >
+                  {
+                    isEdit ? <Select.Option value={vehicleDetails?.DriverID}>{vehicleDetails?.DriverID}</Select.Option> : null
+                  }
+                  {
+                    getAllDrivers?.map((item, index) => {
+                      return <Select.Option key={index} value={item.EmployeeID}>{item.EmployeeName}</Select.Option>
+                    })
+                  }
+                </Select>
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                label={<span className="textStyles-small">Route ID</span>}
+                name="RouteID"
+                rules={[{ required: true, message: 'Please input route ID!' }]}
+                initialValue={vehicleDetails?.RouteID}
+                style={{ width: '90%' }}
+              >
+                <Select
+                  placeholder="Select Route"
+                  allowClear
+                >
+                  {
+                    isEdit ? <Select.Option value={vehicleDetails?.RouteID}>{vehicleDetails?.RouteID}</Select.Option> : null
+                  }
+                  {
+                    getAllRoutes?.map((item, index) => {
+                      return <Select.Option key={index} value={item.RoutingID}>{item.RoutingID}</Select.Option>
+                    })
+                  }
+                </Select>
+              </Form.Item>
+            </Col>
+          </Row>
 
           <Row>
             <Button
@@ -646,7 +629,7 @@ const VehicleModule = () => {
               className="textStyles-small"
             >
               {
-                isEdit === true ? 'Update Customer' : 'Register Customer'
+                isEdit === true ? 'Update Vehicle' : 'Register Vehicle'
               }
             </Button>
 
