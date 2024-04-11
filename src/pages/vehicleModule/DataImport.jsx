@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { apiExecutions } from '../../api/api-call';
 import { allCities } from '../../api/cities';
-import { Form, Input, Button, Select, Modal, Table, TimePicker, Space, Descriptions, Tag, Row, Col, DatePicker, Drawer, message } from 'antd';
+import { Form, Input, Button, Select, Modal, Table, TimePicker, Space, Descriptions, Tag, Row, Col, DatePicker, Drawer, message, Breadcrumb } from 'antd';
 import { CSVLink, CSVDownload } from "react-csv";
 import {
     MailOutlined,
@@ -12,6 +12,7 @@ import {
     SearchOutlined,
     CloseCircleOutlined,
     EyeOutlined,
+    HomeOutlined
 } from '@ant-design/icons';
 import './style.css';
 import moment from 'moment';
@@ -78,24 +79,6 @@ const Import = () => {
             message.error('Failed to Fetch Single Record');
         }
     }
-
-    // {
-    //     "1": {
-    //         "CollectionID": 2,
-    //         "CollectionDate": "2024-04-05T18:30:00.000Z",
-    //         "TeaWeightCollected": 110,
-    //         "WaterWeightCollected": 60,
-    //         "ActualTeaWeight": 100,
-    //         "BaseLongitude": 79.99,
-    //         "BaseLatitude": 6.45,
-    //         "RouteID": 243118935,
-    //         "FieldID": 171683694,
-    //         "EmployeeID": 10002,
-    //         "Remark": "Harvested late in the evening."
-    //     }
-    // }
-
-
 
     const columns = [
         {
@@ -243,27 +226,41 @@ const Import = () => {
         lng: -74.0060
     };
 
-
-
     return (
         <>
-            <h1>
-                Master Data
-            </h1>
+            <h1 className="headingStyle2">Tea Collection</h1>
+            <Breadcrumb
+                size="small"
+                className="textStyle-small"
+                style={{ marginBottom: 20 }}
+                items={[
+                    {
+                        href: '/free',
+                        title: <HomeOutlined />,
+                    },
+                    {
+                        title: (
+                            <>
+                                <span>Management</span>
+                            </>
+                        ),
+                    },
+                    {
+                        href: '',
+                        title: 'Tea Collection',
+                    },
+                ]}
+            />
 
             <div style={{ padding: 10, background: 'white', borderRadius: 10 }}>
                 <Space>
                     <div style={{ padding: 10, background: 'white', borderRadius: 10, display: 'flex', justifyContent: 'flex-end' }}>
                         <Space align="end">
-                            <Input
-                                placeholder="Search employee"
-                                // onChange={(e) => filterByUserName(e.target.value)}
-                                suffix={<SearchOutlined />}
-                            />
                             <RangePicker
                                 defaultValue={[dayjs(sevenDaysBefore, 'YYYY-MM-DD'), dayjs(today, 'YYYY-MM-DD')]}
                                 format={dateFormat}
                                 onChange={timeRangeFetcher}
+                                style={{ fontSize: '12px' }}
                             />
                             <Button type="primary" style={{ borderRadius: "50px" }}>
                                 <CloseCircleOutlined /> <span className='textStyle-small'>Export List</span>
