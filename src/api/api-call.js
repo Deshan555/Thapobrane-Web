@@ -1167,6 +1167,46 @@ const apiExecutions = {
             }
             return null;
         }
+    },
+    getDashboardStats: async () => {
+        try {
+            const response = await axios.get(baseDetails.CORE_SERVICE_URL + '/dashboard/stats', {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('atoken')}`
+                }
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Axios error:', error);
+            if (error.response) {
+                return error.response.data;
+            } else if (error.request) {
+                return error.request.data;
+            } else {
+                console.error('Error setting up the request:', error.message);
+            }
+            return null;
+        }
+    },
+    getCollectionRouteWise: async (targetDate) => {
+        try {
+            const response = await axios.get(baseDetails.CORE_SERVICE_URL + '/dashboard/collectionSum/' + targetDate, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('atoken')}`
+                }
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Axios error:', error);
+            if (error.response) {
+                return error.response.data;
+            } else if (error.request) {
+                return error.request.data;
+            } else {
+                console.error('Error setting up the request:', error.message);
+            }
+            return null;
+        }
     }
 };
 
