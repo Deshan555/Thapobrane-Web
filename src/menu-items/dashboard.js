@@ -20,7 +20,7 @@ const dashboard = {
       type: 'item',
       url: '/dashboard/default',
       icon: icons.DashboardOutlined,
-      breadcrumbs: true
+      breadcrumbs: false
     },
     {
       id : 'data-import',
