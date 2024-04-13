@@ -8,6 +8,7 @@ import { useDispatch, useSelector } from 'react-redux';
 // project import
 import Logo from './Logo';
 import config from 'config';
+import logo from './logo-2.png';
 import { activeItem } from 'store/reducers/menu';
 
 // ==============================|| MAIN LOGO ||============================== //
@@ -23,7 +24,14 @@ const LogoSection = ({ sx, to }) => {
       to={!to ? config.defaultPath : to}
       sx={sx}
     >
-      <Logo />
+      {/* <Logo /> */}
+      <img 
+          style={{ cursor: 'pointer', marginTop: 10 }}
+          src={logo} 
+          alt="Mantis" 
+          width={150} 
+          height="auto"
+        />
     </ButtonBase>
   );
 };
