@@ -7,50 +7,64 @@ import { Box, Chip, Grid, Stack, Typography } from '@mui/material';
 import MainCard from 'components/MainCard';
 
 // assets
-import { RiseOutlined, FallOutlined } from '@ant-design/icons';
+import { 
+  RiseOutlined, 
+  FallOutlined,
+  GiftOutlined,
+  ShoppingCartOutlined,
+  AppleFilled,
+  AttachMoneyOutlined, 
+  TeamOutlined,
+  TruckOutlined,
+  EnvironmentOutlined,
+  PartitionOutlined,
+  CarOutlined
+} from '@ant-design/icons';
 
-// ==============================|| STATISTICS - ECOMMERCE CARD  ||============================== //
-
-const AnalyticEcommerce = ({ color, title, count, percentage, isLoss, extra }) => (
+const AnalyticEcommerce = ({ color, title, count, percentage, isLoss, extra, icon }) => (
   <MainCard contentSX={{ p: 2.25 }}>
-    <Stack spacing={0.5}>
+    <Stack spacing={0.2}>
       <Typography variant="h6" color="textSecondary">
         {title}
       </Typography>
-      <Grid container alignItems="center">
+      <Grid container alignItems="center" justifyContent="space-between">
         <Grid item>
           <Typography variant="h4" color="inherit">
             {count}
           </Typography>
         </Grid>
-        {percentage && (
-          <Grid item>
-            <Chip
-              variant="combined"
-              color={color}
-              icon={
-                <>
-                  {!isLoss && <RiseOutlined style={{ fontSize: '0.75rem', color: 'inherit' }} />}
-                  {isLoss && <FallOutlined style={{ fontSize: '0.75rem', color: 'inherit' }} />}
-                </>
-              }
-              label={`${percentage}%`}
-              sx={{ ml: 1.25, pl: 1 }}
-              size="small"
-            />
-          </Grid>
-        )}
+        <Grid item>
+          {
+            icon === 'customers' ? (
+              <div style={{ backgroundColor: '#e6f4ff', borderRadius: '50%', padding: '0.5rem', width: '40px', height: '40px' }}>
+                <TeamOutlined style={{ fontSize: '1.5rem', color: '#003eb3' }} />
+              </div>
+            ) : null
+          }
+          {
+            icon === 'fields' ? (
+              <div style={{ backgroundColor: '#d9f7be', borderRadius: '50%', padding: '0.5rem', width: '40px', height: '40px' }}>
+                <EnvironmentOutlined style={{ fontSize: '1.5rem', color: '#237804' }} />
+              </div>
+            ) : null
+          }
+          {
+            icon === 'routes' ? (
+              <div style={{ backgroundColor: '#ffd6e7', borderRadius: '50%', padding: '0.5rem', width: '40px', height: '40px' }}>
+                <PartitionOutlined style={{ fontSize: '1.5rem', color: '#c41d7f' }} />
+              </div>
+            ) : null
+          }
+          {
+            icon === 'vehicles' ? (
+              <div style={{ backgroundColor: '#d3adf7', borderRadius: '50%', padding: '0.5rem', width: '40px', height: '40px' }}>
+                <CarOutlined style={{ fontSize: '1.5rem', color: '#531dab' }} />
+              </div>
+            ) : null
+          }
+        </Grid>
       </Grid>
     </Stack>
-    <Box sx={{ pt: 2.25 }}>
-      <Typography variant="caption" color="textSecondary">
-        You made an extra{' '}
-        <Typography component="span" variant="caption" sx={{ color: `${color || 'primary'}.main` }}>
-          {extra}
-        </Typography>{' '}
-        this year
-      </Typography>
-    </Box>
   </MainCard>
 );
 
@@ -60,6 +74,7 @@ AnalyticEcommerce.propTypes = {
   count: PropTypes.string,
   percentage: PropTypes.number,
   isLoss: PropTypes.bool,
+  icon: PropTypes.string,
   extra: PropTypes.oneOfType([PropTypes.node, PropTypes.string])
 };
 
