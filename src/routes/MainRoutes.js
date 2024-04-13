@@ -34,7 +34,8 @@ const DataImporter = Loadable(lazy(() => import('pages/vehicleModule/DataImporte
 const Import = Loadable(lazy(() => import('pages/vehicleModule/DataImport')));
 const Fertilizers = Loadable(lazy(() => import('pages/vehicleModule/Fertilizers')));
 const Admin = Loadable(lazy(() => import('pages/vehicleModule/Admin')));
-
+const FertilizerManagement = Loadable(lazy(() => import('pages/vehicleModule/FertilizersManagement')));
+const FieldInspection = Loadable(lazy(() => import('pages/vehicleModule/FieldInspection')));
 
 // ==============================|| MAIN ROUTING ||============================== //
 
@@ -151,6 +152,14 @@ const MainRoutes = {
     {
       path: '/thaprobane/admin',
       element: <Admin />
+    },
+    {
+      path: '/thaprobane/fertilizer/approval',
+      element: <FertilizerManagement />
+    },
+    {
+      path: '/thaprobane/field-inspection',
+      element: <FieldInspection />
     }
   ]
 };
