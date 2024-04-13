@@ -1,5 +1,5 @@
 // assets
-import { LoginOutlined, ProfileOutlined, CarOutlined, FieldTimeOutlined, CodeOutlined, CloudDownloadOutlined, CloudUploadOutlined, ExperimentOutlined, AppstoreAddOutlined, TrophyOutlined, UserOutlined, TeamOutlined, SolutionOutlined, NodeIndexOutlined, NumberOutlined, EnvironmentOutlined } from '@ant-design/icons';
+import { MonitorOutlined, LoginOutlined, ProfileOutlined, CarOutlined, FieldTimeOutlined, CodeOutlined, CloudDownloadOutlined, CloudUploadOutlined, ExperimentOutlined, AppstoreAddOutlined, TrophyOutlined, UserOutlined, TeamOutlined, SolutionOutlined, NodeIndexOutlined, NumberOutlined, EnvironmentOutlined } from '@ant-design/icons';
 
 // icons
 const icons = {
@@ -18,7 +18,8 @@ const icons = {
   AppstoreAddOutlined, 
   CloudDownloadOutlined, 
   CloudUploadOutlined,
-  CodeOutlined
+  CodeOutlined,
+  MonitorOutlined
 };
 // ==============================|| MENU ITEMS - UTILITIES ||============================== //
 
@@ -64,6 +65,15 @@ const utilities = {
     //   icon: icons.LoadingOutlined,
     //   breadcrumbs: true
     // }
+    {
+      id: 'dataSources',
+      title: 'Field Inspection',
+      type: 'item',
+      url: '/thaprobane/field-inspection',
+      icon: icons.MonitorOutlined,
+      target: false,
+      breadcrumbs: false
+    },
     {
       id: 'exports',
       title: 'Data Exports',

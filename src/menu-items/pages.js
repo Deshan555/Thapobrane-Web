@@ -1,6 +1,6 @@
 // assets
 import { LoginOutlined, ProfileOutlined, CarOutlined, FieldTimeOutlined, 
-  CloudDownloadOutlined, CloudUploadOutlined, ExperimentOutlined, AppstoreAddOutlined, TrophyOutlined, UserOutlined, TeamOutlined, SolutionOutlined, NodeIndexOutlined, NumberOutlined, EnvironmentOutlined } from '@ant-design/icons';
+  CloudDownloadOutlined,ShoppingCartOutlined, CloudUploadOutlined, ExperimentOutlined, AppstoreAddOutlined, TrophyOutlined, UserOutlined, TeamOutlined, SolutionOutlined, NodeIndexOutlined, NumberOutlined, EnvironmentOutlined } from '@ant-design/icons';
 
 // icons
 const icons = {
@@ -18,7 +18,8 @@ const icons = {
   EnvironmentOutlined,
   AppstoreAddOutlined, 
   CloudDownloadOutlined, 
-  CloudUploadOutlined
+  CloudUploadOutlined,
+  ShoppingCartOutlined
 };
 
 const pages = {
@@ -129,6 +130,15 @@ const pages = {
       type: 'item',
       url: '/thaprobane/fertilizers',
       icon: icons.ExperimentOutlined,
+      target: false,
+      breadcrumbs: false
+    },
+    {
+      id: 'cartManagement',
+      title: 'Fertilizer Orders',
+      type: 'item',
+      url: '/thaprobane/fertilizer/approval',
+      icon: icons.ShoppingCartOutlined,
       target: false,
       breadcrumbs: false
     }
