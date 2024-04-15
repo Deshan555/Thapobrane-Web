@@ -43,6 +43,7 @@ import HorizontalBarChart from 'pages/charts/HorizontalBarChart';
 import AreaChart from 'pages/charts/AreaChart';
 import RadarChart from 'pages/charts/RaderChart';
 import PieChart from 'pages/charts/PieChart';
+import PendingPaymentTable from 'pages/charts/PendingPaymentTable';
 
 // avatar style
 const avatarSX = {
@@ -342,40 +343,19 @@ const DashboardDefault = () => {
           </MainCard>
         </Grid>
 
-
-
-
-      
-
-
-        {/* <PieChart
-          categories={routingWiseCollection?.map((item) => item?.RouteID)}
-          data={routingWiseCollection?.map((item) => item?.TotalTeaWeight)}
-        /> */}
-
-{/* //  <RadarChart
-          //   yaxisTitle="Routing ID Name"
-          //   xaxisTitle="Collected Tea Weight (KG)"
-          //   color = "#74e0d9"
-          //   categories ={routingWiseCollection?.map((item) => item?.RouteID)}
-          //   data = {routingWiseCollection?.map((item) => item?.TotalTeaWeight)}
-          // /> */}
-
-  
-
-
-
-
         {/* row 3 */}
         <Grid item xs={12} md={7} lg={8}>
           <Grid container alignItems="center" justifyContent="space-between">
             <Grid item>
-              <Typography variant="h5">Recent Orders</Typography>
+              <Typography variant="h5" className='textStyle3'>
+                 Pending Payments
+              </Typography>
             </Grid>
             <Grid item />
           </Grid>
           <MainCard sx={{ mt: 2 }} content={false}>
-            <OrdersTable />
+            {/* <OrdersTable /> */}
+            <PendingPaymentTable/>
           </MainCard>
         </Grid>
         <Grid item xs={12} md={5} lg={4}>

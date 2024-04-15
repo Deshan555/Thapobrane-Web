@@ -1207,6 +1207,76 @@ const apiExecutions = {
             }
             return null;
         }
+    },
+    // /fertilizers/order/getall
+    getAllDertilizerOrdersList: async () => {
+        try {
+            const response = await axios.get(baseDetails.CORE_SERVICE_URL + '/fertilizers/order/getall', {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('atoken')}`
+                }
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Axios error:', error);
+            if (error.response) {
+                return error.response.data;
+            } else if (error.request) {
+                return error.request.data;
+            } else {
+                console.error('Error setting up the request:', error.message);
+            }
+            return null;
+        }
+    },
+    approveFertilizerOrder: async (orderID, data) => {
+        try {
+            const response = await axios.put(baseDetails.CORE_SERVICE_URL + '/fertilizers/order/admin/approve/' + orderID, {
+                ApprovalStatus: data?.ApprovalStatus,
+                ApprovedQuantity: data?.ApprovedQuantity,
+                ApprovedBy: data?.ApprovedBy,
+                PaymentStatus: data?.PaymentStatus,
+                Remarks: data?.Remarks,
+                ApproveDate: data?.ApproveDate,
+                SupposedDeliveryDate: data?.SupposedDeliveryDate,
+                IsDelivered: data?.IsDelivered
+            }, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('atoken')}`
+                }
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Axios error:', error);
+            if (error.response) {
+                return error.response.data;
+            } else if (error.request) {
+                return error.request.data;
+            } else {
+                console.error('Error setting up the request:', error.message);
+            }
+            return null;
+        }
+    },
+    getFertilizerOrdersByFertilizerID: async (fertilizerID) => {
+        try {
+            const response = await axios.get(baseDetails.CORE_SERVICE_URL + '/fertilizers/order/getByFertilizerID/' + fertilizerID, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('atoken')}`
+                }
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Axios error:', error);
+            if (error.response) {
+                return error.response.data;
+            } else if (error.request) {
+                return error.request.data;
+            } else {
+                console.error('Error setting up the request:', error.message);
+            }
+            return null;
+        }
     }
 };
 
