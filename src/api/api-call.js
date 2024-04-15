@@ -238,6 +238,26 @@ const apiExecutions = {
             return null;
         }
     },
+    getFieldInfoByID: async (fieldID) => {
+        try {
+            const response = await axios.get(baseDetails.CORE_SERVICE_URL + '/fieldInfo/' + fieldID, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('atoken')}`
+                }
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Axios error:', error);
+            if (error.response) {
+                console.error('Server responded with:', error.response.data);
+            } else if (error.request) {
+                console.error('No response received:', error.request);
+            } else {
+                console.error('Error setting up the request:', error.message);
+            }
+            return null;
+        }
+    },
     registerNewField: async (values) => {
         try {
             const response = await axios.post(baseDetails.CORE_SERVICE_URL + '/fieldInfo/add', {
@@ -1261,6 +1281,27 @@ const apiExecutions = {
     getFertilizerOrdersByFertilizerID: async (fertilizerID) => {
         try {
             const response = await axios.get(baseDetails.CORE_SERVICE_URL + '/fertilizers/order/getByFertilizerID/' + fertilizerID, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('atoken')}`
+                }
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Axios error:', error);
+            if (error.response) {
+                return error.response.data;
+            } else if (error.request) {
+                return error.request.data;
+            } else {
+                console.error('Error setting up the request:', error.message);
+            }
+            return null;
+        }
+    },
+    // /fertilizers/order/dashboard/getPendingPayments
+    getPendingPaymentsDashboard: async () => {
+        try {
+            const response = await axios.get(baseDetails.CORE_SERVICE_URL + '/fertilizers/order/dashboard/getPendingPayments', {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem('atoken')}`
                 }
