@@ -284,21 +284,7 @@ const Import = () => {
                     size="small"
                 />
             </div>
-            {/* 
-            {
-	"0": {
-		"CollectionID": 1,
-		"CollectionDate": "2024-04-04T18:30:00.000Z",
-		"TeaWeightCollected": 100,
-		"WaterWeightCollected": 50,
-		"ActualTeaWeight": 90,
-		"BaseLongitude": 79.99,
-		"BaseLatitude": 6.45,
-		"RouteID": 243118935,
-		"FieldID": 171683694,
-		"EmployeeID": 10002,
-		"Remark": "Harvested early in the morning."
-	} */}
+            
             <Modal
                 title={<span className='textStyle-small' style={{ fontSize: '14px' }}>
                     Daily Collection Details
