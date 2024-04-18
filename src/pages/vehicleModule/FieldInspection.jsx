@@ -19,13 +19,83 @@ import { CSVLink, CSVDownload } from "react-csv";
 import moment from '../../../node_modules/moment/moment';
 import '../charts/chart-styles.css';
 
+import LineChart from 'pages/charts/LineChart';
+import HorizontalBarChart from 'pages/charts/HorizontalBarChart';
+import AnalyticEcommerce from 'components/cards/statistics/AnalyticEcommerce';
+import AreaChart from 'pages/charts/AreaChart';
+import RadarChart from 'pages/charts/RaderChart';
+import PieChart from 'pages/charts/PieChart';
+import DonutChart from 'pages/charts/DonutChart';
+import DualBarChart from 'pages/charts/DualBarChart';
+import dayjs from 'dayjs';
+import { set } from 'lodash';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
+const { RangePicker } = DatePicker;
+const dateFormat = 'YYYY/MM/DD';
+const weekFormat = 'MM/DD';
+const monthFormat = 'YYYY/MM';
+
 const FieldInspection = () => {
 
     const [selectedFieldInfo, setSelectedFieldInfo] = useState({});
     const [ownerDetails, setOwnerDetails] = useState({});
 
+    const [allTimeSumByFieldID, setAllTimeSumByFieldID] = useState([]);
+    const [allRecordsBasedOnTimeRange, setAllRecordsBasedOnTimeRange] = useState([]);
+    const [dataSumByTimeRange, setDataSumByTimeRange] = useState([]);
+    const [dailyCollectionSummery, setDailyCollectionSummery] = useState(null);
+    const [weekelyWiseCollectionSummery, setWeekelyWiseCollectionSummery] = useState([]);
+
+    const [allDailyCollection, setAllDailyCollection] = useState([]);
+    const [selectedDailyCollection, setSelectedDailyCollection] = useState(null);
+    const [modelOpen, setModelOpen] = useState(false);
+    const today = moment().format('YYYY-MM-DD');
+    const sevenDaysBefore = moment().subtract(7, 'days').format('YYYY-MM-DD');
+    const dateFormatList = ['DD/MM/YYYY', 'DD/MM/YY', 'DD-MM-YYYY', 'DD-MM-YY'];
+    const [modalVisible, setModalVisible] = useState(false);
+
+    const [fetchAllFertilizerRecords, setFetchAllFertilizerRecords] = useState([]);
+    const [selectedRecord, setSelectedRecord] = useState({});
+    const [isReject, setIsReject] = useState(false);
+    const [openModal, setOpenModal] = useState(false);
+    const [infoModal, setInfoModal] = useState(false);
+    const [fetilizerInformations, setFetilizerInformations] = useState([]);
+    const [unitDetails, setUnitDetails] = useState({
+        FertilizerName: null,
+        AvailableQuentity: 0,
+        PricePerUnit: 0,
+    });
+    const [dropdownValues, setDropdownValues] = useState('all');
+    const [filterValues, setFilterValues] = useState([]);
+    const [current, setCurrent] = useState(0);
+
+    const openDetailsModal = (edit) => {
+        setOpenModal(true);
+        setInfoModal(edit);
+    }
+
+    const closeDetailsModal = () => {
+        setOpenModal(false);
+        setInfoModal(false);
+    }
+
+
     useEffect(() => {
         fetchSelectedFieldInformation();
+        fetchAllTimeSumByFieldID();
+        fetchAllRecordsBasedOnTimeRange();
+        fetchDataSumByTimeRange();
+        dailyCollectionSummeryFunc();
+
+        fetchAllRecordsByWeek();
+
+        // "startDate": new Date(new Date().getTime() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        // "endDate": new Date().toISOString().split('T')[0]
+        getDailyTeaCollectionBetweenTwoDatesFetch(new Date(new Date().getTime() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], new Date().toISOString().split('T')[0]);
+
+        fetchFertilizerRecords(787328625);
+        fetchAllRecords();
+
     }, []);
 
     const fetchSelectedFieldInformation = async () => {
@@ -38,12 +108,199 @@ const FieldInspection = () => {
         }
     }
 
+    const fetchAllRecords = async () => {
+        const result = await apiExecutions.getAllFertilizerInfo();
+        if (result !== null) {
+            if (result.success === true) {
+                setFetilizerInformations(result.data);
+            } else {
+                message.error('Error : ' + result.data.message);
+            }
+        }
+    }
+
+    const fetchFertilizerRecords = async (fieldID) => {
+        const response = await apiExecutions.getFertilizerOrdersByFieldID(fieldID);
+        if (response !== null) {
+            if (response.success === true) {
+                setFetchAllFertilizerRecords(response?.data?.reverse());
+            } else {
+                message.error(response?.message);
+            }
+        }
+    }
+
+    const getOrderDetailsByOrderID = async (orderID, modalType) => {
+        setSelectedRecord({});
+        const result = await apiExecutions.getFertilizerOrdersByFertilizerID(orderID);
+        if (result !== null) {
+            if (result?.success === true) {
+                setSelectedRecord(result?.data[0]);
+                const record = result?.data[0]?.ApprovalStatus === 'REJECTED' ? true : false;
+                setIsReject(record);
+                setUnitDetails({
+                    FertilizerName: fetilizerInformations?.find(item => item?.FertilizerID === result?.data[0]?.FertilizerID)?.FertilizerName,
+                    AvailableQuentity: fetilizerInformations?.find(item => item?.FertilizerID === result?.data[0]?.FertilizerID)?.FertilizerQuantity,
+                    PricePerUnit: fetilizerInformations?.find(item => item?.FertilizerID === result?.data[0]?.FertilizerID)?.FertilizerPrice
+                });
+                if (result?.data[0]?.CustomerOrderStatus === 'REQUESTED' || result?.data[0]?.CustomerOrderStatus === 'REJECTED') {
+                    setCurrent(0);
+                }
+                if (result?.data[0]?.ApprovalStatus === 'APPROVED' || result?.data[0]?.ApprovalStatus === 'REJECTED') {
+                    setCurrent(1);
+                }
+                if (result?.data[0]?.PaymentStatus === 'PAID') {
+                    setCurrent(2);
+                }
+                if (result?.data[0]?.IsDelivered === 'YES') {
+                    setCurrent(3);
+                }
+                openDetailsModal(modalType);
+            } else {
+                message.error('Error : ' + result?.data?.message);
+            }
+        }
+    }
+
     const fetchOwnerByOwnerID = async (ownerID) => {
         const response = await apiExecutions.getCustomerByCustomerID(ownerID);
         if (response !== null) {
             if (response.success === true) {
                 setOwnerDetails(response?.data[0]);
             }
+        }
+    }
+
+    const fetchAllTimeSumByFieldID = async () => {
+        const response = await apiExecutions.getCollectionSumByFieldID(171683694);
+        if (response !== null) {
+            if (response.success === true) {
+                setAllTimeSumByFieldID(response?.data);
+            }
+        } else {
+            message.error(response?.message);
+        }
+    }
+
+    const dailyCollectionSummeryFunc = async () => {
+        // FieldID: data?.FieldID,
+        // startDate: data?.startDate,
+        const requestJson = {
+            "FieldID": 171683694,
+            "startDate": "2024-04-17",
+        }
+        const fullSummery = {
+            fullWeight: 0,
+            cutForWater: 0,
+            collectedWeight: 0
+        }
+        const response = await apiExecutions.getCollectionSumByDateRangeAndZone(requestJson);
+        if (response !== null) {
+            if (response.success === true) {
+                response?.data.map((item) => {
+                    fullSummery.fullWeight += item?.TeaWeightCollected;
+                    fullSummery.cutForWater += item?.WaterWeightCollected;
+                    fullSummery.collectedWeight += item?.ActualTeaWeight;
+                });
+                setDailyCollectionSummery(fullSummery);
+            }
+        } else {
+            message.error(response?.message);
+        }
+    }
+
+    const fetchAllRecordsBasedOnTimeRange = async () => {
+        const requestJson = {
+            "FieldID": 171683694,
+            "startDate": "2024-04-01",
+            "endDate": "2024-04-30"
+        }
+        const response = await apiExecutions.getCollectionByFieldIDandTimeRange(requestJson);
+        if (response !== null) {
+            const responseArr = [];
+            if (response.success === true) {
+                const sumsByDate = {};
+                response?.data?.forEach((item) => {
+                    const date = item?.CollectionDate;
+                    const weight = item?.ActualTeaWeight;
+                    sumsByDate[date] = sumsByDate[date] || 0;
+                    sumsByDate[date] += weight;
+                });
+                const responseArr = Object.keys(sumsByDate).map(date => ({
+                    dateString: date,
+                    collectionSum: sumsByDate[date]
+                }));
+                setAllRecordsBasedOnTimeRange(responseArr);
+            }
+        } else {
+            message.error(response?.message);
+        }
+    }
+
+    const fetchAllRecordsByWeek = async () => {
+        const requestJson = {
+            "FieldID": 171683694,
+            "startDate": new Date(new Date().getTime() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+            "endDate": new Date().toISOString().split('T')[0]
+        }
+        const response = await apiExecutions.getCollectionByFieldIDandTimeRange(requestJson);
+        if (response !== null) {
+            const responseArr = [];
+            if (response.success === true) {
+                const sumsByDate = {};
+                response?.data?.forEach((item) => {
+                    const date = item?.CollectionDate;
+                    const weight = item?.ActualTeaWeight;
+                    const waterWeightCollection = item?.WaterWeightCollected;
+
+                    sumsByDate[date] = sumsByDate[date] || { fullWeight: 0, waterWeight: 0 };
+                    sumsByDate[date].fullWeight += weight;
+                    sumsByDate[date].waterWeight += waterWeightCollection;
+                });
+                const responseArr = Object.keys(sumsByDate).map(date => ({
+                    dateString: date,
+                    collectionSum: sumsByDate[date],
+                    fullWeight: sumsByDate[date].fullWeight,
+                }));
+                setWeekelyWiseCollectionSummery(responseArr);
+            }
+        } else {
+            message.error(response?.message);
+        }
+    }
+
+    const getDailyTeaCollectionBetweenTwoDatesFetch = async (startDate, endDate) => {
+        const requestJson = {
+            "FieldID": 171683694,
+            "startDate": startDate,
+            "endDate": endDate
+        }
+        const response = await apiExecutions.getCollectionByFieldIDandTimeRange(requestJson);
+        if (response !== null) {
+            const responseArr = [];
+            if (response.success === true) {
+                setAllDailyCollection(response?.data?.reverse());
+            }
+        } else {
+            message.error(response?.message);
+        }
+    }
+
+
+
+    const fetchDataSumByTimeRange = async () => {
+        const requestJson = {
+            "FieldID": 171683694,
+            "startDate": "2024-04-01",
+            "endDate": "2024-04-30"
+        }
+        const response = await apiExecutions.getCollectionSumOverTimeRange(requestJson);
+        if (response !== null) {
+            if (response.success === true) {
+                setDataSumByTimeRange(response?.data);
+            }
+        } else {
+            message.error(response?.message);
         }
     }
 
@@ -90,6 +347,236 @@ const FieldInspection = () => {
     //         "FactoryID": 1
     //     }
     // }
+
+
+    const columns = [
+        {
+            title: <span className='textStyles-small'>Collection Date</span>,
+            dataIndex: 'CollectionDate',
+            key: 'CollectionDate',
+            render: (value) => {
+                return <span className='textStyle-small'>
+                    {value ? value.split('T')[0] : ''}
+                </span>
+            }
+        },
+        {
+            title: <span className='textStyles-small'>Tea Weight Collected</span>,
+            dataIndex: 'TeaWeightCollected',
+            key: 'TeaWeightCollected',
+            render: (value) => {
+                return <span className='textStyle-small'>
+                    {value} Kg
+                </span>
+            }
+        },
+        {
+            title: <span className='textStyles-small'>Water Weight Collected</span>,
+            dataIndex: 'WaterWeightCollected',
+            key: 'WaterWeightCollected',
+            render: (value) => {
+                return <span className='textStyle-small'>
+                    {value} Kg
+                </span>
+            }
+        },
+        {
+            title: <span className='textStyles-small'>Actual Tea Weight</span>,
+            dataIndex: 'ActualTeaWeight',
+            key: 'ActualTeaWeight',
+            render: (value) => {
+                return <span className='textStyle-small'>
+                    {value} Kg
+                </span>
+            }
+        },
+        {
+            title: <span className='textStyles-small'>Base Longitude</span>,
+            dataIndex: 'BaseLongitude',
+            key: 'BaseLongitude',
+            render: (value) => {
+                return <span className='textStyle-small'>
+                    {value}
+                </span>
+            }
+        },
+        {
+            title: <span className='textStyles-small'>Base Latitude</span>,
+            dataIndex: 'BaseLatitude',
+            key: 'BaseLatitude',
+            render: (value) => {
+                return <span className='textStyle-small'>
+                    {value}
+                </span>
+            }
+        },
+        {
+            title: <span className='textStyles-small'>Route ID</span>,
+            dataIndex: 'RouteID',
+            key: 'RouteID',
+            render: (value) => {
+                return <span className='textStyle-small'>
+                    {value}
+                </span>
+            }
+        },
+        {
+            title: <span className='textStyles-small'>Field ID</span>,
+            dataIndex: 'FieldID',
+            key: 'FieldID',
+            render: (value) => {
+                return <span className='textStyle-small'>
+                    {value}
+                </span>
+            }
+        },
+        {
+            title: <span className='textStyles-small'>Employee ID</span>,
+            dataIndex: 'EmployeeID',
+            key: 'EmployeeID',
+            render: (value) => {
+                return <span className='textStyle-small'>
+                    {value}
+                </span>
+            }
+        },
+        {
+            title: <span className='textStyles-small'>Remark</span>,
+            dataIndex: 'Remark',
+            key: 'Remark',
+            render: (value) => {
+                return <span className='textStyle-small'>
+                    {value}
+                </span>
+            }
+        },
+        {
+            title: <span className='textStyles-small'>Actions</span>,
+            dataIndex: 'actions',
+            key: 'actions',
+            render: (value, record) => {
+                return <Space>
+                    <Button
+                        type="primary"
+                        shape="circle"
+                        size="small"
+                        onClick={() => fetchSingleDataRecordByRecordID(record.CollectionID)}>
+                        <EyeOutlined />
+                    </Button>
+                </Space>
+            }
+        }
+    ]
+
+    const Fcolumns = [
+        {
+            title: <span className="textStyles-small">Tracking ID</span>,
+            dataIndex: 'TrackingID',
+            key: 'TrackingID',
+            render: (text) => <span className="textStyle-small">{text}</span>,
+        },
+        {
+            title: <span className="textStyles-small">Requested Quantity</span>,
+            dataIndex: 'OrderQuentity',
+            key: 'OrderQuentity',
+            render: (text) => <span className="textStyle-small">{text} Kg</span>,
+        },
+        {
+            title: <span className="textStyles-small">Order Date</span>,
+            dataIndex: 'OrderDate',
+            key: 'OrderDate',
+            render: (text) => <span className="textStyle-small">{dayjs(text).format('DD/MM/YYYY')}</span>,
+        },
+        {
+            title: <span className="textStyles-small">Requested Deliver Date </span>,
+            dataIndex: 'RequestedDeadLine',
+            key: 'RequestedDeadLine',
+            render: (text) => <span className="textStyle-small">{dayjs(text).format('DD/MM/YYYY')}</span>,
+        },
+        {
+            title: <span className="textStyles-small">Customer Order Status</span>,
+            dataIndex: 'CustomerOrderStatus',
+            key: 'CustomerOrderStatus',
+            render: (text) => <>
+                {text === 'REQUESTED' ? <Badge status="success" text={<span className='textStyle-small'>REQUESTED</span>} /> :
+                    text === 'REJECTED' ? <Badge status="error" text={<span className='textStyle-small'>REJECTED</span>} /> : null}
+            </>,
+        },
+        {
+            title: <span className="textStyles-small">Approval Status</span>,
+            dataIndex: 'ApprovalStatus',
+            key: 'ApprovalStatus',
+            render: (text, record) => (
+                record?.CustomerOrderStatus === 'REQUESTED' ? (
+                    text === 'PENDING' ? <Badge status="processing" text={<span className='textStyle-small'>PENDING</span>} /> :
+                        text === 'APPROVED' ? <Badge status="success" text={<span className='textStyle-small'>APPROVED</span>} /> :
+                            text === 'REJECTED' ? <Badge status="error" text={<span className='textStyle-small'>REJECTED</span>} /> : null
+                ) : (
+                    <Badge status="error" text={<span className='textStyle-small'>REJECTED</span>} />
+                )
+            ),
+        },
+        {
+            title: <span className="textStyles-small">Payment Status</span>,
+            dataIndex: 'PaymentStatus',
+            key: 'PaymentStatus',
+            render: (text, record) => (
+                record?.CustomerOrderStatus === 'REQUESTED' ? (
+                    text === 'UNPAID' ? <Badge status="error" text={<span className='textStyle-small'>UNPAID</span>} /> :
+                        text === 'PAID' ? <Badge status="success" text={<span className='textStyle-small'>PAID</span>} /> :
+                            <Badge status="error" text={<span className='textStyle-small'>UNPAID</span>} />
+                ) : (
+                    <Badge status="error" text={<span className='textStyle-small'>REJECTED</span>} />
+                )
+            )
+        },
+        {
+            title: <span className="textStyles-small">Is Delivered</span>,
+            dataIndex: 'IsDelivered',
+            key: 'IsDelivered',
+            render: (text) => <>
+                {text === 'NO' ? <Badge status="error" text={<span className='textStyle-small'>NO</span>} /> :
+                    text === 'ONTHEWAY' ? <Badge status="processing" text={<span className='textStyle-small'>ONWAY</span>} /> :
+                        text === 'YES' ? <Badge status="success" text={<span className='textStyle-small'>YES</span>} /> : null
+                }</>,
+        },
+        {
+            title: <span className="textStyles-small">Action</span>,
+            key: 'action',
+            render: (text, record) => (
+                <Space size="middle">
+                    <Button type="primary"
+                        icon={<EyeOutlined />}
+                        style={{ background: '#3bb64b', borderColor: '#3bb64b' }}
+                        shape="circle"
+                        size="small"
+                        onClick={() => { getOrderDetailsByOrderID(record.ORDER_ID, true) }}
+                    />
+                </Space>
+            ),
+        },
+    ];
+
+    const timeRangeFetcher = (values) => {
+        const startDate = values[0]?.format('YYYY-MM-DD');
+        const endDate = values[1]?.format('YYYY-MM-DD');
+        getDailyTeaCollectionBetweenTwoDatesFetch(startDate, endDate);
+    }
+
+    const fetchSingleDataRecordByRecordID = async (recordID) => {
+        const response = await apiExecutions.getDailyTeaCollectionByID(recordID);
+        if (response !== null && response !== undefined) {
+            if (response.success === true) {
+                setSelectedDailyCollection(response.data);
+                setModelOpen(true);
+            } else {
+                message.error('Failed to Fetch Single Record');
+            }
+        } else {
+            message.error('Failed to Fetch Single Record');
+        }
+    }
+
     const items = [
         {
             key: '1',
@@ -158,8 +645,148 @@ const FieldInspection = () => {
                         <span className='textStyles-small'>{selectedFieldInfo?.FactoryID}</span>
                     </Descriptions.Item>
                 </Descriptions>
+            </>
+        },
+        {
+            key: '2',
+            label: <span className='textStyles-small'>Inspection Details</span>,
+            children: <>
+                {/* <pre>
+                {JSON.stringify(weekelyWiseCollectionSummery, null, 2)}
+            </pre> */}
 
-                <Descriptions bordered column={2} size='small' className='textStyles-small' style={{ marginTop: 10 }} title={<span className='textStyles-small' style={{ fontSize: 14, fontWeight: 'bold' }}>Owner Details</span>}>
+                <Row>
+                    <AnalyticEcommerce
+                        style={{ width: '500px' }}
+                        title={<span className='textStyles-small' style={{ fontSize: '13px' }}>
+                            Number Of Customers</span>}
+                        //   count={dashStatus[0]?.row_count ? dashStatus[0]?.row_count : 0}
+                        count={0}
+                        icon='customers' />
+                    <AnalyticEcommerce
+                        title={<span className='textStyles-small' style={{ fontSize: '13px' }}>
+                            Number Of Customers</span>}
+                        //   count={dashStatus[0]?.row_count ? dashStatus[0]?.row_count : 0}
+                        count={0}
+                        icon='customers' />
+                    <AnalyticEcommerce
+                        title={<span className='textStyles-small' style={{ fontSize: '13px' }}>
+                            Number Of Customers</span>}
+                        //   count={dashStatus[0]?.row_count ? dashStatus[0]?.row_count : 0}
+                        count={0}
+                        icon='customers' />
+                    <AnalyticEcommerce
+                        title={<span className='textStyles-small' style={{ fontSize: '13px' }}>
+                            Number Of Customers</span>}
+                        //   count={dashStatus[0]?.row_count ? dashStatus[0]?.row_count : 0}
+                        count={0}
+                        icon='customers' />
+                </Row>
+
+                <Row>
+                    <div style={{ marginTop: 20, width: '100%', height: 350, backgroundColor: 'white', borderRadius: 10, padding: 5 }}>
+                        {
+                            weekelyWiseCollectionSummery.length > 0 ? (
+                                <DualBarChart
+                                    categories={weekelyWiseCollectionSummery.map((item) => moment(item?.dateString).format('DD-MM-YYYY'))}
+                                    collectioX={weekelyWiseCollectionSummery.map((item) => item?.collectionSum?.fullWeight)}
+                                    collectioY={weekelyWiseCollectionSummery.map((item) => item?.collectionSum?.waterWeight)}
+                                />
+                            ) : null
+                        }
+                    </div>
+                </Row>
+                <Row>
+                    <Col span={16}>
+                        <div style={{ marginTop: 20, width: '100%', height: 350, backgroundColor: 'white', borderRadius: 10, padding: 5 }}>
+                            {allRecordsBasedOnTimeRange.length > 0 ? (
+                                <AreaChart
+                                    xValues={allRecordsBasedOnTimeRange.map((item) => new Date(item?.dateString).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }))}
+                                    data={
+                                        allRecordsBasedOnTimeRange.map((item) => ({
+                                            x: new Date(item?.dateString),
+                                            y: item?.collectionSum
+                                        }))}
+                                    xInfo='DATE'
+                                />
+                            ) : null}
+                        </div>
+                    </Col>
+                    <Col span={8}>
+                        <div style={{ marginTop: 20, width: '100%', height: 350, backgroundColor: 'white', borderRadius: 10, padding: 10, marginLeft: 10 }}>
+                            <span className='textStyles-small' style={{ fontSize: 14, fontWeight: 'bold', color: '#373d3f', marginLeft: 10, marginTop: '40px' }}>
+                                Daily Collection Summery
+                            </span>
+                            {
+                                dailyCollectionSummery !== null ? (
+                                    <DonutChart
+                                        data={[dailyCollectionSummery?.fullWeight, dailyCollectionSummery?.cutForWater, dailyCollectionSummery?.collectedWeight]}
+                                        categories={['Full Weight', 'Cut for Water', 'Collected Weight']}
+                                    />
+                                ) : null
+                            }
+                        </div>
+                    </Col>
+                </Row>
+            </>
+        },
+        {
+            key: '3',
+            label: <span className='textStyles-small'>Collection Report</span>,
+            children: <>
+                <div style={{ padding: 10, background: 'white', borderRadius: 10 }}>
+                    <Space>
+                        <div style={{ padding: 10, background: 'white', borderRadius: 10, display: 'flex', justifyContent: 'flex-end' }}>
+                            <Space align="end">
+                                <RangePicker
+                                    defaultValue={[dayjs(sevenDaysBefore, 'YYYY-MM-DD'), dayjs(today, 'YYYY-MM-DD')]}
+                                    format={dateFormat}
+                                    onChange={timeRangeFetcher}
+                                    style={{ fontSize: '12px' }}
+                                />
+                                <CSVLink
+                                    data={allDailyCollection}
+                                    filename={`customers-${moment().format('YYYY-MM-DD')}.csv`}
+                                    target='_blank'
+                                >
+                                    <Button type="primary"
+                                        className="textStyles-small"
+                                        style={{ borderRadius: "50px", background: '#3bb64b', borderColor: '#3bb64b' }}>
+                                        <DownloadOutlined /> Export Records
+                                    </Button>
+                                </CSVLink>
+                            </Space>
+                        </div>
+                    </Space>
+                </div>
+                <div style={{ padding: 10, background: 'white', borderRadius: 10 }}>
+                    <Table
+                        dataSource={allDailyCollection}
+                        columns={columns}
+                        loading={allDailyCollection.length === 0}
+                        pagination={true}
+                        size="small"
+                    />
+                </div>
+            </>
+        },
+        {
+            key: '4',
+            label: <span className='textStyles-small'>Fertilizer Orders</span>,
+            children: <>
+                <div style={{ padding: 10, background: 'white', borderRadius: 10 }}>
+                    <Table
+                        columns={Fcolumns}
+                        dataSource={fetchAllFertilizerRecords} />
+                </div>
+
+            </>
+        },
+        {
+            key: '5',
+            label: <span className='textStyles-small'>Owner Information</span>,
+            children: <>
+                            <Descriptions bordered column={2} size='small' className='textStyles-small' style={{ marginTop: 10 }}>
                     <Descriptions.Item label={<span className='textStyles-small' style={{ fontSize: 12, fontWeight: 'bold' }}>Customer ID</span>}>
                         <span className='textStyles-small'>{ownerDetails?.CustomerID}</span>
                     </Descriptions.Item>
@@ -186,27 +813,8 @@ const FieldInspection = () => {
                     </Descriptions.Item>
                 </Descriptions>
 
-            </>
-        },
-        {
-            key: '2',
-            label: <span className='textStyles-small'>Inspection Details</span>,
-            children: 'Content of Tab Pane 2',
-        },
-        {
-            key: '3',
-            label: <span className='textStyles-small'>Inspection Report</span>,
-            children: 'Content of Tab Pane 3',
-        },
-        {
-            key: '4',
-            label: <span className='textStyles-small'>Inspection Report</span>,
-            children: 'Content of Tab Pane 4',
-        },
-        {
-            key: '5',
-            label: <span className='textStyles-small'>Inspection Report</span>,
-            children: 'Content of Tab Pane 5',
+                <span className='textStyles-small' style={{ fontSize: 14, fontWeight: 'bold' }}>Other Ownerships</span>
+            </>,
         }
     ];
 
@@ -241,7 +849,175 @@ const FieldInspection = () => {
                 ]}
             />
 
-            <Tabs defaultActiveKey="1" items={items} onChange={onChange} />;
+            <Tabs defaultActiveKey="1" items={items} onChange={onChange} />
+            <Modal
+                title={<span className='textStyle-small' style={{ fontSize: '14px' }}>
+                    Daily Collection Details
+                </span>}
+                visible={modelOpen}
+                onOk={() => setModelOpen(false)}
+                onCancel={() => setModelOpen(false)}
+                width={800}
+                destroyOnClose={true}
+                footer={null}
+            >
+                <div style={{
+                    borderRadius: '10px',
+                }}>
+                    <div>
+                        <GoogleMap
+                            mapContainerStyle={mapStyles}
+                            zoom={15}
+                            center={selectedDailyCollection ? { lat: selectedDailyCollection.BaseLatitude, lng: selectedDailyCollection.BaseLongitude } : defaultCenter}
+                        >
+                            <Marker position={{ lat: selectedDailyCollection?.BaseLatitude, lng: selectedDailyCollection?.BaseLongitude }} />
+                        </GoogleMap>
+
+                        <Descriptions
+                            bordered
+                            column={2}
+                            size="small"
+                            style={{ marginTop: '10px' }}
+                        >
+                            <Descriptions.Item label="Collection ID" className='textStyle-small' style={{ fontSize: '12px' }}>COL-{selectedDailyCollection?.CollectionID}</Descriptions.Item>
+                            <Descriptions.Item label="Collection Date" className='textStyle-small' style={{ fontSize: '12px' }}>{selectedDailyCollection?.CollectionDate.toLocaleString()}</Descriptions.Item>
+                            <Descriptions.Item label="Tea Weight Collected" className='textStyle-small' style={{ fontSize: '12px' }}>{selectedDailyCollection?.TeaWeightCollected} Kg</Descriptions.Item>
+                            <Descriptions.Item label="Water Weight Collected" className='textStyle-small' style={{ fontSize: '12px' }}>{selectedDailyCollection?.WaterWeightCollected} Kg</Descriptions.Item>
+                            <Descriptions.Item label="Actual Tea Weight" className='textStyle-small' style={{ fontSize: '12px' }}>{selectedDailyCollection?.ActualTeaWeight} Kg</Descriptions.Item>
+                            <Descriptions.Item label="Base Longitude" className='textStyle-small' style={{ fontSize: '12px' }}>{selectedDailyCollection?.BaseLongitude}</Descriptions.Item>
+                            <Descriptions.Item label="Base Latitude" className='textStyle-small' style={{ fontSize: '12px' }}>{selectedDailyCollection?.BaseLatitude}</Descriptions.Item>
+                            <Descriptions.Item label="Field Address" className='textStyle-small' style={{ fontSize: '12px' }}>{selectedDailyCollection?.FieldAddress}</Descriptions.Item>
+                            <Descriptions.Item label="Route ID" className='textStyle-small' style={{ fontSize: '12px' }}>{selectedDailyCollection?.RouteID}</Descriptions.Item>
+                            <Descriptions.Item label="Field ID" className='textStyle-small' style={{ fontSize: '12px' }}>{selectedDailyCollection?.FieldID}</Descriptions.Item>
+                            <Descriptions.Item label="Collected By" className='textStyle-small' style={{ fontSize: '12px' }}>{selectedDailyCollection?.EmployeeName}</Descriptions.Item>
+                            <Descriptions.Item label="Remark" className='textStyle-small' style={{ fontSize: '12px' }}>{selectedDailyCollection?.Remark}</Descriptions.Item>
+                        </Descriptions>
+                    </div>
+                </div>
+            </Modal>
+
+            <Modal
+                width={800}
+                title={<span className="textStyle-small" style={{ fontSize: 14 }}>
+                    {
+                        infoModal === false ? (
+                            'Fertilizer Order Management'
+                        ) : ('Fertilizer Order Information')
+                    }
+                </span>}
+                visible={openModal}
+                onOk={closeDetailsModal}
+                onCancel={closeDetailsModal}
+                footer={null}
+                destroyOnClose={true}
+            >
+                <div>
+                    {
+                        infoModal === true && (
+                            <Row>
+                                <Col span={24}>
+                                    <Steps
+                                        style={{ marginBottom: 20, marginTop: 20 }}
+                                        current={current}
+                                        size="small"
+                                        items={[
+                                            {
+                                                title: <span className='textStyle-small' style={{ fontSize: 12 }}>
+                                                    Requested
+                                                </span>,
+                                                description: <span className='textStyle-small' style={{ fontSize: 11 }}>
+                                                    Customer {selectedRecord.CustomerOrderStatus} the Order
+                                                </span>,
+                                            },
+                                            {
+                                                title: <span className='textStyle-small' style={{ fontSize: 12 }}>
+                                                    Admin Approval
+                                                </span>,
+                                                description: <span className='textStyle-small' style={{ fontSize: 11 }}>
+                                                    {selectedRecord.ApprovalStatus === 'APPROVED' ? `Admin Approved The Order ${dayjs(selectedRecord?.ApproveDate).format('DD/MM/YYYY')}`
+                                                        : selectedRecord.ApprovalStatus === 'REJECTED' ? 'Admin Rejected The Order' : 'Admin Will Be Review The Order'}
+                                                </span>,
+                                            },
+                                            {
+                                                title: <span className='textStyle-small' style={{ fontSize: 12 }}>
+                                                    Payment Status
+                                                </span>,
+                                                description: <span className='textStyle-small' style={{ fontSize: 11 }}>
+                                                    {selectedRecord.PaymentStatus === 'PAID' ? 'Payment Recived' : 'Waiting for Payment'}
+                                                </span>,
+                                            },
+                                            {
+                                                title: <span className='textStyle-small' style={{ fontSize: 12 }}>
+                                                    Delivery Status
+                                                </span>,
+                                                description: <span className='textStyle-small' style={{ fontSize: 11 }}>
+                                                    {selectedRecord.IsDelivered === 'YES' ? 'Order Delivered To Customer'
+                                                        : selectedRecord.IsDelivered === 'ONTHEWAY' ? 'Order On The Way' : 'Not Delivered Yet'}
+                                                </span>,
+                                            },
+
+                                        ]}
+                                    />
+
+                                    <Descriptions bordered column={2} size="small" style={{ width: '100%', marginBottom: 10 }}>
+                                        <Descriptions.Item label={<span className='textStyle-small'>Tracking ID</span>} span={1}>
+                                            <span className='textStyle-small'>{selectedRecord.TrackingID}</span>
+                                        </Descriptions.Item>
+                                        <Descriptions.Item label={<span className='textStyle-small'>Field ID</span>} span={1}>
+                                            <span className='textStyle-small'>{selectedRecord.FieldID}</span>
+                                        </Descriptions.Item>
+                                        <Descriptions.Item label={<span className='textStyle-small'>Fertilizer Name</span>} span={1}>
+                                            <span className='textStyle-small'>{unitDetails.FertilizerName}</span>
+                                        </Descriptions.Item>
+                                        <Descriptions.Item label={<span className='textStyle-small'>Requested Quantity</span>} span={1}>
+                                            <span className='textStyle-small'>{selectedRecord.OrderQuentity} Kg</span>
+                                        </Descriptions.Item>
+                                        <Descriptions.Item label={<span className='textStyle-small'>Approved Quantity</span>} span={1}>
+                                            <span className='textStyle-small'>{selectedRecord.ApprovedQuantity} Kg</span>
+                                        </Descriptions.Item>
+                                        <Descriptions.Item label={<span className='textStyle-small'>Price Per Unit</span>} span={1}>
+                                            <span className='textStyle-small'>LKR. {unitDetails.PricePerUnit}.00</span>
+                                        </Descriptions.Item>
+                                        <Descriptions.Item label={<span className='textStyle-small'>Order Value</span>} span={1}>
+                                            <span className='textStyle-small'>LKR. {unitDetails.PricePerUnit * selectedRecord.OrderQuentity}.00</span>
+                                        </Descriptions.Item>
+                                        <Descriptions.Item label={<span className='textStyle-small'>Order Date</span>} span={1}>
+                                            <span className='textStyle-small'>{dayjs(selectedRecord.OrderDate).format('DD/MM/YYYY')}</span>
+                                        </Descriptions.Item>
+                                        <Descriptions.Item label={<span className='textStyle-small'>Requested Deliver Date</span>} span={1}>
+                                            <span className='textStyle-small'>{dayjs(selectedRecord.RequestedDeadLine).format('DD/MM/YYYY')}</span>
+                                        </Descriptions.Item>
+                                        <Descriptions.Item label={<span className='textStyle-small'>Customer Order Status</span>} span={1}>
+                                            <span className='textStyle-small'>{selectedRecord.CustomerOrderStatus}</span>
+                                        </Descriptions.Item>
+                                        <Descriptions.Item label={<span className='textStyle-small'>Approval Status</span>} span={1}>
+                                            <span className='textStyle-small'>{selectedRecord.ApprovalStatus}</span>
+                                        </Descriptions.Item>
+                                        <Descriptions.Item label={<span className='textStyle-small'>Approved By</span>} span={1}>
+                                            <span className='textStyle-small'>{selectedRecord.ApprovedBy}</span>
+                                        </Descriptions.Item>
+                                        <Descriptions.Item label={<span className='textStyle-small'>Payment Status</span>} span={1}>
+                                            <span className='textStyle-small'>{selectedRecord.PaymentStatus}</span>
+                                        </Descriptions.Item>
+                                        <Descriptions.Item label={<span className='textStyle-small'>Remarks</span>} span={1}>
+                                            <span className='textStyle-small'>{selectedRecord.Remarks}</span>
+                                        </Descriptions.Item>
+                                        <Descriptions.Item label={<span className='textStyle-small'>Approve Date</span>} span={1}>
+                                            <span className='textStyle-small'>{dayjs(selectedRecord.ApproveDate).format('DD/MM/YYYY')}</span>
+                                        </Descriptions.Item>
+                                        <Descriptions.Item label={<span className='textStyle-small'>Supposed Delivery Date</span>} span={1}>
+                                            <span className='textStyle-small'>{dayjs(selectedRecord.SupposedDeliveryDate).format('DD/MM/YYYY')}</span>
+                                        </Descriptions.Item>
+                                        <Descriptions.Item label={<span className='textStyle-small'>Is Delivered</span>} span={1}>
+                                            <span className='textStyle-small'>{selectedRecord.IsDelivered}</span>
+                                        </Descriptions.Item>
+                                    </Descriptions>
+                                </Col>
+                            </Row>
+                        )
+                    }
+                </div>
+            </Modal>
         </>
     )
 }
