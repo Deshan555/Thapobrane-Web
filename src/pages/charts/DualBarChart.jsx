@@ -195,7 +195,7 @@ export default class DualBarChart extends Component {
                 },
                 plotOptions: {
                     bar: {
-                        horizontal: true,
+                        horizontal: false,
                         dataLabels: {
                             position: 'top',
                         },
@@ -226,7 +226,7 @@ export default class DualBarChart extends Component {
                 data: props?.collectioX
             }, {
                 data: props?.collectioY
-            }] // Add an empty array for the series property
+            }] 
         };
     }
 
