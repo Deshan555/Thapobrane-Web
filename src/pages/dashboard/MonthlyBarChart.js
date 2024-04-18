@@ -10,19 +10,21 @@ import ReactApexChart from 'react-apexcharts';
 const barChartOptions = {
   chart: {
     type: 'bar',
+    
     height: 365,
     toolbar: {
-      show: false
+      show: true
     }
   },
   plotOptions: {
     bar: {
       columnWidth: '45%',
-      borderRadius: 4
+      borderRadius: 4,
+      horizontal: true,
     }
   },
   dataLabels: {
-    enabled: false
+    enabled: true
   },
   xaxis: {
     categories: ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'],
@@ -34,7 +36,7 @@ const barChartOptions = {
     }
   },
   yaxis: {
-    show: false
+    show: true
   },
   grid: {
     show: false
@@ -72,7 +74,7 @@ const MonthlyBarChart = () => {
         theme: 'light'
       }
     }));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, [primary, info, secondary]);
 
   return (
