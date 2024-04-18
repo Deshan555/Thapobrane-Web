@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { baseDetails } from './api-config';
 import { LocalStroage } from './localstorage';
-import { random } from 'lodash';
+import { get, random } from 'lodash';
 
 const apiExecutions = {
     // authEmployee: async (username, password) => {
@@ -1318,7 +1318,124 @@ const apiExecutions = {
             }
             return null;
         }
-    }
+    },
+//     router.get('/dailyTeaCollection/fieldSumovertime/:FieldID', DailyTeaCollectionController.getCollectionSumByFieldIDFunc);
+    getCollectionSumByFieldID: async (fieldID) => {
+        try {
+            const response = await axios.get(baseDetails.CORE_SERVICE_URL + '/dailyTeaCollection/fieldSumovertime/' + fieldID, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('atoken')}`
+                }
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Axios error:', error);
+            if (error.response) {
+                return error.response.data;
+            } else if (error.request) {
+                return error.request.data;
+            } else {
+                console.error('Error setting up the request:', error.message);
+            }
+            return null;
+        }
+    },
+
+// router.post('/dailyTeaCollection/fieldSumByDateRange', DailyTeaCollectionController.getCollectionSumOverTimeRangeFunc);
+    getCollectionSumOverTimeRange: async (data) => {
+        try {
+            const response = await axios.post(baseDetails.CORE_SERVICE_URL + '/dailyTeaCollection/fieldSumByDateRange', {
+                FieldID: data?.FieldID,
+                startDate: data?.startDate,
+                endDate: data?.endDate
+            },{
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('atoken')}`
+                }
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Axios error:', error);
+            if (error.response) {
+                return error.response.data;
+            } else if (error.request) {
+                return error.request.data;
+            } else {
+                console.error('Error setting up the request:', error.message);
+            }
+            return null;
+        }
+    },
+// router.post('/dailyTeaCollection/fieldDataByDateRange', DailyTeaCollectionController.getCollectionByFieldIDandTimeRangeFunc);
+    getCollectionByFieldIDandTimeRange: async (data) => {
+        try {
+            const response = await axios.post(baseDetails.CORE_SERVICE_URL + '/dailyTeaCollection/fieldDataByDateRange', {
+                FieldID: data?.FieldID,
+                startDate: data?.startDate,
+                endDate: data?.endDate
+            },{
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('atoken')}`
+                }
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Axios error:', error);
+            if (error.response) {
+                return error.response.data;
+            } else if (error.request) {
+                return error.request.data;
+            } else {
+                console.error('Error setting up the request:', error.message);
+            }
+            return null;
+        }
+    },
+    // /dailyTeaCollection/fieldSumByDateRangeAndZone
+    getCollectionSumByDateRangeAndZone: async (data) => {
+        try {
+            const response = await axios.post(baseDetails.CORE_SERVICE_URL + '/dailyTeaCollection/fieldSumByDateRangeAndZone', {
+                FieldID: data?.FieldID,
+                CollectionDate: data?.startDate,
+            },{
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('atoken')}`
+                }
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Axios error:', error);
+            if (error.response) {
+                return error.response.data;
+            } else if (error.request) {
+                return error.request.data;
+            } else {
+                console.error('Error setting up the request:', error.message);
+            }
+            return null;
+        }
+    },
+    // /fertilizers/order/getAll/:fieldID
+    getFertilizerOrdersByFieldID: async (fieldID) => {
+        try {
+            const response = await axios.get(baseDetails.CORE_SERVICE_URL + '/fertilizers/order/getAll/' + fieldID, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('atoken')}`
+                }
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Axios error:', error);
+            if (error.response) {
+                return error.response.data;
+            } else if (error.request) {
+                return error.request.data;
+            } else {
+                console.error('Error setting up the request:', error.message);
+            }
+            return null;
+        }
+    },
 };
 
 export { apiExecutions };
