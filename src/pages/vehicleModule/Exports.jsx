@@ -191,8 +191,15 @@ const Exports = () => {
 
     const downloadManager = () => {
         const getFileFormat = exportType;
-        //const exportFileName = sectionID === 1 ? 'TeaRecords' : sectionID === 2 ? 'EmployeeRecords' ? sectionID === 3 ? 'CustomerRecords' : sectionID === 4 ? 'FieldList' : sectionID === 5 ? 'VehicleList' : sectionID === 6 ? 'RouteList' : sectionID === 7 ? 'FertilizerList' : 'FertilizerOrdersList';
-        //const exportFileFinalName = exportFileName_ + '_' + new Date().getTime();
+        const exportFileName = sectionID === 1 ? 'TeaRecords' 
+        : sectionID === 2 ? 'EmployeeRecords' 
+        : sectionID === 3 ? 'CustomerRecords' 
+        : sectionID === 4 ? 'FieldList' 
+        : sectionID === 5 ? 'VehicleList' 
+        : sectionID === 6 ? 'RouteList' 
+        : sectionID === 7 ? 'FertilizerList' 
+        : 'FertilizerOrdersList';
+        const exportFileFinalName = exportFileName+ '_' + new Date().getTime();
         switch (getFileFormat) {
             case 1:
                 const csv = Papa.unparse(exportData);
@@ -200,7 +207,7 @@ const Exports = () => {
                 const csvURL = window.URL.createObjectURL(csvData);
                 const tempLink = document.createElement('a');
                 tempLink.href = csvURL;
-                tempLink.setAttribute('download', 'export.csv');
+                tempLink.setAttribute('download', exportFileFinalName + '.csv');
                 tempLink.click();
                 break;
             case 2:
@@ -213,11 +220,11 @@ const Exports = () => {
                 const excelURL = window.URL.createObjectURL(excelData);
                 const tempLinks = document.createElement('a');
                 tempLinks.href = excelURL;
-                tempLinks.setAttribute('download', 'export.xlsx');
+                tempLinks.setAttribute('download', exportFileFinalName + '.xlsx');
                 tempLinks.click();
                 break;
             case 3:
-                downloadJSON(exportData, 'export.json');
+                downloadJSON(exportData, exportFileFinalName + '.json');
                 break;
             default:
                 message.error('Please Select Export Type First');
@@ -290,39 +297,46 @@ const Exports = () => {
                                 <Select.Option value={8} style={{ fontSize: 12 }} className="textStyle-small">Fertilizer Orders List Export </Select.Option>
                             </Select>
 
-                            <Select
-                                className="textStyle-small"
-                                defaultValue={exportType}
-                                style={{ width: 200, float: 'right', fontSize: 12 }}
-                                onChange={value => setExportType(value)}
-                                placeholder="Select Export Type"
-                            >
-                                <Select.Option value={1} style={{ fontSize: 12 }} className="textStyle-small">CSV Export</Select.Option>
-                                <Select.Option value={2} style={{ fontSize: 12 }} className="textStyle-small">Excel Export</Select.Option>
-                                <Select.Option value={3} style={{ fontSize: 12 }} className="textStyle-small">JSON Export</Select.Option>
-                            </Select>
-
                             {
-                                sectionID !== null && (
+                                sectionID !== null && exportData.length === 0 && (
                                     <Button type="primary" style={{ width: 120, float: 'right' }}
                                         onClick={fetchRecords}>
                                         <span style={{ fontSize: 12 }} className="textStyle-small">Fetch Records</span>
                                     </Button>
                                 )
                             }
-
+                            
+                            {
+                                exportData.length > 0 && (
+                                    <Select
+                                    className="textStyle-small"
+                                    defaultValue={exportType}
+                                    style={{ width: 200, float: 'right', fontSize: 12 }}
+                                    onChange={value => setExportType(value)}
+                                    placeholder="Select Export Type"
+                                >
+                                    <Select.Option value={1} style={{ fontSize: 12 }} className="textStyle-small">CSV Export</Select.Option>
+                                    <Select.Option value={2} style={{ fontSize: 12 }} className="textStyle-small">Excel Export</Select.Option>
+                                    <Select.Option value={3} style={{ fontSize: 12 }} className="textStyle-small">JSON Export</Select.Option>
+                                </Select>
+                                ) 
+                            }
                             {
                                 exportData.length > 0 && (
                                     <>
                                         <Button type="primary" danger style={{ width: 120, float: 'right' }}
-                                            onClick={() => setExtractedData([])}>
+                                            onClick={() => {
+                                                setExportData([]);
+                                                setSectionID(null);
+                                            }}>
                                             <span style={{ fontSize: 12 }} className="textStyle-small">New Export</span>
                                         </Button>
                                         <Button type="primary" style={{ width: 120, float: 'right' }}
                                             onClick={confirmationModelImport}>
                                             <span style={{ fontSize: 12 }} className="textStyle-small">Export Data</span>
                                         </Button>
-                                    </>)
+                                    </>
+                                )
                             }
                         </Space>
                     </div>
