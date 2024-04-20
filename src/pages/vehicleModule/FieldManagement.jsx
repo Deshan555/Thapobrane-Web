@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { apiExecutions } from '../../api/api-call';
 import { allCities } from '../../api/cities';
 import { Form, Input, Button, Select, Modal, Table, Space, Descriptions, Tag, Row, Col, DatePicker, Drawer, message, Breadcrumb } from 'antd';
@@ -20,6 +21,7 @@ import {
 } from '@ant-design/icons';
 import { random, set } from 'lodash';
 import './style.css';
+import { authenticationCheck } from '../vehicleModule/AuthChecker';
 const { Option } = Select;
 
 const FieldManagement = () => {
@@ -52,10 +54,12 @@ const FieldManagement = () => {
         FactoryID: null
     });
     const [dropdownValues, setDropdownValues] = useState('all');
+    const navigate = useNavigate();
     
     useEffect(() => {
         fetchAllAPICalling();
         fetchCityData();
+        authenticationCheck(navigate);
     }, []);
 
     const fetchCityData = async () => {
@@ -746,6 +750,7 @@ const FieldManagement = () => {
                 title="Field Details"
                 open={openDetails}
                 onClose={hideInfoModel}
+                onCancel={hideInfoModel}
                 selectedField={selectedField}
                 destroyOnClose={true}
                 footer={[
@@ -759,13 +764,20 @@ const FieldManagement = () => {
                     borderRadius: '10px',
                 }}>
                     <div>
-                        <GoogleMap
-                            mapContainerStyle={mapStyles}
-                            zoom={10}
-                            center={defaultCenter}
-                        >
-                            <Marker position={defaultCenter} />
-                        </GoogleMap>
+                    <GoogleMap
+                        options={{ disableDefaultUI: true }}
+                        mapContainerStyle={mapStyles}
+                        zoom={15}
+                        center={{
+                            lat: !isNaN(Number(selectedField?.Attitude)) ? Number(selectedField?.Attitude) : 0,
+                            lng: !isNaN(Number(selectedField?.Longitude)) ? Number(selectedField?.Longitude) : 0
+                        }}
+                    >
+                        <Marker position={{
+                            lat: !isNaN(Number(selectedField?.Attitude)) ? Number(selectedField?.Attitude) : 0,
+                            lng: !isNaN(Number(selectedField?.Longitude)) ? Number(selectedField?.Longitude) : 0
+                        }} />
+                    </GoogleMap>
                     </div>
                     <div style={columnStyle}>
                         <div>
@@ -774,8 +786,7 @@ const FieldManagement = () => {
                             <p>Field Size : <strong>{selectedField.FieldSize}</strong></p>
                             <p>Field Type : <strong>{selectedField.FieldType}</strong></p>
                             <p>Field Address : <strong>{selectedField.FieldAddress}</strong></p>
-                            <p>Field Registration Date : <strong>{selectedField.FieldRegistrationDate ? 
-                            <DateTimeConverter isoDateTime={selectedField.FieldRegistrationDate} /> : ""}</strong></p>
+                            <p>Field Registration Date : <strong>{selectedField.FieldRegistrationDate ? moment(selectedField.FieldRegistrationDate).format('YYYY-MM-DD') : ""}</strong></p>
                             <p>Route ID : <strong>{selectedField.RouteID}</strong></p>
                         </div>
                         <div>
