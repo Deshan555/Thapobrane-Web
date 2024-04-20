@@ -30,7 +30,7 @@ const Import = () => {
     const [allDailyCollection, setAllDailyCollection] = useState([]);
     const [selectedDailyCollection, setSelectedDailyCollection] = useState(null);
     const [modelOpen, setModelOpen] = useState(false);
-    const today = moment().format('YYYY-MM-DD');
+    const today = moment().add(1, 'days').format('YYYY-MM-DD');
     const sevenDaysBefore = moment().subtract(7, 'days').format('YYYY-MM-DD');
     const dateFormatList = ['DD/MM/YYYY', 'DD/MM/YY', 'DD-MM-YYYY', 'DD-MM-YY'];
     const [modalVisible, setModalVisible] = useState(false);
@@ -57,7 +57,8 @@ const Import = () => {
         const response = await apiExecutions.getDailyTeaCollectionBetweenTwoDates(startDate, endDate);
         if (response !== null && response !== undefined) {
             if (response.success === true) {
-                setAllDailyCollection(response.data);
+                const sortedData = response.data.sort((a, b) => new Date(a.CollectionDate) - new Date(b.CollectionDate));
+                setAllDailyCollection(sortedData.reverse());
             } else {
                 message.error('Failed to Fetch Daily Collection');
             }
@@ -65,7 +66,6 @@ const Import = () => {
             message.error('Failed to Fetch Daily Collection');
         }
     }
-
     const fetchSingleDataRecordByRecordID = async (recordID) => {
         const response = await apiExecutions.getDailyTeaCollectionByID(recordID);
         if (response !== null && response !== undefined) {
@@ -284,7 +284,7 @@ const Import = () => {
                     size="small"
                 />
             </div>
-            
+
             <Modal
                 title={<span className='textStyle-small' style={{ fontSize: '14px' }}>
                     Daily Collection Details
