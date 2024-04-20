@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { authenticationCheck } from '../vehicleModule/AuthChecker';
 import { apiExecutions } from '../../api/api-call';
 import { Form, Input, Button, Select, Modal, Table, Space, Descriptions, Tag, message, Row, Col, Breadcrumb, DatePicker, Badge, Steps } from 'antd';
 import {
@@ -46,7 +47,10 @@ const FertilizerManagement = () => {
         setInfoModal(false);
     }
 
+    const navigate = useNavigate();
+
     useEffect(() => {
+        authenticationCheck(navigate);
         fetchAllRecords();
         fetchAllFertilizerRecordsList();
     }, []);
@@ -261,6 +265,17 @@ const FertilizerManagement = () => {
                     && field?.ApprovalStatus === dropdownValue.toUpperCase();
             });
             setFilterValues(filteredData);
+        } else if ((value === undefined || value === null || value === "") && dropdownValue === "completed"){
+            const filteredData = fetchAllFertilizerRecords.filter((field) => {
+                return field?.IsDelivered === 'YES' || field?.CustomerOrderStatus === 'REJECTED' || field?.ApprovalStatus === 'REJECTED';
+            });
+            setFilterValues(filteredData);
+        } else if ((value !== undefined || value !== null || value !== "") && dropdownValue === "completed"){
+            const filteredData = fetchAllFertilizerRecords.filter((field) => {
+                return field?.TrackingID?.toString().includes(value) 
+                && field?.IsDelivered === 'YES' || field?.CustomerOrderStatus === 'REJECTED' || field?.ApprovalStatus === 'REJECTED';
+            });
+            setFilterValues(filteredData);
         } else {
             setFilterValues(fetchAllFertilizerRecords);
         }
@@ -332,6 +347,7 @@ const FertilizerManagement = () => {
                                         <Option value="PENDING" className='textStyle-small'>Pending Orders</Option>
                                         <Option value="APPROVED" className='textStyle-small'>Approved Orders</Option>
                                         <Option value="REJECTED" className='textStyle-small'>Rejected Orders</Option>
+                                        {/* <Option value="completed" className='textStyle-small'>Completed Orders</Option> */}
                                     </Select>
                                 </Form.Item>
                             </Form>
