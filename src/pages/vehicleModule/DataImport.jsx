@@ -6,15 +6,9 @@ import { allCities } from '../../api/cities';
 import { Form, Input, Button, Select, Modal, Table, TimePicker, Space, Descriptions, Tag, Row, Col, DatePicker, Drawer, message, Breadcrumb } from 'antd';
 import { CSVLink, CSVDownload } from "react-csv";
 import {
-    MailOutlined,
-    DeleteOutlined,
-    PhoneOutlined,
-    PlusOutlined,
-    EditOutlined,
-    SearchOutlined,
-    CloseCircleOutlined,
     EyeOutlined,
-    HomeOutlined
+    HomeOutlined,
+    DownloadOutlined
 } from '@ant-design/icons';
 import './style.css';
 import moment from 'moment';
@@ -36,11 +30,14 @@ const Import = () => {
     const sevenDaysBefore = moment().subtract(7, 'days').format('YYYY-MM-DD');
     const dateFormatList = ['DD/MM/YYYY', 'DD/MM/YY', 'DD-MM-YYYY', 'DD-MM-YY'];
     const [modalVisible, setModalVisible] = useState(false);
+    const [allRoutes, setAllRoutes] = useState([]);
+    const [filterData, setFilterData] = useState([]);
     const navigate = useNavigate();
 
     useEffect(() => {
-        getDailyTeaCollectionBetweenTwoDatesFetch(sevenDaysBefore, today);
         authenticationCheck(navigate);
+        getDailyTeaCollectionBetweenTwoDatesFetch(sevenDaysBefore, today);
+        fetchAllRoutes();
     }, []);
 
     const fetchAllDailyTeaCollection = async () => {
@@ -62,6 +59,7 @@ const Import = () => {
             if (response.success === true) {
                 const sortedData = response.data.sort((a, b) => new Date(a.CollectionDate) - new Date(b.CollectionDate));
                 setAllDailyCollection(sortedData.reverse());
+                setFilterData(sortedData.reverse());
             } else {
                 message.error('Failed to Fetch Daily Collection');
             }
@@ -80,6 +78,17 @@ const Import = () => {
             }
         } else {
             message.error('Failed to Fetch Single Record');
+        }
+    }
+
+    const fetchAllRoutes = async () => {
+        const response = await apiExecutions.getAllRoadRoutings();
+        if (response !== null && response !== undefined) {
+            if (response.success === true) {
+                setAllRoutes(response.data);
+            } else {
+                message.error('Failed to Fetch Routes');
+            }
         }
     }
 
@@ -229,6 +238,16 @@ const Import = () => {
         lng: -74.0060
     };
 
+    const filterByRouteID = (routeID) => {
+        console.log(routeID);
+        if (routeID === 'all') {
+            setFilterData(allDailyCollection);
+        } else {
+            const filteredData = allDailyCollection.filter((data) => data.RouteID === routeID);
+            setFilterData(filteredData);
+        }
+    }
+
     return (
         <>
             <h1 className="headingStyle2">Tea Collection</h1>
@@ -263,16 +282,35 @@ const Import = () => {
                                 defaultValue={[dayjs(sevenDaysBefore, 'YYYY-MM-DD'), dayjs(today, 'YYYY-MM-DD')]}
                                 format={dateFormat}
                                 onChange={timeRangeFetcher}
-                                style={{ fontSize: '12px' }}
+                                className='customDropdown'
+                                style={{ fontSize: '10px', width: 250 }}
                             />
-                            <Button type="primary" style={{ borderRadius: "50px" }}>
-                                <CloseCircleOutlined /> <span className='textStyle-small'>Export List</span>
-                            </Button>
-                            <Button type="primary"
-                                // onClick={showModel}
-                                style={{ borderRadius: "50px" }}>
-                                <PlusOutlined /> <span className='textStyle-small'>New Employee</span>
-                            </Button>
+                            <Select
+                                showSearch
+                                style={{ width: 200 }}
+                                placeholder="Select a Route"
+                                defaultValue="all"
+                                onChange={(value) => {
+                                    filterByRouteID(value);
+                                }}
+                            >
+                                <Select.Option value="all">All Routes</Select.Option>
+                                {allRoutes && allRoutes.map((route, index) => {
+                                    return <Select.Option key={index} value={route.RoutingID}>{route.RoutingID}</Select.Option>
+                                })}
+                            </Select>                        
+                            <CSVLink
+                                data={allDailyCollection}
+                                filename={`Collection_${new Date().toISOString()}.csv`}
+                                target='_blank'
+                            >
+                                <Button type="primary"
+                                    className="textStyles-small"
+                                    style={{ borderRadius: "50px", background: '#3bb64b', borderColor: '#3bb64b' }}>
+                                    <DownloadOutlined /> Export List
+                                </Button>
+                            </CSVLink>
+                        
                         </Space>
                     </div>
                 </Space>
@@ -280,7 +318,7 @@ const Import = () => {
 
             <div style={{ padding: 10, background: 'white', borderRadius: 10 }}>
                 <Table
-                    dataSource={allDailyCollection}
+                    dataSource={filterData}
                     columns={columns}
                     loading={allDailyCollection.length === 0}
                     pagination={true}
