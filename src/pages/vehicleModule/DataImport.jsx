@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { authenticationCheck } from '../vehicleModule/AuthChecker';
 import { apiExecutions } from '../../api/api-call';
 import { allCities } from '../../api/cities';
 import { Form, Input, Button, Select, Modal, Table, TimePicker, Space, Descriptions, Tag, Row, Col, DatePicker, Drawer, message, Breadcrumb } from 'antd';
@@ -34,10 +36,11 @@ const Import = () => {
     const sevenDaysBefore = moment().subtract(7, 'days').format('YYYY-MM-DD');
     const dateFormatList = ['DD/MM/YYYY', 'DD/MM/YY', 'DD-MM-YYYY', 'DD-MM-YY'];
     const [modalVisible, setModalVisible] = useState(false);
-
+    const navigate = useNavigate();
 
     useEffect(() => {
         getDailyTeaCollectionBetweenTwoDatesFetch(sevenDaysBefore, today);
+        authenticationCheck(navigate);
     }, []);
 
     const fetchAllDailyTeaCollection = async () => {
