@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { authenticationCheck } from '../vehicleModule/AuthChecker';
 import { apiExecutions } from '../../api/api-call';
 import { Form, Input, Button, Select, Modal, Table, Space, Descriptions, Tag, message, Row, Col, Breadcrumb } from 'antd';
 import {
@@ -24,10 +25,11 @@ const Fertilizers = () => {
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [isEdit, setIsEdit] = useState(false);
     const [isView, setIsView] = useState(false);
-
+    const navigate = useNavigate();
 
     useEffect(() => {
         fetchAllRecords();
+        authenticationCheck(navigate);
     }, []);
 
     const onFinishForm = (values) => {
@@ -163,13 +165,13 @@ const Fertilizers = () => {
             render: (text) => <span className="textStyle-small">{text}</span>,
         },
         {
-            title: <span className="textStyles-small">Fertilizer Price</span>,
+            title: <span className="textStyles-small">Fertilizer Price (Per L/Kg)</span>,
             dataIndex: 'FertilizerPrice',
             key: 'FertilizerPrice',
             render: (text) => <span className="textStyle-small">{text}</span>,
         },
         {
-            title: <span className="textStyles-small">Fertilizer Quantity</span>,
+            title: <span className="textStyles-small">Fertilizer Quantity (L/Kg)</span>,
             dataIndex: 'FertilizerQuantity',
             key: 'FertilizerQuantity',
             render: (text) => <span className="textStyle-small">{text}</span>,
@@ -184,7 +186,7 @@ const Fertilizers = () => {
             title: <span className="textStyles-small">Last Update</span>,
             dataIndex: 'LastUpdate',
             key: 'LastUpdate',
-            render: (text) => <span className="textStyle-small">{dayjs(text).format('MMMM D, YYYY h:mm A')}</span>,
+            render: (text) => <span className="textStyle-small">{dayjs(text).format('MMMM D, YYYY')}</span>,
         },
         {
             title: <span className="textStyles-small">Action</span>,
