@@ -22,19 +22,10 @@ const AuthLogin = () => {
           console.log('Authentication Failed for Employee');
           setErrorMessage(response.message);
         }
-        // Place the code that depends on the response here
       }
     } catch (error) {
-      console.error('An error occurred:', error);
-      // Handle any errors
+      message.error('Error in authenticating employee');
     }
-
-    /* if (response.success === true) {
-       console.log('Employee Authenticated');
-       navigate('/');
-     } else {
-       message.error('Authentication Failed for Employee');
-     }*/
   }
 
   const onFinish = (values) => {
@@ -42,26 +33,24 @@ const AuthLogin = () => {
     authenticateDetails(values.email, values.password);
   };
 
-
   return (
     <>
       <Form
-        //name="login"
         initialValues={{ remember: true }}
         onFinish={onFinish}
       >
         {
-          errorMessage !== null ?(
+          errorMessage !== null ? (
             <Alert
-            style={{ marginBottom: '20px' }}
-            message={<span className='textStyles-small'>{errorMessage}</span>} 
-            type="error" 
-            showIcon 
-            size="small" />
+              style={{ marginBottom: '20px' }}
+              message={<span className='textStyles-small'>{errorMessage}</span>}
+              type="error"
+              showIcon
+              size="small" />
           ) : null
         }
 
-        
+
         <Form.Item
           name="email"
           rules={[
