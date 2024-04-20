@@ -32,14 +32,14 @@ const dashboard = {
       target: false,
       breadcrumbs: false
     },
-    {
-      id : 'data-import',
-      title: 'Data Import',
-      type: 'item',
-      url: '/data/import',
-      icon: icons.ImportOutlined,
-      breadcrumbs: true
-    }
+    // {
+    //   id : 'data-import',
+    //   title: 'Data Import',
+    //   type: 'item',
+    //   url: '/data/import',
+    //   icon: icons.ImportOutlined,
+    //   breadcrumbs: true
+    // }
   ]
 };
 
