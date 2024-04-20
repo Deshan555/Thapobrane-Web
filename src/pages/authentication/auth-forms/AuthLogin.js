@@ -1,37 +1,40 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Form, Input, Button, Checkbox, message } from 'antd';
+import { Form, Input, Button, Checkbox, message, Alert } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { apiExecutions } from '../../../api/api-call';
 import '../../style.css';
 
-  /*const apiCall = async () => {
-    const response = await apiExecutions.authEmployee("john.doe@example5.com", "securePassword123");
-    console.log(response);
-  }*/
-
 const AuthLogin = () => {
   const navigate = useNavigate();
-  
+  const [errorMessage, setErrorMessage] = React.useState(null);
+
   const authenticateDetails = async (email, password) => {
     try {
       const response = await apiExecutions.authEmployee(email, password);
       console.log(response);
       if (response !== null) {
         console.log(response);
+        if (response.success === true) {
+          console.log('Employee Authenticated');
+          navigate('/');
+        } else {
+          console.log('Authentication Failed for Employee');
+          setErrorMessage(response.message);
+        }
         // Place the code that depends on the response here
       }
     } catch (error) {
       console.error('An error occurred:', error);
       // Handle any errors
     }
-    
-     /* if (response.success === true) {
-        console.log('Employee Authenticated');
-        navigate('/');
-      } else {
-        message.error('Authentication Failed for Employee');
-      }*/
+
+    /* if (response.success === true) {
+       console.log('Employee Authenticated');
+       navigate('/');
+     } else {
+       message.error('Authentication Failed for Employee');
+     }*/
   }
 
   const onFinish = (values) => {
@@ -47,6 +50,18 @@ const AuthLogin = () => {
         initialValues={{ remember: true }}
         onFinish={onFinish}
       >
+        {
+          errorMessage !== null ?(
+            <Alert
+            style={{ marginBottom: '20px' }}
+            message={<span className='textStyles-small'>{errorMessage}</span>} 
+            type="error" 
+            showIcon 
+            size="small" />
+          ) : null
+        }
+
+        
         <Form.Item
           name="email"
           rules={[
@@ -54,10 +69,10 @@ const AuthLogin = () => {
             { type: 'email', message: 'Please enter a valid email address!' },
           ]}
         >
-          <Input prefix={<UserOutlined />} 
-          placeholder="Email" 
-          className='textStyles-small'
-          style={{height: '35px'}}
+          <Input prefix={<UserOutlined />}
+            placeholder="Email"
+            className='textStyles-small'
+            style={{ height: '35px' }}
           />
         </Form.Item>
 
@@ -65,10 +80,10 @@ const AuthLogin = () => {
           name="password"
           rules={[{ required: true, message: 'Please input your password!' }]}
         >
-          <Input.Password prefix={<LockOutlined />} 
-          className='textStyles-small'
-          placeholder="Password" 
-          style={{ height: '35px' }} />
+          <Input.Password prefix={<LockOutlined />}
+            className='textStyles-small'
+            placeholder="Password"
+            style={{ height: '35px' }} />
         </Form.Item>
 
         <Form.Item>
