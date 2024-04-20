@@ -17,6 +17,7 @@ import {
 import { number } from 'prop-types';
 import { CSVLink, CSVDownload } from "react-csv";
 import './style.css';
+import { authenticationCheck } from '../vehicleModule/AuthChecker';
 
 const Customers = () => {
   const navigate = useNavigate();
@@ -26,49 +27,35 @@ const Customers = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
   const [infoMoadl, setInfoModal] = useState(false);
+  const [filterList, setFilterList] = useState([]);
 
   useEffect(() => {
-    //apiCall();
     getAllCustomers();
     fetchAllFactories();
-    // authenticationCheck();
+    authenticationCheck(navigate);
   }, []);
 
-  // const authenticationCheck = async () => {
-  //   navigate('/');
-  //   const accessTokenExpireDate = localStorage.getItem('atokenExpireDate'); 
-  //   const refreshTokenExpireDate = localStorage.getItem('rtokenExpireDate');
-  //   const userRole = localStorage.getItem('userRole');
-  //   const accessToken = localStorage.getItem('atoken');
-  //   const refreshToken = localStorage.getItem('rtoken');
-
-  //   if (accessTokenExpireDate !== null && refreshTokenExpireDate !== null && userRole !== null && accessToken !== null && refreshToken !== null) {
-  //     const currentDate = new Date();
-  //     const accessTokenExpire = new Date(accessTokenExpireDate);
-  //     const refreshTokenExpire = new Date(refreshTokenExpireDate);
-  //     if (currentDate < accessTokenExpire && currentDate < refreshTokenExpire) {
-  //       console.log('User Authenticated');
-  //     } else {
-  //       navigate('/login');
-  //     }
-  //   } else {
-  //     navigate('/login');
-  //   }
-  // }
-
   const getAllCustomers = async () => {
-    console.log('getAllCustomers-----------------------------------------------------------');
     const customers = await apiExecutions.getAllCustomers();
-    console.log(customers);
-    setCustomers(customers?.data);
+    if (customers !== null) {
+      if (customers.success === true) {
+        setCustomers(customers.data);
+        setFilterList(customers.data);
+      } else {
+        message.error(customers.message);
+      }
+    }
+
   }
 
   const fetchAllFactories = async () => {
     const response = await apiExecutions.getAllFactories();
-    if (response.success === true) {
-      setFactoryList(response.data);
+    if (response !== null){
+      if (response.success === true) {
+        setFactoryList(response.data);
+      }
     } else {
-      message.error('Failed to fetch factories');
+      message.error(response.message);
     }
   }
 
@@ -137,7 +124,11 @@ const Customers = () => {
       key: 'FactoryID',
       render: (value) => {
         return <span className='textStyle-small'>
-          {value}
+          {factoryList?.map((factory) => {
+            if (factory.FactoryID === value) {
+              return factory.FactoryName;
+            }
+          })}
         </span>
       }
     },
@@ -189,7 +180,7 @@ const Customers = () => {
     confirm({
       title: "Are you sure you want to edit this customer?",
       onOk: async () => {
-        getCustomersByCustomerID(fieldID, condition);
+        updateCustomerFunction(fieldID, condition);
       },
       onCancel() { },
     });
@@ -230,8 +221,7 @@ const Customers = () => {
         factoryID: values?.factoryID,
         identitiCardNumber: values?.customerNIC
       }
-      updateCustomerFunction(customerDetails?.CustomerID, requestJson);
-      // confirmationModelEdit(customerDetails?.CustomerID, requestJson);
+      confirmationModelEdit(customerDetails?.CustomerID, requestJson);
     } else {
       const requestJson = {
         customerName: values?.customerName,
@@ -243,8 +233,7 @@ const Customers = () => {
         factoryID: values?.factoryID,
         customerNIC: values?.customerNIC
       }
-      registerCustomerFunction(requestJson);
-      // confirmationRegisterCustomer(requestJson);
+      confirmationRegisterCustomer(requestJson);
     }
   }
 
@@ -304,6 +293,19 @@ const Customers = () => {
     }
   }
 
+  const filterByUserName = (value) => {
+    if (value === '') {
+      setFilterList(customers);
+    } else {
+      const filteredData = customers.filter((customer) => {
+        return customer.CustomerName.toLowerCase().includes(value.toLowerCase()) || 
+        customer.CustomerMobile.includes(value) || 
+        customer.CustomerEmail.toLowerCase().includes(value.toLowerCase());
+      });
+      setFilterList(filteredData);
+    }
+  }
+
   const modelClose = () => {
     setIsModalVisible(false);
     setIsEdit(false);
@@ -355,7 +357,7 @@ const Customers = () => {
             <Space align="end">
               <Input
                 placeholder="Search employee"
-                // onChange={(e) => filterByUserName(e.target.value)}
+                onChange={(e) => filterByUserName(e.target.value)}
                 suffix={<SearchOutlined />}
               />
               <CSVLink
@@ -379,7 +381,7 @@ const Customers = () => {
         </Space>
       </div>
       <Table
-        dataSource={customers}
+        dataSource={filterList}
         columns={columns}
         loading={customers?.length === 0}
         pagination={true}
@@ -415,7 +417,11 @@ const Customers = () => {
             {customerDetails?.CustomerEmail}
           </Descriptions.Item>
           <Descriptions.Item label="Factory ID" className="textStyles-small" style={{ fontSize: 12 }}>
-            {customerDetails?.FactoryID}
+            {factoryList?.map((factory) => {
+              if (factory.FactoryID === customerDetails?.FactoryID) {
+                return factory.FactoryName;
+              }
+            })}
           </Descriptions.Item>
           <Descriptions.Item label="Customer NIC" className="textStyles-small" style={{ fontSize: 12 }}>
             {customerDetails?.IdentitiCardNumber}
