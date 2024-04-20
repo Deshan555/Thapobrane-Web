@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { authenticationCheck } from '../vehicleModule/AuthChecker';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { apiExecutions } from '../../api/api-call';
@@ -21,6 +23,7 @@ import './style.css';
 const EnvironmentalZones = () => {
 
     const [EnvironmentalZones, setEnvironmentalZones] = useState([]);
+    const navigate = useNavigate();
 
     const fetchAllEnvironmentalZones = async () => {
         const response = await apiExecutions.getAllEnvironmentZoneInfo();
@@ -71,18 +74,10 @@ const EnvironmentalZones = () => {
         },
         {
             title: 'Number Of Fields',
-            dataIndex: 'NumberOfFields',
-            key: 'NumberOfFields',
+            dataIndex: 'NumberOfFieldsRegistered',
+            key: 'NumberOfFieldsRegistered',
             render: (value) => {
-                return <span className='textStyle-small'>{value ? value : 0}</span>;
-            }
-        },
-        {
-            title: 'Production (KG)',
-            dataIndex: 'Production',
-            key: 'Production',
-            render: (value) => {
-                return <span className='textStyle-small'>{value ? value : 0} KG</span>;
+                return <span className='textStyle-small'>{value ? value : 0} Fields</span>;
             }
         },
     ];
@@ -100,9 +95,8 @@ const EnvironmentalZones = () => {
         };
     });
 
-
-
     useEffect(() => {
+        authenticationCheck(navigate);
         fetchAllEnvironmentalZones();
     }, []);
 
@@ -113,13 +107,11 @@ const EnvironmentalZones = () => {
         borderRadius: '15px',
     };
     const customIcon = new L.Icon({
-        iconUrl: 'https://leafletjs.com/examples/custom-icons/leaf-green.png', // You can use your own marker icon URL
+        iconUrl: 'https://leafletjs.com/examples/custom-icons/leaf-green.png',
         iconSize: [25, 41],
         iconAnchor: [12, 41],
         popupAnchor: [1, -34],
     });
-
-
 
     return (
         <>            
