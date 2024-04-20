@@ -1,10 +1,11 @@
 // assets
-import { DashboardOutlined, ImportOutlined } from '@ant-design/icons';
+import { DashboardOutlined, ImportOutlined, MonitorOutlined } from '@ant-design/icons';
 
 // icons
 const icons = {
   DashboardOutlined,
-  ImportOutlined
+  ImportOutlined,
+  MonitorOutlined
 };
 
 // ==============================|| MENU ITEMS - DASHBOARD ||============================== //
@@ -20,6 +21,15 @@ const dashboard = {
       type: 'item',
       url: '/dashboard/default',
       icon: icons.DashboardOutlined,
+      breadcrumbs: false
+    },
+    {
+      id: 'dataSources',
+      title: 'Field Inspection',
+      type: 'item',
+      url: '/thaprobane/field-inspection',
+      icon: icons.MonitorOutlined,
+      target: false,
       breadcrumbs: false
     },
     {
