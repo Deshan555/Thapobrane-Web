@@ -11,18 +11,17 @@ import {
   SearchOutlined,
   CloseCircleOutlined,
   EyeOutlined,
-  HomeOutlined
+  HomeOutlined,
+  DownloadOutlined
 } from '@ant-design/icons';
 import { number } from 'prop-types';
 import { CSVLink, CSVDownload } from "react-csv";
 import './style.css';
 import { all } from '../../../node_modules/axios/index';
+import { authenticationCheck } from '../vehicleModule/AuthChecker';
 
 const VehicleModule = () => {
-  const navigate = useNavigate();
-  const [customers, setCustomers] = useState([]);
   const [factoryList, setFactoryList] = useState([]);
-  const [customerDetails, setCustomerDetails] = useState({});
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
   const [infoMoadl, setInfoModal] = useState(false);
@@ -31,38 +30,17 @@ const VehicleModule = () => {
   const [vehicleDetails, setVehicleDetails] = useState({});
   const [getAllDrivers, setAllDrivers] = useState([]);
   const [getAllRoutes, setAllRoutes] = useState([]);
+  const [filteredData, setFilteredData] = useState([]);
 
+  const navigate = useNavigate();
 
   useEffect(() => {
-    //apiCall();
     fetchAllVehicles();
     fetchAllFactories();
     allDriversForMapping();
     getAllAvailableRoutes();
-    // authenticationCheck();
+    authenticationCheck(navigate);
   }, []);
-
-  // const authenticationCheck = async () => {
-  //   navigate('/');
-  //   const accessTokenExpireDate = localStorage.getItem('atokenExpireDate'); 
-  //   const refreshTokenExpireDate = localStorage.getItem('rtokenExpireDate');
-  //   const userRole = localStorage.getItem('userRole');
-  //   const accessToken = localStorage.getItem('atoken');
-  //   const refreshToken = localStorage.getItem('rtoken');
-
-  //   if (accessTokenExpireDate !== null && refreshTokenExpireDate !== null && userRole !== null && accessToken !== null && refreshToken !== null) {
-  //     const currentDate = new Date();
-  //     const accessTokenExpire = new Date(accessTokenExpireDate);
-  //     const refreshTokenExpire = new Date(refreshTokenExpireDate);
-  //     if (currentDate < accessTokenExpire && currentDate < refreshTokenExpire) {
-  //       console.log('User Authenticated');
-  //     } else {
-  //       navigate('/login');
-  //     }
-  //   } else {
-  //     navigate('/login');
-  //   }
-  // }
 
   const fetchAllFactories = async () => {
     const response = await apiExecutions.getAllFactories();
@@ -78,8 +56,9 @@ const VehicleModule = () => {
     if (response !== null) {
       if (response.success === true) {
         setAllVehicles(response.data);
+        setFilteredData(response.data);
       } else {
-        message.error('Failed to fetch vehicles');
+        message.error(response?.message);
       }
     }
   }
@@ -90,7 +69,7 @@ const VehicleModule = () => {
       if (response.success === true) {
         setAllDrivers(response.data);
       } else {
-        message.error('Failed to fetch drivers');
+        message.error(response.message);
       }
     }
   }
@@ -193,86 +172,70 @@ const VehicleModule = () => {
       key: 'action',
       render: (text, record) => (
         <Space size="middle">
-          <a>
-            <EyeOutlined
-              style={{ color: 'blue' }}
-              onClick={() => getVehicleDetailsByIDFunction(record.VehicleID, 'VIEW')}
-            />
-          </a>
-          <a>
-            <EditOutlined
-              style={{ color: 'blue' }}
-              onClick={() => getVehicleDetailsByIDFunction(record.VehicleID, 'EDIT')}
-            />
-          </a>
-          <a>
-            <DeleteOutlined
-              style={{ color: 'red' }}
-              onClick={() => deleteVehicleByID(record.VehicleID)}
-            />
-          </a>
+          <Button
+            type="primary"
+            shape="circle"
+            style={{ background: '#3bb64b' }}
+            icon={<EyeOutlined style={{ color: 'white', fontSize: 12 }} />}
+            onClick={() => getVehicleDetailsByIDFunction(record.VehicleID, 'VIEW')}
+            size="small"
+          />
+          <Button
+            type="primary"
+            shape="circle"
+            icon={<EditOutlined style={{ color: 'white', fontSize: 12 }} />}
+            onClick={() => getVehicleDetailsByIDFunction(record.VehicleID, 'EDIT')}
+            size="small"
+          />
+          <Button
+            type="primary"
+            shape="circle"
+            icon={<DeleteOutlined style={{ color: 'white', fontSize: 12 }} />}
+            onClick={() => confirmationModelDelete(record.VehicleID)}
+            size="small"
+            danger
+          />
+
         </Space>
       ),
     },
   ];
 
-  const confirmationModelDelete = (fieldID) => {
+  const confirmationModelDelete = (vehicleID) => {
     const { confirm } = Modal;
     confirm({
       title:
-        "Are you sure you want to delete this customer?",
+        "Are You Want To Delete This Vehicle Information Record ?",
       onOk: async () => {
-        deleteCustomerFunction(fieldID);
+        deleteVehicleByID(vehicleID);
       },
       onCancel() { },
     });
   };
 
-  const confirmationModelEdit = (fieldID, condition) => {
+  const confirmUpdateVehicle = (vehicleID, requestJson) => {
     const { confirm } = Modal;
     confirm({
-      title: "Are you sure you want to edit this customer?",
+      title: "Are You Sure You Want To Update Vehicle Information Details?",
       onOk: async () => {
-        getCustomersByCustomerID(fieldID, condition);
+        updateVehicleFunction(vehicleID, requestJson);
       },
       onCancel() { },
     });
-  };
+  }
 
-  const confirmationRegisterCustomer = (data) => {
+  const confirmCreateVehicle = (requestJson) => {
     const { confirm } = Modal;
     confirm({
-      title: "Are you sure you want to register new customer?",
+      title: "Are You Sure You Want To Create New Vehicle?",
       onOk: async () => {
-        registerCustomerFunction(data);
+        registerNewVehicle(requestJson);
       },
       onCancel() { },
     });
-  };
-
-  const randomPassword = () => {
-    const length = 8;
-    const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-    let retVal = "";
-    for (let i = 0, n = charset.length; i < length; ++i) {
-      retVal += charset.charAt(Math.floor(Math.random() * n));
-    }
-    return retVal;
   }
 
   const onFinish = (values) => {
-    console.log(values);
-    // {
-    //   "VehicleNumber": "kl;l;k;k;lkl;",
-    //   "VehicleType": "333",
-    //   "VolumeCapacity": "33",
-    //   "WeightCapacity": "33",
-    //   "NumberPlateID": "jojlkjljljlkljk",
-    //   "FactoryID": 1,
-    //   "DriverID": 10001,
-    //   "RouteID": 393001318
-    // }
-
     if (isEdit !== true) {
       const requestJson = {
         VehicleNumber: values.VehicleNumber,
@@ -284,8 +247,7 @@ const VehicleModule = () => {
         DriverID: values.DriverID,
         RouteID: values.RouteID
       }
-
-      registerNewVehicle(requestJson);
+      confirmCreateVehicle(requestJson);
     } else {
       const requestBody = {
         VehicleNumber: values.VehicleNumber,
@@ -297,7 +259,7 @@ const VehicleModule = () => {
         DriverID: values.DriverID,
         RouteID: values.RouteID
       }
-      updateVehicleFunction(vehicleDetails?.VehicleID, requestBody);
+      confirmUpdateVehicle(vehicleDetails?.VehicleID, requestBody);
     }
   }
 
@@ -374,6 +336,17 @@ const VehicleModule = () => {
     setInfoModal(false);
   }
 
+  const filterByIncludeData = (registerNumber) => {
+    if (registerNumber === '' || registerNumber === null) {
+      setFilteredData(getAllVehicles);
+    } else {
+      const filteredDataSet = getAllVehicles.filter((item) => {
+        return item.VehicleNumber.toLowerCase().includes(registerNumber.toLowerCase());
+      });
+      setFilteredData(filteredDataSet);
+    }
+  }
+
   return (
     <>
       <h1 className="headingStyle2">Vehicles Management</h1>
@@ -404,13 +377,23 @@ const VehicleModule = () => {
           <div style={{ padding: 10, background: 'white', borderRadius: 10, display: 'flex', justifyContent: 'flex-end' }}>
             <Space align="end">
               <Input
-                placeholder="Search employee"
-                // onChange={(e) => filterByUserName(e.target.value)}
+                placeholder="Search Vehicle By Number"
+                className='textStyle-small'
+                onChange={(e) => filterByIncludeData(e.target.value)}
                 suffix={<SearchOutlined />}
+                style={{ width: 200, borderRadius: 10, height: 30 }}
               />
-              <Button type="primary" style={{ borderRadius: "50px" }}>
-                <CloseCircleOutlined /> <span className='textStyle-small'>Export List</span>
-              </Button>
+              <CSVLink
+                data={getAllVehicles}
+                filename={`Vehicles_${new Date().toISOString()}.csv`}
+                target='_blank'
+              >
+                <Button type="primary"
+                  className="textStyles-small"
+                  style={{ borderRadius: "50px", background: '#3bb64b', borderColor: '#3bb64b' }}>
+                  <DownloadOutlined /> Export List
+                </Button>
+              </CSVLink>
               <Button type="primary"
                 onClick={showModel}
                 style={{ borderRadius: "50px" }}>
@@ -423,7 +406,7 @@ const VehicleModule = () => {
 
       <div style={{ padding: 10, background: 'white', borderRadius: 10 }}>
         <Table
-          dataSource={getAllVehicles}
+          dataSource={filteredData}
           columns={columns}
           loading={getAllVehicles.length === 0 ? true : false}
           pagination={true}
@@ -443,6 +426,7 @@ const VehicleModule = () => {
         onCancel={modelCloseDetails}
         footer={null}
         width={800}
+        destroyOnClose={true}
       >
         <Descriptions
           bordered
@@ -474,6 +458,7 @@ const VehicleModule = () => {
         onCancel={modelClose}
         footer={null}
         width={800}
+        destroyOnClose={true}
       >
         <Form
           layout="vertical"
