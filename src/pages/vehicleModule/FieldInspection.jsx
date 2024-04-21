@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { apiExecutions } from '../../api/api-call';
-import { Tabs, Form, Input, Button, Select, Modal, Table, Space, Descriptions, Tag, message, Row, Col, Breadcrumb, DatePicker, Badge, Steps } from 'antd';
+import { Tabs, Form, Input, Button, Select, Modal, Table, Space, Descriptions, Tag, message, Row, Col, Breadcrumb, DatePicker, Badge, Steps, Spin } from 'antd';
 import {
     MailOutlined,
     DeleteOutlined,
@@ -18,6 +18,7 @@ import { GoogleMap, LoadScript, Marker } from '@react-google-maps/api';
 import { CSVLink, CSVDownload } from "react-csv";
 import moment from '../../../node_modules/moment/moment';
 import '../charts/chart-styles.css';
+import './style.css';
 
 import LineChart from 'pages/charts/LineChart';
 import HorizontalBarChart from 'pages/charts/HorizontalBarChart';
@@ -69,6 +70,11 @@ const FieldInspection = () => {
     const [filterValues, setFilterValues] = useState([]);
     const [current, setCurrent] = useState(0);
 
+    const [allFields, setFields] = useState([]);
+    const [inspectField, setInspectField] = useState(null);
+    const [spinning, setSpinning] = useState(false);
+    const [renderTab, setRenderTab] = useState(false);
+
     const openDetailsModal = (edit) => {
         setOpenModal(true);
         setInfoModal(edit);
@@ -79,27 +85,42 @@ const FieldInspection = () => {
         setInfoModal(false);
     }
 
-
     useEffect(() => {
-        fetchSelectedFieldInformation();
-        fetchAllTimeSumByFieldID();
-        fetchAllRecordsBasedOnTimeRange();
-        fetchDataSumByTimeRange();
-        dailyCollectionSummeryFunc();
-
-        fetchAllRecordsByWeek();
-
-        // "startDate": new Date(new Date().getTime() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        // "endDate": new Date().toISOString().split('T')[0]
-        getDailyTeaCollectionBetweenTwoDatesFetch(new Date(new Date().getTime() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], new Date().toISOString().split('T')[0]);
-
-        fetchFertilizerRecords(787328625);
-        fetchAllRecords();
-
+        fetchAllFields();
     }, []);
 
-    const fetchSelectedFieldInformation = async () => {
-        const response = await apiExecutions.getFieldInfoByID(171683694);
+    const inspectManager = (fieldID) => {
+        setInspectField(fieldID);
+        loadData(fieldID);
+    }
+
+    const loadData = async (fieldID) => {
+        setSpinning(true);
+        setRenderTab(false);
+        try {
+            await Promise.all([
+                fetchSelectedFieldInformation(fieldID),
+                fetchAllTimeSumByFieldID(fieldID),
+                fetchAllRecordsBasedOnTimeRange(fieldID),
+                fetchDataSumByTimeRange(fieldID),
+                dailyCollectionSummeryFunc(fieldID),
+                fetchAllRecordsByWeek(fieldID),
+                getDailyTeaCollectionBetweenTwoDatesFetch(
+                    new Date(new Date().getTime() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                    new Date().toISOString().split('T')[0]
+                ),
+                fetchFertilizerRecords(fieldID)
+            ]);
+            setSpinning(false);
+            setRenderTab(true);
+        } catch (error) {
+            message.error('Failed to Create Complete Inspection Snap');
+            setSpinning(false);
+        }
+    }
+
+    const fetchSelectedFieldInformation = async (fieldID) => {
+        const response = await apiExecutions.getFieldInfoByID(fieldID);
         if (response !== null) {
             if (response.success === true) {
                 setSelectedFieldInfo(response?.data[0]);
@@ -116,6 +137,19 @@ const FieldInspection = () => {
             } else {
                 message.error('Error : ' + result.data.message);
             }
+        }
+    }
+
+    const fetchAllFields = async () => {
+        const response = await apiExecutions.getAllFieldInfo();
+        if (response !== null && response !== undefined) {
+            if (response.success === true) {
+                setFields(response.data);
+            } else {
+                message.error('Failed to fetch Fields');
+            }
+        } else {
+            message.error(response?.message);
         }
     }
 
@@ -171,8 +205,8 @@ const FieldInspection = () => {
         }
     }
 
-    const fetchAllTimeSumByFieldID = async () => {
-        const response = await apiExecutions.getCollectionSumByFieldID(171683694);
+    const fetchAllTimeSumByFieldID = async (fieldID) => {
+        const response = await apiExecutions.getCollectionSumByFieldID(fieldID);
         if (response !== null) {
             if (response.success === true) {
                 setAllTimeSumByFieldID(response?.data);
@@ -182,11 +216,9 @@ const FieldInspection = () => {
         }
     }
 
-    const dailyCollectionSummeryFunc = async () => {
-        // FieldID: data?.FieldID,
-        // startDate: data?.startDate,
+    const dailyCollectionSummeryFunc = async (fieldID) => {
         const requestJson = {
-            "FieldID": 171683694,
+            "FieldID": fieldID,
             "startDate": "2024-04-17",
         }
         const fullSummery = {
@@ -209,9 +241,9 @@ const FieldInspection = () => {
         }
     }
 
-    const fetchAllRecordsBasedOnTimeRange = async () => {
+    const fetchAllRecordsBasedOnTimeRange = async (startTime, endTime) => {
         const requestJson = {
-            "FieldID": 171683694,
+            "FieldID": inspectField,
             "startDate": "2024-04-01",
             "endDate": "2024-04-30"
         }
@@ -237,9 +269,9 @@ const FieldInspection = () => {
         }
     }
 
-    const fetchAllRecordsByWeek = async () => {
+    const fetchAllRecordsByWeek = async (inspectFieldID) => {
         const requestJson = {
-            "FieldID": 171683694,
+            "FieldID": inspectFieldID,
             "startDate": new Date(new Date().getTime() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
             "endDate": new Date().toISOString().split('T')[0]
         }
@@ -271,7 +303,7 @@ const FieldInspection = () => {
 
     const getDailyTeaCollectionBetweenTwoDatesFetch = async (startDate, endDate) => {
         const requestJson = {
-            "FieldID": 171683694,
+            "FieldID": inspectField,
             "startDate": startDate,
             "endDate": endDate
         }
@@ -286,11 +318,9 @@ const FieldInspection = () => {
         }
     }
 
-
-
-    const fetchDataSumByTimeRange = async () => {
+    const fetchDataSumByTimeRange = async (startDate, endDate) => {
         const requestJson = {
-            "FieldID": 171683694,
+            "FieldID": inspectField,
             "startDate": "2024-04-01",
             "endDate": "2024-04-30"
         }
@@ -324,30 +354,6 @@ const FieldInspection = () => {
         lat: 40.7128,
         lng: -74.0060
     };
-
-
-
-    // {
-    //     "0": {
-    //         "FieldID": 171683694,
-    //         "FieldName": "Field_171683694",
-    //         "FieldSize": 3,
-    //         "FieldType": "SMALL",
-    //         "FieldAddress": "saadsadsad",
-    //         "TeaType": "camellia sinensis assamica",
-    //         "BaseLocation": "Ratnapura",
-    //         "BaseElevation": 10.3,
-    //         "SoilType": "Reddish Brown Earths",
-    //         "Attitude": "32.00",
-    //         "Longitude": "2323.00",
-    //         "FieldRegistrationDate": "2024-04-01T18:30:00.000Z",
-    //         "RouteID": 513113077,
-    //         "OwnerID": 730260954,
-    //         "ZoneID": 680653,
-    //         "FactoryID": 1
-    //     }
-    // }
-
 
     const columns = [
         {
@@ -759,7 +765,7 @@ const FieldInspection = () => {
                         </div>
                     </Space>
                 </div>
-                <div style={{ padding: 10, background: 'white', borderRadius: 10 }}>
+                <div style={{ padding: 10, background: 'white', borderRadius: 10, marginTop: '10px' }}>
                     <Table
                         dataSource={allDailyCollection}
                         columns={columns}
@@ -786,7 +792,7 @@ const FieldInspection = () => {
             key: '5',
             label: <span className='textStyles-small'>Owner Information</span>,
             children: <>
-                            <Descriptions bordered column={2} size='small' className='textStyles-small' style={{ marginTop: 10 }}>
+                <Descriptions bordered column={2} size='small' className='textStyles-small' style={{ marginTop: 10 }}>
                     <Descriptions.Item label={<span className='textStyles-small' style={{ fontSize: 12, fontWeight: 'bold' }}>Customer ID</span>}>
                         <span className='textStyles-small'>{ownerDetails?.CustomerID}</span>
                     </Descriptions.Item>
@@ -822,9 +828,13 @@ const FieldInspection = () => {
         console.log(key);
     };
 
-
     return (
         <>
+            <Spin
+                spinning={spinning}
+                fullscreen
+                size="large"
+            />
             <h1 className="headingStyle2">Field Inspection</h1>
             <Breadcrumb
                 size="small"
@@ -849,7 +859,36 @@ const FieldInspection = () => {
                 ]}
             />
 
-            <Tabs defaultActiveKey="1" items={items} onChange={onChange} />
+            <div style={{ padding: 10, background: 'white', borderRadius: 10 }}>
+                <Space>
+                    <div style={{ padding: 10, background: 'white', borderRadius: 10, display: 'flex', justifyContent: 'flex-end' }}>
+                        <Space align="end">
+                            <Select style={{ width: 250, fontSize: '10px' }}
+                                placeholder="Choose Field For Inspection"
+                                onChange={(value) => inspectManager(value)}
+                                className='textStyle-small'
+                            >
+                                {
+                                    allFields?.map((item) => (
+                                        <Option key={item?.FieldID} value={item?.FieldID}>
+                                            {item?.FieldName}
+                                        </Option>
+                                    ))
+                                }
+                            </Select>
+                        </Space>
+                    </div>
+                </Space>
+            </div>
+
+            {
+                renderTab ? (
+                    <div style={{ padding: 10, background: 'white', borderRadius: 10 }}>
+                        <Tabs defaultActiveKey="1" items={items} onChange={onChange} />
+                    </div>
+                ) : null
+            }
+
             <Modal
                 title={<span className='textStyle-small' style={{ fontSize: '14px' }}>
                     Daily Collection Details
