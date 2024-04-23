@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { apiExecutions } from '../../api/api-call';
-import { Tabs, Form, Input, Button, Select, Modal, Table, Space, Descriptions, Tag, message, Row, Col, Breadcrumb, DatePicker, Badge, Steps, Spin } from 'antd';
+import { Tabs, Form, Input, Button, Select, Modal, Table, Space, Descriptions, Tag, message, Row, Col, Breadcrumb, DatePicker, Badge, Steps, Spin, Card } from 'antd';
 import {
     MailOutlined,
     DeleteOutlined,
@@ -12,7 +12,9 @@ import {
     CloseCircleOutlined,
     EyeOutlined,
     HomeOutlined,
-    DownloadOutlined
+    DownloadOutlined,
+    ShoppingOutlined,
+    CheckOutlined
 } from '@ant-design/icons';
 import { GoogleMap, LoadScript, Marker } from '@react-google-maps/api';
 import { CSVLink, CSVDownload } from "react-csv";
@@ -31,6 +33,7 @@ import DualBarChart from 'pages/charts/DualBarChart';
 import dayjs from 'dayjs';
 import { set } from 'lodash';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
+import { TimePicker } from '../../../node_modules/antd/es/index';
 const { RangePicker } = DatePicker;
 const dateFormat = 'YYYY/MM/DD';
 const weekFormat = 'MM/DD';
@@ -45,7 +48,9 @@ const FieldInspection = () => {
     const [allRecordsBasedOnTimeRange, setAllRecordsBasedOnTimeRange] = useState([]);
     const [dataSumByTimeRange, setDataSumByTimeRange] = useState([]);
     const [dailyCollectionSummery, setDailyCollectionSummery] = useState(null);
+    const [dailyCollectionSummeryShow, setDailyCollectionSummeryShow] = useState(false);
     const [weekelyWiseCollectionSummery, setWeekelyWiseCollectionSummery] = useState([]);
+    const [weekelyWiseCollectionSummeryShow, setWeekelyWiseCollectionSummeryShow] = useState(false);
 
     const [allDailyCollection, setAllDailyCollection] = useState([]);
     const [selectedDailyCollection, setSelectedDailyCollection] = useState(null);
@@ -55,9 +60,12 @@ const FieldInspection = () => {
     const dateFormatList = ['DD/MM/YYYY', 'DD/MM/YY', 'DD-MM-YYYY', 'DD-MM-YY'];
     const [modalVisible, setModalVisible] = useState(false);
 
+    const [monthlyCollectionSum, setMonthlyCollectionSum] = useState([]);
+    const [monthlyCollectionSumShow, setMonthlyCollectionSumShow] = useState(false);
+
+    const [allRecordsBasedOnTimeRangeShow, setAllRecordsBasedOnTimeRangeShow] = useState(false);
     const [fetchAllFertilizerRecords, setFetchAllFertilizerRecords] = useState([]);
     const [selectedRecord, setSelectedRecord] = useState({});
-    const [isReject, setIsReject] = useState(false);
     const [openModal, setOpenModal] = useState(false);
     const [infoModal, setInfoModal] = useState(false);
     const [fetilizerInformations, setFetilizerInformations] = useState([]);
@@ -69,11 +77,13 @@ const FieldInspection = () => {
     const [dropdownValues, setDropdownValues] = useState('all');
     const [filterValues, setFilterValues] = useState([]);
     const [current, setCurrent] = useState(0);
+    const [isReject, setIsReject] = useState(false);
 
     const [allFields, setFields] = useState([]);
     const [inspectField, setInspectField] = useState(null);
     const [spinning, setSpinning] = useState(false);
     const [renderTab, setRenderTab] = useState(false);
+    const [fieldList, setFieldList] = useState([]);
 
     const openDetailsModal = (edit) => {
         setOpenModal(true);
@@ -86,30 +96,89 @@ const FieldInspection = () => {
     }
 
     useEffect(() => {
-        fetchAllFields();
+
+        if (localStorage?.getItem("userRole") === "ROLE.CUSTOMER") {
+            getFieldListByOwnerID(localStorage?.getItem("custID"));
+        } else {
+            fetchAllFields();
+        }
+
     }, []);
 
     const inspectManager = (fieldID) => {
         setInspectField(fieldID);
         loadData(fieldID);
+        getFieldListByOwnerID(localStorage.getItem("custID"));
+    }
+
+    const getFieldListByOwnerID = async (ownerID) => {
+        const result = await apiExecutions.getFieldInfoByOwnerID(ownerID);
+        if (result !== null) {
+            if (result.success === true) {
+                setFields(result.data);
+            }
+        }
+    }
+
+    const getCollectionByMonthlyCountFunc = async (fieldID) => {
+        setMonthlyCollectionSumShow(false);
+        const monthMap = {
+            1: 'January',
+            2: 'February',
+            3: 'March',
+            4: 'April',
+            5: 'May',
+            6: 'June',
+            7: 'July',
+            8: 'August',
+            9: 'September',
+            10: 'October',
+            11: 'November',
+            12: 'December'
+        };
+        const response = await apiExecutions.getCollectionByMonthlyCount(fieldID);
+
+        if (response !== null) {
+            if (response.success === true) {
+                const mapResults = [];
+                response?.data.map((item) => {
+                    const mapJson = {
+                        'x': monthMap[item?.Month] ? monthMap[item?.Month] : 'Unknown',
+                        'y': item?.TotalTeaWeight
+                    };
+                    mapResults.push(mapJson);
+                });
+                setMonthlyCollectionSum(mapResults);
+                setMonthlyCollectionSumShow(true);
+            }
+        } else {
+            message.error(response?.message);
+        }
     }
 
     const loadData = async (fieldID) => {
         setSpinning(true);
         setRenderTab(false);
+        const startDate = new Date(new Date().getTime() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+        const endDate = new Date().toISOString().split('T')[0];
+
+        const startDateOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0];
+        const endDateOfMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).toISOString().split('T')[0];
         try {
             await Promise.all([
+
                 fetchSelectedFieldInformation(fieldID),
                 fetchAllTimeSumByFieldID(fieldID),
-                fetchAllRecordsBasedOnTimeRange(fieldID),
-                fetchDataSumByTimeRange(fieldID),
+                fetchAllRecordsBasedOnTimeRange(fieldID, startDateOfMonth, endDateOfMonth),
+                fetchDataSumByTimeRange(fieldID, startDateOfMonth, endDateOfMonth),
                 dailyCollectionSummeryFunc(fieldID),
-                fetchAllRecordsByWeek(fieldID),
+                fetchAllRecordsByWeek(fieldID, startDateOfMonth, endDateOfMonth),
                 getDailyTeaCollectionBetweenTwoDatesFetch(
                     new Date(new Date().getTime() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
                     new Date().toISOString().split('T')[0]
                 ),
-                fetchFertilizerRecords(fieldID)
+                fetchFertilizerRecords(fieldID),
+                getCollectionByMonthlyCountFunc(fieldID),
             ]);
             setSpinning(false);
             setRenderTab(true);
@@ -217,9 +286,11 @@ const FieldInspection = () => {
     }
 
     const dailyCollectionSummeryFunc = async (fieldID) => {
+        setDailyCollectionSummeryShow(false);
+        const date = new Date();
         const requestJson = {
             "FieldID": fieldID,
-            "startDate": "2024-04-17",
+            "startDate": date.toISOString().split('T')[0],
         }
         const fullSummery = {
             fullWeight: 0,
@@ -235,17 +306,19 @@ const FieldInspection = () => {
                     fullSummery.collectedWeight += item?.ActualTeaWeight;
                 });
                 setDailyCollectionSummery(fullSummery);
+                setDailyCollectionSummeryShow(true);
             }
         } else {
             message.error(response?.message);
         }
     }
 
-    const fetchAllRecordsBasedOnTimeRange = async (startTime, endTime) => {
+    const fetchAllRecordsBasedOnTimeRange = async (fieldID, startTime, endTime) => {
+        setAllRecordsBasedOnTimeRangeShow(false);
         const requestJson = {
-            "FieldID": inspectField,
-            "startDate": "2024-04-01",
-            "endDate": "2024-04-30"
+            "FieldID": fieldID,
+            "startDate": startTime,
+            "endDate": endTime
         }
         const response = await apiExecutions.getCollectionByFieldIDandTimeRange(requestJson);
         if (response !== null) {
@@ -263,17 +336,21 @@ const FieldInspection = () => {
                     collectionSum: sumsByDate[date]
                 }));
                 setAllRecordsBasedOnTimeRange(responseArr);
+                if (responseArr.length > 0) {
+                    setAllRecordsBasedOnTimeRangeShow(true);
+                }
             }
         } else {
             message.error(response?.message);
         }
     }
 
-    const fetchAllRecordsByWeek = async (inspectFieldID) => {
+    const fetchAllRecordsByWeek = async (inspectFieldID, startDate, endDate) => {
+        setWeekelyWiseCollectionSummeryShow(false);
         const requestJson = {
             "FieldID": inspectFieldID,
-            "startDate": new Date(new Date().getTime() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-            "endDate": new Date().toISOString().split('T')[0]
+            "startDate": startDate !== null ? startDate : new Date(new Date().getTime() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+            "endDate": endDate !== null ? endDate : new Date().toISOString().split('T')[0]
         }
         const response = await apiExecutions.getCollectionByFieldIDandTimeRange(requestJson);
         if (response !== null) {
@@ -295,6 +372,9 @@ const FieldInspection = () => {
                     fullWeight: sumsByDate[date].fullWeight,
                 }));
                 setWeekelyWiseCollectionSummery(responseArr);
+                if (responseArr.length > 0) {
+                    setWeekelyWiseCollectionSummeryShow(true);
+                }
             }
         } else {
             message.error(response?.message);
@@ -318,11 +398,11 @@ const FieldInspection = () => {
         }
     }
 
-    const fetchDataSumByTimeRange = async (startDate, endDate) => {
+    const fetchDataSumByTimeRange = async (fieldID, startDate, endDate) => {
         const requestJson = {
-            "FieldID": inspectField,
-            "startDate": "2024-04-01",
-            "endDate": "2024-04-30"
+            "FieldID": fieldID,
+            "startDate": startDate,
+            "endDate": endDate,
         }
         const response = await apiExecutions.getCollectionSumOverTimeRange(requestJson);
         if (response !== null) {
@@ -569,6 +649,12 @@ const FieldInspection = () => {
         getDailyTeaCollectionBetweenTwoDatesFetch(startDate, endDate);
     }
 
+    const timeRangeFetcherMain = (values) => {
+        const startDate = values[0]?.format('YYYY-MM-DD');
+        const endDate = values[1]?.format('YYYY-MM-DD');
+        fetchAllRecordsByWeek(inspectField, startDate, endDate);
+    }
+
     const fetchSingleDataRecordByRecordID = async (recordID) => {
         const response = await apiExecutions.getDailyTeaCollectionByID(recordID);
         if (response !== null && response !== undefined) {
@@ -609,12 +695,12 @@ const FieldInspection = () => {
                         <span className='textStyles-small'>{selectedFieldInfo?.FieldName}</span>
                     </Descriptions.Item>
                     <Descriptions.Item label={<span className='textStyles-small' style={{ fontSize: 12, fontWeight: 'bold' }}>Field Name</span>}>
-                        <span className='textStyles-small'>{selectedFieldInfo?.FieldSize}</span>
+                        <span className='textStyles-small'>{selectedFieldInfo?.FieldSize} Hec.</span>
                     </Descriptions.Item>
                     <Descriptions.Item label={<span className='textStyles-small' style={{ fontSize: 12, fontWeight: 'bold' }}>Field Size</span>}>
-                        <span className='textStyles-small'>{selectedFieldInfo?.FieldType} Hechtares</span>
+                        <span className='textStyles-small'>{selectedFieldInfo?.FieldType} </span>
                     </Descriptions.Item>
-                    <Descriptions.Item label={<span className='textStyles-small' style={{ fontSize: 12, fontWeight: 'bold' }}>Field Type</span>}>
+                    <Descriptions.Item label={<span className='textStyles-small' style={{ fontSize: 12, fontWeight: 'bold' }}>Field Address</span>}>
                         <span className='textStyles-small'>{selectedFieldInfo?.FieldAddress}</span>
                     </Descriptions.Item>
                     <Descriptions.Item label={<span className='textStyles-small' style={{ fontSize: 12, fontWeight: 'bold' }}>Tea Type</span>}>
@@ -647,9 +733,6 @@ const FieldInspection = () => {
                     <Descriptions.Item label={<span className='textStyles-small' style={{ fontSize: 12, fontWeight: 'bold' }}>Zone ID</span>}>
                         <span className='textStyles-small'>{selectedFieldInfo?.ZoneID}</span>
                     </Descriptions.Item>
-                    <Descriptions.Item label={<span className='textStyles-small' style={{ fontSize: 12, fontWeight: 'bold' }}>Factory ID</span>}>
-                        <span className='textStyles-small'>{selectedFieldInfo?.FactoryID}</span>
-                    </Descriptions.Item>
                 </Descriptions>
             </>
         },
@@ -657,55 +740,97 @@ const FieldInspection = () => {
             key: '2',
             label: <span className='textStyles-small'>Inspection Details</span>,
             children: <>
-                {/* <pre>
-                {JSON.stringify(weekelyWiseCollectionSummery, null, 2)}
-            </pre> */}
-
                 <Row>
-                    <AnalyticEcommerce
-                        style={{ width: '500px' }}
-                        title={<span className='textStyles-small' style={{ fontSize: '13px' }}>
-                            Number Of Customers</span>}
-                        //   count={dashStatus[0]?.row_count ? dashStatus[0]?.row_count : 0}
-                        count={0}
-                        icon='customers' />
-                    <AnalyticEcommerce
-                        title={<span className='textStyles-small' style={{ fontSize: '13px' }}>
-                            Number Of Customers</span>}
-                        //   count={dashStatus[0]?.row_count ? dashStatus[0]?.row_count : 0}
-                        count={0}
-                        icon='customers' />
-                    <AnalyticEcommerce
-                        title={<span className='textStyles-small' style={{ fontSize: '13px' }}>
-                            Number Of Customers</span>}
-                        //   count={dashStatus[0]?.row_count ? dashStatus[0]?.row_count : 0}
-                        count={0}
-                        icon='customers' />
-                    <AnalyticEcommerce
-                        title={<span className='textStyles-small' style={{ fontSize: '13px' }}>
-                            Number Of Customers</span>}
-                        //   count={dashStatus[0]?.row_count ? dashStatus[0]?.row_count : 0}
-                        count={0}
-                        icon='customers' />
+                    <Col span={12}>
+                        <Card
+                            style={{
+                                width: '99%', borderRadius: '10px', marginTop: '20px', marginBottom: '20px', cursor: "pointer"
+                            }}
+                        >
+                            <Row>
+                                <Col span={12}>
+                                    <div style={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                        float: "left",
+                                    }}>
+                                        <div style={{
+                                            background: "white",
+                                            borderRadius: "50%",
+                                            width: "30px",
+                                            height: "30px",
+                                            display: "flex",
+                                            alignItems: "center",
+                                            justifyContent: "center",
+                                            marginRight: "8px",
+                                            backgroundColor: "#2d5ff4"
+                                        }}>
+                                            <ShoppingOutlined style={{ color: "white", fontSize: '15px' }} />
+                                        </div>
+                                        <span className="textStyles-small" style={{ color: "gray", textAlign: "center", fontSize: "13px" }}>
+                                            Overall Collection Sum
+                                        </span>
+                                    </div>
+                                </Col>
+                                <Col span={12}>
+                                    <h3 className="textStyles-small" class="m-0" style={{ marginTop: '3px', float: "right", marginRight: "20px" }}>
+                                        <b>{allTimeSumByFieldID[0]?.TotalTeaWeight} Kg</b>
+                                    </h3>
+                                </Col>
+                            </Row>
+                        </Card>
+                    </Col>
+
+                    <Col span={12}>
+                        <Card
+                            style={{
+                                width: '99%', borderRadius: '10px', marginTop: '20px', marginBottom: '20px', cursor: "pointer"
+                            }}
+
+                        >
+                            <Row>
+                                <Col span={12}>
+                                    <div style={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                        float: "left",
+                                    }}>
+                                        <div style={{
+                                            background: "white",
+                                            borderRadius: "50%",
+                                            width: "30px",
+                                            height: "30px",
+                                            display: "flex",
+                                            alignItems: "center",
+                                            justifyContent: "center",
+                                            marginRight: "8px",
+                                            backgroundColor: "gray"
+                                        }}>
+                                            <CheckOutlined style={{ color: "white", fontSize: '15px' }} />
+                                        </div>
+                                        <span className="textStyles-small" style={{ color: "gray", textAlign: "center", fontSize: "13px" }}>
+                                            Collection Sun This Month
+                                        </span>
+                                    </div>
+                                </Col>
+                                <Col span={12}>
+                                    <h3 className="textStyles-small" class="m-0" style={{ marginTop: '3px', float: "right", marginRight: "20px" }}>
+                                        <b>{dataSumByTimeRange[0]?.TotalTeaWeight} Kg</b>
+                                    </h3>
+                                </Col>
+                            </Row>
+                        </Card>
+                    </Col>
+
+
                 </Row>
 
-                <Row>
-                    <div style={{ marginTop: 20, width: '100%', height: 350, backgroundColor: 'white', borderRadius: 10, padding: 5 }}>
-                        {
-                            weekelyWiseCollectionSummery.length > 0 ? (
-                                <DualBarChart
-                                    categories={weekelyWiseCollectionSummery.map((item) => moment(item?.dateString).format('DD-MM-YYYY'))}
-                                    collectioX={weekelyWiseCollectionSummery.map((item) => item?.collectionSum?.fullWeight)}
-                                    collectioY={weekelyWiseCollectionSummery.map((item) => item?.collectionSum?.waterWeight)}
-                                />
-                            ) : null
-                        }
-                    </div>
-                </Row>
                 <Row>
                     <Col span={16}>
-                        <div style={{ marginTop: 20, width: '100%', height: 350, backgroundColor: 'white', borderRadius: 10, padding: 5 }}>
-                            {allRecordsBasedOnTimeRange.length > 0 ? (
+                        <div style={{ marginTop: 20, width: '100%', height: 350, backgroundColor: 'white', borderRadius: 10, padding: 5, border: '1px solid #ddd' }}>
+                            {allRecordsBasedOnTimeRangeShow ? (
                                 <AreaChart
                                     xValues={allRecordsBasedOnTimeRange.map((item) => new Date(item?.dateString).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }))}
                                     data={
@@ -719,20 +844,73 @@ const FieldInspection = () => {
                         </div>
                     </Col>
                     <Col span={8}>
-                        <div style={{ marginTop: 20, width: '100%', height: 350, backgroundColor: 'white', borderRadius: 10, padding: 10, marginLeft: 10 }}>
+                        <div style={{ marginTop: 20, width: '100%', height: 350, backgroundColor: 'white', borderRadius: 10, padding: 10, marginLeft: 10, border: '1px solid #ddd' }}>
                             <span className='textStyles-small' style={{ fontSize: 14, fontWeight: 'bold', color: '#373d3f', marginLeft: 10, marginTop: '40px' }}>
                                 Daily Collection Summery
                             </span>
                             {
-                                dailyCollectionSummery !== null ? (
+                                dailyCollectionSummeryShow ? (
                                     <DonutChart
-                                        data={[dailyCollectionSummery?.fullWeight, dailyCollectionSummery?.cutForWater, dailyCollectionSummery?.collectedWeight]}
-                                        categories={['Full Weight', 'Cut for Water', 'Collected Weight']}
+                                        data={[dailyCollectionSummery?.cutForWater, dailyCollectionSummery?.collectedWeight]}
+                                        categories={['Cut for Water', 'Collected Weight']}
                                     />
                                 ) : null
                             }
                         </div>
                     </Col>
+                </Row>
+
+                <Row>
+                    <div style={{ marginTop: 30, width: '100%', height: 'auto', backgroundColor: 'white', borderRadius: 10, padding: 5, border: '1px solid #ddd' }}>
+                        <Row style={{ marginBottom: 10 }}>
+                            <Col span={12}>
+                                <span className='textStyles-small' style={{ fontSize: 14, fontWeight: 'bold', color: '#373d3f', marginLeft: 10, marginTop: '40px' }}>
+                                    Collection Summery By Time Range
+                                </span>
+                            </Col>
+                            <Col span={12}>
+                                <RangePicker
+                                    style={{ marginLeft: 10, fontSize: '12px', float: 'right' }}
+                                    format={dateFormat} onChange={timeRangeFetcherMain}
+                                    defaultValue={[dayjs().startOf('month'), dayjs().endOf('month')]}
+                                />
+                            </Col>
+                        </Row>
+                        {
+                            weekelyWiseCollectionSummeryShow ? (
+                                <DualBarChart
+                                    categories={weekelyWiseCollectionSummery.map((item) => moment(item?.dateString).format('DD-MM-YYYY'))}
+                                    collectioX={weekelyWiseCollectionSummery.map((item) => item?.collectionSum?.fullWeight)}
+                                    collectioY={weekelyWiseCollectionSummery.map((item) => item?.collectionSum?.waterWeight)}
+                                    yTitle='Collection Sum In KG'
+                                    xTitle='Collected Date'
+                                />
+                            ) : null
+                        }
+                    </div>
+                </Row>
+
+                <Row>
+                    <div style={{ marginTop: 30, width: '100%', height: 'auto', backgroundColor: 'white', borderRadius: 10, padding: 5, border: '1px solid #ddd' }}>
+                        <Row style={{ marginBottom: 10 }}>
+                            <Col span={12}>
+                                <span className='textStyles-small' style={{ fontSize: 14, fontWeight: 'bold', color: '#373d3f', marginLeft: 10, marginTop: '40px' }}>
+                                    Collection Sum By Monthly
+                                </span>
+                            </Col>
+                        </Row>
+                        {
+                            weekelyWiseCollectionSummeryShow ? (
+                                <DualBarChart
+                                    categories={monthlyCollectionSum.map((item) => item.x)}
+                                    collectioX={monthlyCollectionSum.map((item) => item.y)}
+                                    horizontalx={true}
+                                    xTitle='Collection Sum In KG'
+                                    yTitle='Month'
+                                />
+                            ) : null
+                        }
+                    </div>
                 </Row>
             </>
         },
@@ -884,7 +1062,7 @@ const FieldInspection = () => {
             {
                 renderTab ? (
                     <div style={{ padding: 10, background: 'white', borderRadius: 10 }}>
-                        <Tabs defaultActiveKey="1" items={items} onChange={onChange} />
+                        <Tabs defaultActiveKey="1" items={items} onChange={onChange} destroyInactiveTabPane />
                     </div>
                 ) : null
             }
