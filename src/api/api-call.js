@@ -44,17 +44,6 @@ const apiExecutions = {
     //     }
     // },
     authEmployee: async (username, password) => {
-        /*
-        {
-            "success": true,
-            "message": "Employee authenticated successfully",
-            "traceId": "7fe844ee-3198-46db-a349-f70e3682b7a3",
-            "responseTime": "2024-02-09T16:40:36.958Z",
-            "data": {
-                "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InNpZ25EYXRhIjp7InVzZXJFbWFpbCI6ImpvaG4uZG9lQGV4YW1wbGU1LmNvbSIsInVzZXJOYW1lIjoiSm9obiBEb2UiLCJ1c2VySWQiOjQzMDE2Mjg3MCwidXNlclR5cGUiOiJBRE1JTiIsImxvZ2luVGltZSI6IjIwMjQtMDItMDlUMTY6NDA6MzYuMDE5WiJ9fSwiaWF0IjoxNzA3NDk2ODM2LCJleHAiOjE3MDc3NTYwMzZ9.8D1qNdahDROd8RXl0LXcK8aZWSjOOJimWczuceU5JsI",
-                "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InNpZ25EYXRhIjp7InVzZXJFbWFpbCI6ImpvaG4uZG9lQGV4YW1wbGU1LmNvbSIsInVzZXJOYW1lIjoiSm9obiBEb2UiLCJ1c2VySWQiOjQzMDE2Mjg3MCwidXNlclR5cGUiOiJBRE1JTiIsImxvZ2luVGltZSI6IjIwMjQtMDItMDlUMTY6NDA6MzYuMDE5WiJ9fSwiaWF0IjoxNzA3NDk2ODM2LCJleHAiOjE3MDgxMDE2MzZ9.rtqnaGB3safg0ZJsalQN-H4QSf6cKC2SNuW6jvQiVI8"
-            }
-        }*/
         try {
             const response = await fetch(baseDetails.CORE_SERVICE_URL + '/auth/employee', {
                 method: 'POST',
@@ -66,17 +55,8 @@ const apiExecutions = {
                     password: password,
                 }),
             });
-    
-            // Parse the response JSON
             const responseData = await response.json();
-    
-            console.log('API Response:', responseData);
-    
-            // if response success then store the token in localStorage
             if (responseData?.success) {
-                console.log('Access Token:', responseData.data.accessToken);
-                console.log('Refresh Token:', responseData.data.refreshToken);
-
                 localStorage.setItem('atoken', responseData.data.accessToken);
                 localStorage.setItem('rtoken', responseData.data.refreshToken);
                 localStorage.setItem('loginTime', new Date().getTime());
@@ -84,47 +64,138 @@ const apiExecutions = {
                 localStorage.setItem('rtokenExpireDate', responseData.data.refreshTokenExpireDate);
                 localStorage.setItem('userRole', responseData.data.userRole);
                 localStorage.setItem('isAuthenticated', true);
+                localStorage.setItem('empName', responseData.data.employeeNameRegistered);
+                localStorage.setItem('empID', responseData.data.authEmplyeeID);
             }
-    
-            //return responseData;
-        } catch (error) {
-            console.error('Fetch error:', error);
-            return null;
-        }
-    },
-    
-    
-    getAllEmployeeRoles: async () => {
-        try {
-            const response = await axios.get(baseDetails.CORE_SERVICE_URL + '/roles', {
-                // headers: {
-                //     Authorization: `Bearer ${LocalStroage.getItem('token')}`
-                // }
-            });
-            return response.data;
+            return responseData;
         } catch (error) {
             console.error('Axios error:', error);
             if (error.response) {
-                console.error('Server responded with:', error.response.data);
+                return error.response.data;
             } else if (error.request) {
-                console.error('No response received:', error.request);
+                return error.request.data;
             } else {
                 console.error('Error setting up the request:', error.message);
             }
             return null;
         }
     },
-    registerNewEmployee: async (employeeDetails) => {
+    authCustomers: async (username, password) => {
         try {
-            const response = await axios.post(baseDetails.CORE_SERVICE_URL + '/employees/add', {
-                EmployeeName: employeeDetails.name,
-                EmployeeMobile: employeeDetails.mobile,
-                EmployeeEmail: employeeDetails.email,
-                EmployeeType: employeeDetails.type,
-                FactoryID: employeeDetails.factory,
-                Password: employeeDetails.password
+            const response = await fetch(baseDetails.CORE_SERVICE_URL + '/auth/customer', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    customerEmail: username,
+                    password: password,
+                }),
             });
-            return response;
+            const responseData = await response.json();
+            if (responseData?.success) {
+                localStorage.setItem('atoken', responseData.data.accessToken);
+                localStorage.setItem('rtoken', responseData.data.refreshToken);
+                localStorage.setItem('loginTime', new Date().getTime());
+                localStorage.setItem('atokenExpireDate', responseData.data.accessTokenExpireDate);
+                localStorage.setItem('rtokenExpireDate', responseData.data.refreshTokenExpireDate);
+                localStorage.setItem('userRole', responseData.data.userRole);
+                localStorage.setItem('isAuthenticated', true);
+                localStorage.setItem('empName', responseData.data.customerName);
+                localStorage.setItem('custID', responseData.data.customerID);
+                localStorage.setItem('custEmail', responseData.data.customerEmail);
+            }
+            return responseData;
+        } catch (error) {
+            console.error('Axios error:', error);
+            if (error.response) {
+                return error.response.data;
+            } else if (error.request) {
+                return error.request.data;
+            } else {
+                console.error('Error setting up the request:', error.message);
+            }
+            return null;
+        }
+    },
+    updateEmployeePassword: async (oldPassword, newPassword, empID, mail) => {
+        try {
+            const response = await axios.put(baseDetails.CORE_SERVICE_URL + '/employee/passUpdate', {
+                EmployeeID : empID,
+                email: mail,
+                oldPassword: oldPassword,
+                newPassword: newPassword
+            }, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('atoken')}`
+                }
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Axios error:', error);
+            if (error.response) {
+                return error.response.data;
+            } else if (error.request) {
+                return error.request.data;
+            } else {
+                console.error('Error setting up the request:', error.message);
+            }
+            return null;
+        }
+    },
+    updateCustomerPassword: async (oldPassword, newPassword, custID, mail) => {
+        try {
+            const response = await axios.put(baseDetails.CORE_SERVICE_URL + '/customers/updatePassword', {
+                customerID : custID,
+                email: mail,
+                oldPassword: oldPassword,
+                newPassword: newPassword
+            }, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('atoken')}`
+                }
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Axios error:', error);
+            if (error.response) {
+                return error.response.data;
+            } else if (error.request) {
+                return error.request.data;
+            } else {
+                console.error('Error setting up the request:', error.message);
+            }
+            return null;
+        }
+    },
+    getFieldInfoByOwnerID: async (ownerID) => {
+        try {
+            const response = await axios.get(baseDetails.CORE_SERVICE_URL + '/fieldInfo/getByFieldListByUID/' + ownerID, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('atoken')}`
+                }
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Axios error:', error);
+            if (error.response) {
+                return error.response.data;
+            } else if (error.request) {
+                return error.request.data;
+            } else {
+                console.error('Error setting up the request:', error.message);
+            }
+            return null;
+        }
+    },
+    getAllEmployeeRoles: async () => {
+        try {
+            const response = await axios.get(baseDetails.CORE_SERVICE_URL + '/roles', {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('atoken')}`
+                }
+            });
+            return response.data;
         } catch (error) {
             if (error.response) {
                 return error.response.data;
@@ -136,68 +207,125 @@ const apiExecutions = {
             return null;
         }
     },
-    // router.put('/employees/update/:EmployeeID', EmployeeController.updateEmployee);
-    updateEmployee: async (employeeID, employeeDetails) => {
-        try {
-            const response = await axios.put(baseDetails.CORE_SERVICE_URL + '/employees/update/' + employeeID, {
-                // headers: {
-                //     Authorization: `Bearer ${LocalStroage.getItem('token')}`
-                // },
+registerNewEmployee: async (employeeDetails) => {
+    try {
+        const response = await axios.post(
+            baseDetails.CORE_SERVICE_URL + '/employees/add', 
+            {
                 EmployeeName: employeeDetails.name,
                 EmployeeMobile: employeeDetails.mobile,
                 EmployeeEmail: employeeDetails.email,
                 EmployeeType: employeeDetails.type,
                 FactoryID: employeeDetails.factory,
-            });
-            return response;
-        } catch (error) {
-            console.error('Axios error:', error);
-            if (error.response) {
-                console.error('Server responded with:', error.response.data);
-            } else if (error.request) {
-                console.error('No response received:', error.request);
-            } else {
-                console.error('Error setting up the request:', error.message);
-            } return null;
+                Password: employeeDetails.password
+            },
+            {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('atoken')}`
+                }
+            }
+        );
+        return response;
+    } catch (error) {
+        console.error('Axios error:', error);
+        if (error.response) {
+            return error.response.data;
+        } else if (error.request) {
+            return error.request.data;
+        } else {
+            console.error('Error setting up the request:', error.message);
         }
-    },
+        return null;
+    }
+},
+updateEmployee: async (employeeID, employeeDetails) => {
+    try {
+        const response = await axios.put(
+            baseDetails.CORE_SERVICE_URL + '/employees/update/' + employeeID, 
+            {
+                EmployeeName: employeeDetails.name,
+                EmployeeMobile: employeeDetails.mobile,
+                EmployeeEmail: employeeDetails.email,
+                EmployeeType: employeeDetails.type,
+                FactoryID: employeeDetails.factory,
+            },
+            {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('atoken')}`
+                }
+            }
+        );
+        return response;
+    } catch (error) {
+        console.error('Axios error:', error);
+        if (error.response) {
+            console.error('Server responded with:', error.response.data);
+        } else if (error.request) {
+            console.error('No response received:', error.request);
+        } else {
+            console.error('Error setting up the request:', error.message);
+        }
+        return null;
+    }
+},
     getAllEmployees: async () => {
         try {
             const response = await axios.get(baseDetails.CORE_SERVICE_URL + '/employees', {
-                // headers: {
-                //     Authorization: `Bearer ${LocalStroage.getItem('token')}`
-                // }
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('atoken')}`
+                }
             });
             return response.data;
         } catch (error) {
             console.error('Axios error:', error);
             if (error.response) {
-                console.error('Server responded with:', error.response.data);
+                return error.response.data;
             } else if (error.request) {
-                console.error('No response received:', error.request);
+                return error.request.data;
             } else {
                 console.error('Error setting up the request:', error.message);
             }
             return null;
         }
-    },
-    // delete 
-    deleteEmployee: async (employeeID) => {
-        try {
-            const response = await axios.delete(baseDetails.CORE_SERVICE_URL + '/employees/drop/' + employeeID, {
-                // headers: {
-                //     Authorization: `Bearer ${LocalStroage.getItem('token')}`
-                // }
-            });
-            return response;
-        } catch (error) {
-            console.error('Axios error:', error);
-            if (error.response) {
-                return error.response.data;
+    }, 
+deleteEmployee: async (employeeID) => {
+    try {
+        const response = await axios.delete(
+            baseDetails.CORE_SERVICE_URL + '/employees/drop/' + employeeID, 
+            {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('atoken')}`
+                }
             }
-            return null;
+        );
+        return response;
+    } catch (error) {
+        console.error('Axios error:', error);
+        if (error.response) {
+            return error.response.data;
         }
-    },
+        return null;
+    }
+},
+getEmployeeDetailsByID: async (employeeID) => {
+    try {
+        const response = await axios.get(
+            baseDetails.CORE_SERVICE_URL + '/employees/' + employeeID, 
+            {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('atoken')}`
+                }
+            }
+        );
+        return response.data;
+    } catch (error) {
+        console.error('Axios error:', error);
+        if (error.response) {
+            return error.response.data;
+        }
+        return null;
+    }
+},
     getAllCustomers: async () => {
         try {
             const response = await axios.get(baseDetails.CORE_SERVICE_URL + '/customers', {
@@ -352,7 +480,6 @@ const apiExecutions = {
             return null;
         }
     },
-
     updateFieldInfo: async (fieldID, values) => {
         try {
             const response = await axios.put(baseDetails.CORE_SERVICE_URL + '/fieldInfo/update/' + fieldID, {
@@ -378,9 +505,9 @@ const apiExecutions = {
         } catch (error) {
             console.error('Axios error:', error);
             if (error.response) {
-                console.error('Server responded with:', error.response.data);
+                return error.response.data;
             } else if (error.request) {
-                console.error('No response received:', error.request);
+                return error.request.data;
             } else {
                 console.error('Error setting up the request:', error.message);
             }
@@ -419,9 +546,9 @@ const apiExecutions = {
         } catch (error) {
             console.error('Axios error:', error);
             if (error.response) {
-                console.error('Server responded with:', error.response.data);
+                return error.response.data;
             } else if (error.request) {
-                console.error('No response received:', error.request);
+                return error.request.data;
             } else {
                 console.error('Error setting up the request:', error.message);
             }
@@ -449,9 +576,9 @@ const apiExecutions = {
         } catch (error) {
             console.error('Axios error:', error);
             if (error.response) {
-                console.error('Server responded with:', error.response.data);
+                return error.response.data;
             } else if (error.request) {
-                console.error('No response received:', error.request);
+                return error.request.data;
             } else {
                 console.error('Error setting up the request:', error.message);
             }
@@ -480,9 +607,9 @@ const apiExecutions = {
         } catch (error) {
             console.error('Axios error:', error);
             if (error.response) {
-                console.error('Server responded with:', error.response.data);
+                return error.response.data;
             } else if (error.request) {
-                console.error('No response received:', error.request);
+                return error.request.data;
             } else {
                 console.error('Error setting up the request:', error.message);
             }
@@ -500,9 +627,9 @@ const apiExecutions = {
         } catch (error) {
             console.error('Axios error:', error);
             if (error.response) {
-                console.error('Server responded with:', error.response.data);
+                return error.response.data;
             } else if (error.request) {
-                console.error('No response received:', error.request);
+                return error.request.data;
             } else {
                 console.error('Error setting up the request:', error.message);
             }
@@ -520,9 +647,9 @@ const apiExecutions = {
         } catch (error) {
             console.error('Axios error:', error);
             if (error.response) {
-                console.error('Server responded with:', error.response.data);
+                return error.response.data;
             } else if (error.request) {
-                console.error('No response received:', error.request);
+                return error.request.data;
             } else {
                 console.error('Error setting up the request:', error.message);
             }
@@ -540,9 +667,9 @@ const apiExecutions = {
         } catch (error) {
             console.error('Axios error:', error);
             if (error.response) {
-                console.error('Server responded with:', error.response.data);
+                return error.response.data;
             } else if (error.request) {
-                console.error('No response received:', error.request);
+                return error.request.data;
             } else {
                 console.error('Error setting up the request:', error.message);
             }
@@ -773,13 +900,12 @@ const apiExecutions = {
             return null;
         }
     },
-    ///employees/driversWithNoVehicleMappings
     getAllDriversWithNoVehicleMappings: async () => {
         try {
             const response = await axios.get(baseDetails.CORE_SERVICE_URL + '/employees/drivers', {
-                // headers: {
-                //     Authorization: `Bearer ${localStorage.getItem('atoken')}`
-                // }
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('atoken')}`
+                }
             });
             return response.data;
         } catch (error) {
@@ -794,13 +920,12 @@ const apiExecutions = {
             return null;
         }
     },
-    // /employees/collectors
     getAllCollectors: async () => {
         try {
             const response = await axios.get(baseDetails.CORE_SERVICE_URL + '/employees/collectors', {
-                // headers: {
-                //     Authorization: `Bearer ${localStorage.getItem('atoken')}`
-                // }
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('atoken')}`
+                }
             });
             return response.data;
         } catch (error) {
@@ -815,7 +940,6 @@ const apiExecutions = {
             return null;
         }
     },
-    // /v01/roadRouting/withoutMappings
     getAllRoadRoutingsWithoutMappings: async () => {
         try {
             const response = await axios.get(baseDetails.CORE_SERVICE_URL + '/roadRouting/withoutMappings', {
@@ -1436,6 +1560,55 @@ const apiExecutions = {
             return null;
         }
     },
+    placeFertilizerOrder: async (data) => {
+        try {
+            const response = await axios.post(baseDetails.CORE_SERVICE_URL + '/fertilizers/order/place', {
+                FertilizerID: data?.FertilizerID,
+                FieldID: data?.FieldID,
+                OrderQuentity: data?.OrderQuentity,
+                OrderDate: data?.OrderDate,
+                RequestedDeadLine: data?.RequestedDeadLine,
+                CustomerOrderStatus: data?.CustomerOrderStatus
+            },{
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('atoken')}`
+                }
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Axios error:', error);
+            if (error.response) {
+                return error.response.data;
+            } else if (error.request) {
+                return error.request.data;
+            } else {
+                console.error('Error setting up the request:', error.message);
+            }
+            return null;
+        }
+    },
+    rejectFertilizerOrder: async (orderID) => {
+        try {
+            const response = await axios.put(baseDetails.CORE_SERVICE_URL + '/fertilizers/order/reject/' + orderID, {
+                CustomerOrderStatus: 'REJECTED'
+            },{
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('atoken')}`
+                }
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Axios error:', error);
+            if (error.response) {
+                return error.response.data;
+            } else if (error.request) {
+                return error.request.data;
+            } else {
+                console.error('Error setting up the request:', error.message);
+            }
+            return null;
+        }
+    }
 };
 
 export { apiExecutions };
