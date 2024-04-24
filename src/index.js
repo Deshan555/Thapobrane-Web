@@ -1,6 +1,7 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
+import { LoadScript} from '@react-google-maps/api';
 
 // scroll bar
 import 'simplebar/src/simplebar.css';
@@ -21,13 +22,14 @@ import reportWebVitals from './reportWebVitals';
 const container = document.getElementById('root');
 const root = createRoot(container); // createRoot(container!) if you use TypeScript
 root.render(
-  <StrictMode>
+  <>
+    <LoadScript googleMapsApiKey="AIzaSyAYye4nok_qEPk0bHJgzEEhwzXaRxlkM0Y" />
     <ReduxProvider store={store}>
       <BrowserRouter basename="/free">
         <App />
       </BrowserRouter>
     </ReduxProvider>
-  </StrictMode>
+  </>
 );
 
 // If you want to start measuring performance in your app, pass a function

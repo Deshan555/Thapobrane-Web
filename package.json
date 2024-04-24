@@ -4,6 +4,7 @@
   "private": true,
   "homepage": "https://mantisdashboard.io/free",
   "dependencies": {
+    "@ant-design/charts": "^2.0.3",
     "@ant-design/colors": "^6.0.0",
     "@ant-design/icons": "^4.7.0",
     "@emotion/cache": "^11.10.3",
