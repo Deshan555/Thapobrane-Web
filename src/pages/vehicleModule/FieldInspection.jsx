@@ -811,7 +811,7 @@ const FieldInspection = () => {
                                             <CheckOutlined style={{ color: "white", fontSize: '15px' }} />
                                         </div>
                                         <span className="textStyles-small" style={{ color: "gray", textAlign: "center", fontSize: "13px" }}>
-                                            Collection Sun This Month
+                                            Collection Sum This Month
                                         </span>
                                     </div>
                                 </Col>
@@ -996,8 +996,6 @@ const FieldInspection = () => {
                         <span className='textStyles-small'>{ownerDetails?.IdentitiCardNumber}</span>
                     </Descriptions.Item>
                 </Descriptions>
-
-                <span className='textStyles-small' style={{ fontSize: 14, fontWeight: 'bold' }}>Other Ownerships</span>
             </>,
         }
     ];
@@ -1026,7 +1024,7 @@ const FieldInspection = () => {
                     {
                         title: (
                             <>
-                                <span>Utils</span>
+                                <span>Insights</span>
                             </>
                         ),
                     },
@@ -1061,7 +1059,7 @@ const FieldInspection = () => {
 
             {
                 renderTab ? (
-                    <div style={{ padding: 10, background: 'white', borderRadius: 10 }}>
+                    <div style={{ padding: 10, background: 'white', borderRadius: 10, marginTop: 10 }}>
                         <Tabs defaultActiveKey="1" items={items} onChange={onChange} destroyInactiveTabPane />
                     </div>
                 ) : null
