@@ -1,0 +1,139 @@
+/* AreaChart.css */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap'); */
+
+.table-striped-rows tr:nth-child(2n) td {
+    background-color: #ffffff;
+}
+.table-striped-rows thead {
+    background-color: #ffffff;
+}
+
+body {
+    background-color: #fafafa;
+}
+
+.textStyle {
+    font-family: 'Poppins', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.5;
+    color: gray;
+}
+
+.descriptionStyle {
+    font-family: 'Poppins', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.5;
+    color: black;
+}
+
+.textStyleChild {
+    font-family: 'Poppins', sans-serif;
+    font-size: 11px;
+    font-weight: 550;
+    line-height: 1;
+    color: black;
+}
+
+.textStyleChilds {
+    font-family: 'Poppins', sans-serif;
+    font-size: 11px;
+    font-weight: 550;
+    line-height: 1;
+}
+
+.headingStyle {
+    font-family: 'Poppins', sans-serif;
+    font-size: 18px;
+    font-weight: 800;
+    line-height: 1.5;
+    color: black;
+}
+
+.headingStyle2 {
+    font-family: 'Poppins', sans-serif;
+    font-size: 16px;
+    font-weight: 800;
+    line-height: 1.5;
+    color: black;
+}
+
+.textStyle2 {
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.textStyle3 {
+    font-family: 'Poppins', sans-serif;
+    font-size: 15px;
+    line-height: 1.5;
+}
+
+.textStyle-small {
+    font-family: 'Poppins', sans-serif;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.textStyles-small {
+    font-family: 'Poppins', sans-serif;
+    font-size: 12px;
+    line-height: 1;
+}
+
+.custom-select .ant-select-selector {
+    border-radius: 10px; /* Adjust the value as needed */
+    font-family: 'Poppins', sans-serif;
+}
+
+.textStyle-charts-header {
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+    line-height: 1;
+    font-weight: bold;
+}
+
+.textStyles-smallx {
+    font-family: 'Poppins', sans-serif;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+/* ant design date picker font change */
+.ant-picker-input > input {
+    font-family: 'Poppins', sans-serif;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.body {
+    background-color: #fafafa;
+    font-family: 'Poppins', sans-serif;
+  }
+  
+/* Customizing font styles */
+.chart-container {
+    font-family: Arial, sans-serif; /* Change to your preferred font family */
+  }
+  
+  .chart-title {
+    font-size: 20px; /* Change to your preferred font size */
+  }
+  
+  .chart-axis-labels {
+    font-size: 12px; /* Change to your preferred font size */
+  }
+  
+  .chart-legend {
+    font-size: 14px; /* Change to your preferred font size */
+  }
+  
+  /* AreaChart.css */
+
+.chart-x-axis-labels {
+    font-family: Arial, sans-serif; /* Change to your preferred font family */
+    font-size: 19px; /* Change to your preferred font size */
+  }
+  
