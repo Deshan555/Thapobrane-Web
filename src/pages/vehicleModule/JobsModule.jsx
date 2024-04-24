@@ -230,14 +230,16 @@ const JobsModule = () => {
 
   const getAllEmpRoles = async () => {
     const response = await apiExecutions.getAllEmployeeRoles();
-    if (response.success === true) {
-      setEmployeeTypes(response.data);
-      const rolesData = response.data || [];
-      const rolesMap = new Map();
-      rolesData.forEach(role => {
-        rolesMap.set(role.RoleID, role.RoleName);
-      });
-      setEmployeeRoles(rolesMap);
+    if (response !== null) {
+      if (response.success === true) {
+        setEmployeeTypes(response.data);
+        const rolesData = response.data || [];
+        const rolesMap = new Map();
+        rolesData.forEach(role => {
+          rolesMap.set(role.RoleID, role.RoleName);
+        });
+        setEmployeeRoles(rolesMap);
+      }
     } else {
       message.error('Failed to fetch employee roles');
     }
@@ -245,21 +247,26 @@ const JobsModule = () => {
 
   const getAllRegisteredEmployees = async () => {
     const response = await apiExecutions.getAllEmployees();
-    console.log(response);
-    if (response.success === true) {
-      setRegisteredUsers(response.data);
-      setFilterData(response.data);
+    if (response !== null){
+      if (response.success === true) {
+        setRegisteredUsers(response.data);
+        setFilterData(response.data);
+      } else {
+        message.error('Failed to fetch registered employees');
+      }
     } else {
-      message.error('Failed to fetch registered employees');
+      message.error(response?.message);
     }
   }
 
   const fetchAllFactories = async () => {
     const response = await apiExecutions.getAllFactories();
-    if (response.success === true) {
-      setAllFactories(response.data);
+    if (response !== null) {
+      if (response.success === true) {
+        setAllFactories(response.data);
+      }
     } else {
-      message.error('Failed to fetch factories');
+      message.error(response?.message);
     }
   }
 
@@ -325,7 +332,6 @@ const JobsModule = () => {
   const registerNewEmployeeFunction = async (requestJson) => {
     try {
       const response = await apiExecutions.registerNewEmployee(requestJson);
-      console.log(response);
       if (response !== null) {
         if (response?.data?.success) {
           message.success('Employee registered successfully');
@@ -383,26 +389,31 @@ const JobsModule = () => {
       setFilterData(filteredData);
     }
   }
-
-  const filterByUserName = (e) => {
-    console.log(e);
-    if (e === '' && filterROLE !== 'ALL') {
-      const filteredData = registeredUsers.filter((user) => user.RoleID === filterROLE);
-      setFilterData(filteredData);
-    } else if (e === '' && filterROLE === 'ALL') {
-      setFilterData(registeredUsers);
-    } else if (e !== 'ALL') {
-      const filteredData = registeredUsers.filter((user) =>
-        user.EmployeeName.toLowerCase().includes(e.toLowerCase()) && user.RoleID === filterROLE
-      );
-      setFilterData(filteredData);
-    } else {
-      const filteredData = registeredUsers.filter((user) =>
-        user.EmployeeName.toLowerCase().includes(e.toLowerCase())
-      );
-      setFilterData(filteredData);
-    }
+const filterByUserName = (e) => {
+  console.log(e);
+  if (e === '' && filterROLE !== 'ALL') {
+    const filteredData = registeredUsers.filter((user) => user.RoleID === filterROLE);
+    setFilterData(filteredData);
+  } else if (e === '' && filterROLE === 'ALL') {
+    setFilterData(registeredUsers);
+  } else if (e !== 'ALL') {
+    const filteredData = registeredUsers.filter((user) =>
+      (user.EmployeeName.toLowerCase().includes(e.toLowerCase()) ||
+      user.Email.toLowerCase().includes(e.toLowerCase()) ||
+      user.Mobile.includes(e) ||
+      user.EmployeeID.toString().includes(e)) && user.RoleID === filterROLE
+    );
+    setFilterData(filteredData);
+  } else {
+    const filteredData = registeredUsers.filter((user) =>
+      user.EmployeeName.toLowerCase().includes(e.toLowerCase()) ||
+      user.Email.toLowerCase().includes(e.toLowerCase()) ||
+      user.Mobile.includes(e) ||
+      user.EmployeeID.toString().includes(e)
+    );
+    setFilterData(filteredData);
   }
+}
 
   return (
     <>
