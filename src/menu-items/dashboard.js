@@ -1,18 +1,19 @@
 // assets
-import { DashboardOutlined, ImportOutlined, MonitorOutlined } from '@ant-design/icons';
+import { DashboardOutlined, ImportOutlined, MonitorOutlined, RiseOutlined } from '@ant-design/icons';
 
 // icons
 const icons = {
   DashboardOutlined,
   ImportOutlined,
-  MonitorOutlined
+  MonitorOutlined,
+  RiseOutlined
 };
 
 // ==============================|| MENU ITEMS - DASHBOARD ||============================== //
 
-const dashboard = {
-  id: 'group-dashboard',
-  title: 'Navigation',
+const adminPages = {
+  id: 'insights',
+  title: 'Insights',
   type: 'group',
   children: [
     {
@@ -32,15 +33,45 @@ const dashboard = {
       target: false,
       breadcrumbs: false
     },
-    // {
-    //   id : 'data-import',
-    //   title: 'Data Import',
-    //   type: 'item',
-    //   url: '/data/import',
-    //   icon: icons.ImportOutlined,
-    //   breadcrumbs: true
-    // }
+    {
+      id: 'prognosticX',
+      title: 'PrognosticX',
+      type: 'item',
+      url: '/thaprobane/admin',
+      icon: icons.RiseOutlined,
+      target: false,
+      breadcrumbs: false
+    }
   ]
 };
+
+const nonAdminPages = [
+  {
+    id: 'dataSources',
+    title: 'Field Inspection',
+    type: 'item',
+    url: '/thaprobane/field-inspection',
+    icon: icons.MonitorOutlined,
+    target: false,
+    breadcrumbs: false
+  },
+  // {
+  //   id: 'prognosticX',
+  //   title: 'PrognosticX',
+  //   type: 'item',
+  //   url: '/thaprobane/admin',
+  //   icon: icons.RiseOutlined,
+  //   target: false,
+  //   breadcrumbs: false
+  // }
+];
+
+const dashboard = {
+id: 'app-Insights',
+title: 'Insights',
+type: 'group',
+children: localStorage?.getItem('userRole') === "ROLE.CUSTOMER" ? nonAdminPages : adminPages.children
+};
+
 
 export default dashboard;

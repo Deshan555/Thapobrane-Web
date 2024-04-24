@@ -18,13 +18,6 @@ const adminPages = {
   title: 'Support',
   type: 'group',
   children: [
-    // {
-    //   id: 'sample-page',
-    //   title: 'Sample Page',
-    //   type: 'item',
-    //   url: '/sample-page',
-    //   icon: icons.ChromeOutlined
-    // },
     {
       id: 'profile',
       title: 'Profile Settings',
@@ -43,20 +36,20 @@ const adminPages = {
       target: false,
       breadcrumbs: false
     },
-    {
-      id: 'privacy',
-      title: 'Privacy',
-      type: 'item',
-      url: '/thaprobane/privacy',
-      icon: icons.SafetyCertificateOutlined,
-      target: false,
-      breadcrumbs: false
-    },
+    // {
+    //   id: 'privacy',
+    //   title: 'Privacy',
+    //   type: 'item',
+    //   url: '/thaprobane/privacy',
+    //   icon: icons.SafetyCertificateOutlined,
+    //   target: false,
+    //   breadcrumbs: false
+    // },
     {
       id: 'documentation',
       title: 'Development',
       type: 'item',
-      url: 'https://codedthemes.gitbook.io/mantis/',
+      url: 'https://github.com/Deshan555/HeidiQL.git',
       icon: icons.QuestionOutlined,
       external: true,
       target: true
@@ -69,7 +62,7 @@ const nonAdminPages = [
     id: 'profile-customer',
     title: 'Profile Settings',
     type: 'item',
-    url: ' /thaprobane/customer-profile',
+    url: '/thaprobane/customer-profile',
     icon: icons.SettingOutlined,
     target: false,
     breadcrumbs: false
