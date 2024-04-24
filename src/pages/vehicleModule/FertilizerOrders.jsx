@@ -44,11 +44,9 @@ const FOrder = () => {
     const [fetilizerInformations, setFetilizerInformations] = useState([]);
 
     useEffect(() => {
-        authenticationCheck(navigate);
         fetchAllRecords();
         getFieldListByOwnerID(localStorage.getItem("custID"));
     }, []);
-
     
     const getOrderDetailsByOrderID = async (orderID, modalType) => {
         setSelectedRecord({});
