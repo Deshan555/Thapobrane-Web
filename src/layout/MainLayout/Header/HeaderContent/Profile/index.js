@@ -1,5 +1,7 @@
 import PropTypes from 'prop-types';
 import { useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom'; 
+// material-ui
 
 // material-ui
 import { useTheme } from '@mui/material/styles';
@@ -24,9 +26,12 @@ import MainCard from 'components/MainCard';
 import Transitions from 'components/@extended/Transitions';
 import ProfileTab from './ProfileTab';
 import SettingTab from './SettingTab';
+import { logout } from '../../../../../pages/vehicleModule/Logout';
+
+
 
 // assets
-import avatar1 from 'assets/images/users/avatar-1.png';
+import avatar1 from 'assets/images/users/avatar-2.png';
 import { LogoutOutlined, SettingOutlined, UserOutlined } from '@ant-design/icons';
 
 // tab panel wrapper
@@ -56,10 +61,7 @@ function a11yProps(index) {
 const Profile = () => {
   const theme = useTheme();
 
-  const handleLogout = async () => {
-    // logout
-  };
-
+ 
   const anchorRef = useRef(null);
   const [open, setOpen] = useState(false);
   const handleToggle = () => {
@@ -78,6 +80,16 @@ const Profile = () => {
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
+
+  const navigate = useNavigate();
+  
+const handleAppLogOut = () => {
+  logout(navigate);
+}
+
+const handleLogout = async () => {
+  handleAppLogOut();
+};
 
   const iconBackColorOpen = 'grey.300';
 
@@ -98,7 +110,7 @@ const Profile = () => {
       >
         <Stack direction="row" spacing={2} alignItems="center" sx={{ p: 0.5 }}>
           <Avatar alt="profile user" src={avatar1} sx={{ width: 32, height: 32 }} />
-          <Typography variant="subtitle1">John Doe</Typography>
+          <Typography variant="subtitle1">{localStorage.getItem('empName')}</Typography>
         </Stack>
       </ButtonBase>
       <Popper
@@ -141,9 +153,9 @@ const Profile = () => {
                           <Stack direction="row" spacing={1.25} alignItems="center">
                             <Avatar alt="profile user" src={avatar1} sx={{ width: 32, height: 32 }} />
                             <Stack>
-                              <Typography variant="h6">John Doe</Typography>
+                              <Typography variant="h6">{localStorage.getItem('empName')}</Typography>
                               <Typography variant="body2" color="textSecondary">
-                                UI/UX Designer
+                                {localStorage.getItem('userRole')}
                               </Typography>
                             </Stack>
                           </Stack>
@@ -155,7 +167,7 @@ const Profile = () => {
                         </Grid>
                       </Grid>
                     </CardContent>
-                    {open && (
+                    {/* {open && (
                       <>
                         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                           <Tabs variant="fullWidth" value={value} onChange={handleChange} aria-label="profile tabs">
@@ -192,7 +204,7 @@ const Profile = () => {
                           <SettingTab />
                         </TabPanel>
                       </>
-                    )}
+                    )} */}
                   </MainCard>
                 </ClickAwayListener>
               </Paper>
