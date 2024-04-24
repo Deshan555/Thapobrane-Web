@@ -104,7 +104,8 @@ const DataImporter = () => {
                                 customerAddress: item[2],
                                 customerEmail: item[3],
                                 customerType: item[4],
-                                factoryID: item[5]
+                                factoryID: item[5],
+                                customerNIC: item[6] ? item[6] : Math.random().toString(36).substring(7)
                             });
                         } else {
                             dataArr.push({
