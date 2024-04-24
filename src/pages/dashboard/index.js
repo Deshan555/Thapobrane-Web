@@ -3,7 +3,6 @@ import { apiExecutions } from '../../api/api-call';
 import { ShoppingOutlined } from '@ant-design/icons';
 import { Card, Col, Row, Breadcrumb } from 'antd';
 import { HomeOutlined } from '@ant-design/icons';
-
 import {
   Avatar,
   AvatarGroup,
@@ -20,7 +19,8 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
 // project import
 import OrdersTable from './OrdersTable';
 import IncomeAreaChart from './IncomeAreaChart';
@@ -44,6 +44,7 @@ import AreaChart from 'pages/charts/AreaChart';
 import RadarChart from 'pages/charts/RaderChart';
 import PieChart from 'pages/charts/PieChart';
 import PendingPaymentTable from 'pages/charts/PendingPaymentTable';
+import DualBarChart from 'pages/charts/DualBarChart';
 
 // avatar style
 const avatarSX = {
@@ -91,20 +92,33 @@ const DashboardDefault = () => {
   const [chartNameCollection, setChartNameCollection] = useState('week');
   const [dashStatus, setDashStatusCount] = useState([]);
   const [routingWiseCollection, setRoutingWiseCollection] = useState([]);
-
+  const [EnvironmentalZones, setEnvironmentalZones] = useState([]);
+  const [showRoutingViseCollection, setShowRoutingViseCollection] = useState(false);
   useEffect(() => {
     fetchWeeklyCollectionSum();
     fetchLastWeekCollectionSum();
     fetchDashboardsStatus();
     fetchRoutingWiseCollectionSum();
+    fetchAllEnvironmentalZones();
   }, []);
 
+  const fetchAllEnvironmentalZones = async () => {
+      const response = await apiExecutions.getAllEnvironmentZoneInfo();
+      if (response !== null) {
+          if (response.success === true) {
+              setEnvironmentalZones(response.data);
+          }
+      }
+  }
+
   const fetchRoutingWiseCollectionSum = async () => {
+    setShowRoutingViseCollection(false);
     const startDate = new Date().toISOString().split('T')[0];
     const response = await apiExecutions.getCollectionRouteWise(startDate);
     if (response !== null) {
       if (response.success === true) {
         setRoutingWiseCollection(response?.data);
+        setShowRoutingViseCollection(true);
       }
     }
   }
@@ -143,6 +157,28 @@ const DashboardDefault = () => {
       }
     }
   }
+
+const locations = EnvironmentalZones.map((zone) => {
+    const [latitude, longitude] = zone.BaseLocation.split(',').map(Number);
+    return {
+        name: zone.ZoneName,
+        coordinates: [latitude, longitude]
+    };
+});
+
+const mapContainerStyle = {
+  width: '100%',
+  height: '58vh',
+  zIndex: 1,
+  borderRadius: '10px',
+};
+const customIcon = new L.Icon({
+  iconUrl: 'https://leafletjs.com/examples/custom-icons/leaf-green.png',
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+});
+
 
   return (
     <>
@@ -185,7 +221,7 @@ const DashboardDefault = () => {
                 <AnalyticEcommerce
                   title={<span className='textStyles-small' style={{ fontSize: '13px' }}>
                     Number Of Fields</span>}
-                  count={dashStatus[1]?.row_count ? dashStatus[0]?.row_count : 0}
+                  count={dashStatus[1]?.row_count ? dashStatus[1]?.row_count : 0}
                   icon='fields' />
               </Grid>
 
@@ -193,7 +229,7 @@ const DashboardDefault = () => {
                 <AnalyticEcommerce
                   title={<span className='textStyles-small' style={{ fontSize: '13px' }}>
                     Number Of Vehicles</span>}
-                  count={dashStatus[3]?.row_count ? dashStatus[0]?.row_count : 0}
+                  count={dashStatus[3]?.row_count ? dashStatus[3]?.row_count : 0}
                   icon='vehicles' />
               </Grid>
 
@@ -201,7 +237,7 @@ const DashboardDefault = () => {
                 <AnalyticEcommerce
                   title={<span className='textStyles-small' style={{ fontSize: '13px' }}>
                     Number Of Routes</span>}
-                  count={dashStatus[4]?.row_count ? dashStatus[0]?.row_count : 0}
+                  count={dashStatus[4]?.row_count ? dashStatus[4]?.row_count : 0}
                   icon='routes' />
               </Grid>
             </>
@@ -325,26 +361,61 @@ const DashboardDefault = () => {
         <Grid item xs={12} md={5} lg={4}>
           <Grid container alignItems="center" justifyContent="space-between">
             <Grid item>
+              <Typography variant="h5">Zone Map</Typography>
+            </Grid>
+            <Grid item />
+          </Grid>
+          <MapContainer center={[7.8731, 80.7718]} zoom={7} style={mapContainerStyle}>
+            <TileLayer
+              attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            />
+            {locations.map((location, index) => (
+              <Marker
+                key={index}
+                position={location.coordinates}
+                icon={customIcon} // Set the custom marker icon
+              >
+                <Popup>{location.name}</Popup>
+              </Marker>
+            ))}
+          </MapContainer>
+        </Grid>
+
+        <Grid item xs={12} md={5} lg={12}>
+          <Grid container alignItems="center" justifyContent="space-between">
+            <Grid item>
               <Typography variant="h5" className='textStyle3'>
-                Daily Collection % Routing Wise
+                Routing Wise Collection
               </Typography>
             </Grid>
             <Grid item />
           </Grid>
           <MainCard sx={{ mt: 2 }} content={false}>
-            {
+            {/* {
               routingWiseCollection?.length > 0 ? (
                 <PieChart
                   categories={routingWiseCollection?.map((item) => item?.RouteID)}
                   data={routingWiseCollection?.map((item) => item?.TotalTeaWeight)}
                 />
               ) : null
-            }
+            } */}
+                    {
+          showRoutingViseCollection ? (
+            <DualBarChart
+            categories={routingWiseCollection?.map((item) => item?.RouteID)}
+            collectioX={routingWiseCollection?.map((item) => item?.TotalTeaWeight)}
+              horizontalx={true}
+              xTitle='Daily Collection In Kg'
+              yTitle='Route ID'
+            />
+          ) : null
+        }
           </MainCard>
         </Grid>
 
         {/* row 3 */}
-        <Grid item xs={12} md={7} lg={8}>
+        <Grid item xs={12} md={7} lg={12}>
           <Grid container alignItems="center" justifyContent="space-between">
             <Grid item>
               <Typography variant="h5" className='textStyle3'>
@@ -358,7 +429,11 @@ const DashboardDefault = () => {
             <PendingPaymentTable/>
           </MainCard>
         </Grid>
-        <Grid item xs={12} md={5} lg={4}>
+
+
+
+
+        {/* <Grid item xs={12} md={5} lg={4}>
           <Grid container alignItems="center" justifyContent="space-between">
             <Grid item>
               <Typography variant="h5">Analytics Report</Typography>
@@ -382,9 +457,9 @@ const DashboardDefault = () => {
             </List>
             <ReportAreaChart />
           </MainCard>
-        </Grid>
+        </Grid> */}
 
-        {/* row 4 */}
+        {/* row 4
         <Grid item xs={12} md={7} lg={8}>
           <Grid container alignItems="center" justifyContent="space-between">
             <Grid item>
@@ -416,8 +491,8 @@ const DashboardDefault = () => {
             </Stack>
             <SalesColumnChart />
           </MainCard>
-        </Grid>
-        <Grid item xs={12} md={5} lg={4}>
+        </Grid> */}
+        {/* <Grid item xs={12} md={5} lg={4}>
           <Grid container alignItems="center" justifyContent="space-between">
             <Grid item>
               <Typography variant="h5">Transaction History</Typography>
@@ -535,7 +610,7 @@ const DashboardDefault = () => {
               </Button>
             </Stack>
           </MainCard>
-        </Grid>
+        </Grid> */}
       </Grid>
     </>
   );
