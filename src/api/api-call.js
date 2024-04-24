@@ -1608,7 +1608,71 @@ getEmployeeDetailsByID: async (employeeID) => {
             }
             return null;
         }
+    },
+    // /dailyTeaCollection/getByMonthlyCount/:FieldID
+    getCollectionByMonthlyCount: async (fieldID) => {
+        try {
+            const response = await axios.get(baseDetails.CORE_SERVICE_URL + '/dailyTeaCollection/getByMonthlyCount/' + fieldID, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('atoken')}`
+                }
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Axios error:', error);
+            if (error.response) {
+                return error.response.data;
+            } else if (error.request) {
+                return error.request.data;
+            } else {
+                console.error('Error setting up the request:', error.message);
+            }
+            return null;
+        }
+    },
+    // http://localhost:8000/weatherPrediction
+getWeatherPrediction: async (data) => {
+    try {
+        const response = await axios.post(baseDetails.ML_MODEL_SERVICE_URL + 'weatherPrediction', data, {
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${localStorage.getItem('atoken')}`
+            }
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Axios error:', error);
+        if (error.response) {
+            return error.response.data;
+        } else if (error.request) {
+            return error.request.data;
+        } else {
+            console.error('Error setting up the request:', error.message);
+        }
+        return null;
     }
+},
+// complaints
+getAllComplaints: async () => {
+    try {
+        const response = await axios.get(baseDetails.CORE_SERVICE_URL + '/complaints', {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem('atoken')}`
+            }
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Axios error:', error);
+        if (error.response) {
+            return error.response.data;
+        } else if (error.request) {
+            return error.request.data;
+        } else {
+            console.error('Error setting up the request:', error.message);
+        }
+        return null;
+    }
+},
 };
 
 export { apiExecutions };
