@@ -37,6 +37,12 @@ const Admin = Loadable(lazy(() => import('pages/vehicleModule/Admin')));
 const FertilizerManagement = Loadable(lazy(() => import('pages/vehicleModule/FertilizersManagement')));
 const FieldInspection = Loadable(lazy(() => import('pages/vehicleModule/FieldInspection')));
 
+const Profile = Loadable(lazy(() => import('pages/vehicleModule/Profile')));
+const Complaints = Loadable(lazy(() => import('pages/vehicleModule/Complaints')));
+const Privacy = Loadable(lazy(() => import('pages/vehicleModule/Privacy')));
+const CProfile = Loadable(lazy(() => import('pages/vehicleModule/CustomerProfile')));
+const AddComplains = Loadable(lazy(() => import('pages/vehicleModule/AddComplains')));
+const FOrder = Loadable(lazy(() => import('pages/vehicleModule/FertilizerOrders')));
 // ==============================|| MAIN ROUTING ||============================== //
 
 const MainRoutes = {
@@ -73,7 +79,7 @@ const MainRoutes = {
       element: <Shadow />
     },
     {
-      path: 'sample-page',
+      path: '/thaprobane/welcome',
       element: <SamplePage />
     },
     {
@@ -160,6 +166,30 @@ const MainRoutes = {
     {
       path: '/thaprobane/field-inspection',
       element: <FieldInspection />
+    },
+    {
+      path: '/thaprobane/profile',
+      element: <Profile />
+    },
+    {
+      path: '/thaprobane/complaints',
+      element: <Complaints />
+    },
+    {
+      path: '/thaprobane/privacy',
+      element: <Privacy />
+    },
+    {
+      path: '/thaprobane/customer-profile',
+      element: <CProfile />
+    },
+    {
+      path: '/thaprobane/add-complains',
+      element: <AddComplains />
+    },
+    {
+      path: '/thaprobane/fertilizer-orders',
+      element: <FOrder />
     }
   ]
 };
