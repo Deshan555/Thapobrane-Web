@@ -23,7 +23,7 @@ const container = document.getElementById('root');
 const root = createRoot(container); // createRoot(container!) if you use TypeScript
 root.render(
   <>
-    <LoadScript googleMapsApiKey="AIzaSyAYye4nok_qEPk0bHJgzEEhwzXaRxlkM0Y" />
+    <LoadScript googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAP} />
     <ReduxProvider store={store}>
       <BrowserRouter basename="/free">
         <App />
