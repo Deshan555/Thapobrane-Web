@@ -5,7 +5,6 @@ import { allCities } from '../../api/cities';
 import { Form, Input, Button, Select, Modal, Table, Space, Descriptions, Tag, Row, Col, DatePicker, Drawer, message, Breadcrumb } from 'antd';
 import moment from 'moment';
 import { CSVLink, CSVDownload } from "react-csv";
-import History from './History';
 import { GoogleMap, LoadScript, Marker } from '@react-google-maps/api';
 import {
     MailOutlined,
