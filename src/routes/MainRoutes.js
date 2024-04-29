@@ -22,7 +22,6 @@ const VehicleList = Loadable(lazy(() => import('pages/vehicleModule/VehicleModul
 const JobsList = Loadable(lazy(() => import('pages/vehicleModule/JobsModule')));
 const Customers = Loadable(lazy(() => import('pages/vehicleModule/Customers')));
 const RoutesModule = Loadable(lazy(() => import('pages/vehicleModule/RoutesModule')));
-const History = Loadable(lazy(() => import('pages/vehicleModule/History')));
 const FieldManagement = Loadable(lazy(() => import('pages/vehicleModule/FieldManagement')));
 const EnvironmentalZone = Loadable(lazy(() => import('pages/vehicleModule/EnvironmentalZones')));
 const DailyTeaCollection = Loadable(lazy(() => import('pages/vehicleModule/DailyTeaCollection')));
@@ -114,10 +113,6 @@ const MainRoutes = {
     {
       path: '/optimizer/routes',
       element: <RoutesModule />
-    },
-    {
-      path: '/thaprobane/timeline',
-      element: <History />
     },
     {
       path: '/thaprobane/field-management',
