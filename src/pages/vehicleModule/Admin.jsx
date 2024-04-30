@@ -49,7 +49,6 @@ const Admin = () => {
     const letsPredict = (values) => {
         console.log(values);
 
-
         const year = values?.year;
         const area = values?.season;
         const rainfall = parseInt(values?.rainfall) || 0;
@@ -64,6 +63,25 @@ const Admin = () => {
         const rainfall_4 = parseInt(values?.rainfall_4) || 0;
         const temperature_4 = parseInt(values?.temperature_4) || 0;
         const humidity_4 = parseInt(values?.humidity_4) || 0;
+
+
+        const presentsJson = {
+            year : year,
+            area : area,
+            rainfall : rainfall,
+            temperature : temperature,
+            humidity : humidity,
+            rainfall_2 : rainfall_2,
+            temperature_2 : temperature_2,
+            humidity_2 : humidity_2,
+            rainfall_3 : rainfall_3,
+            temperature_3 : temperature_3,
+            humidity_3 : humidity_3,
+            rainfall_4 : rainfall_4,
+            temperature_4 : temperature_4,
+            humidity_4 : humidity_4
+        }
+        localStorage.setItem('presentsJson', JSON.stringify(presentsJson));
 
         const humidityArray = [humidity, humidity_2, humidity_3, humidity_4];
         const medianRelativeHumidity = calculateMedianRelativeHumidity(humidityArray);
