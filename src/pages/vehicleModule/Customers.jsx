@@ -141,14 +141,14 @@ const Customers = () => {
             shape="circle"
             size="small"
             icon={<EyeOutlined style={{ color: 'white', fontSize: '12px' }} />}
-            style={{ background: 'blue', borderColor: 'blue' }}
+            style={{ background: '#3bb64b', borderColor: '#3bb64b' }}
             onClick={() => getCustomersByCustomerID(record.CustomerID, 'INFO')}
           />
           <Button
             shape="circle"
             size="small"
             icon={<EditOutlined style={{ color: 'white', fontSize: '12px' }} />}
-            style={{ background: 'blue', borderColor: 'blue' }}
+            style={{ background: '#1677ff', borderColor: '#1677ff' }}
             onClick={() => getCustomersByCustomerID(record.CustomerID, 'EDIT')}
           />
           <Button
@@ -374,7 +374,7 @@ const Customers = () => {
               <Button type="primary"
                 onClick={showModel}
                 style={{ borderRadius: "50px" }}>
-                <PlusOutlined /> <span className='textStyle-small'>New Employee</span>
+                <PlusOutlined /> <span className='textStyle-small'>New Customer</span>
               </Button>
             </Space>
           </div>
