@@ -383,14 +383,14 @@ const FieldManagement = () => {
                         shape="circle"
                         size="small"
                         icon={<EyeOutlined style={{ color: 'white', fontSize: '12px' }} />}
-                        style={{ background: 'blue', borderColor: 'blue' }}
+                        style={{ background: '#3bb64b', borderColor: '#3bb64b' }}
                         onClick={() => setSelectedDetails(record)}
                     />
                     <Button
                         shape="circle"
                         size="small"
                         icon={<EditOutlined style={{ color: 'white', fontSize: '12px' }} />}
-                        style={{ background: 'blue', borderColor: 'blue' }}
+                        style={{ background: '#1979ff', borderColor: '#1979ff' }}
                         onClick={() => showEditDrawer(record)}
                     />
                     <Button
