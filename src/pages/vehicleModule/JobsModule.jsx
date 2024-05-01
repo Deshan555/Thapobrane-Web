@@ -121,6 +121,7 @@ const JobsModule = () => {
         <Space size="middle">
           <Button
             type="primary"
+            style={{ background: '#3bb64b', borderColor: '#3bb64b' }}
             shape="circle"
             icon={<EyeOutlined style={{ color: 'white', fontSize: 12 }} />}
             onClick={() => showDetailsModel(record)}
