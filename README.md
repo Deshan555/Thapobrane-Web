@@ -61,6 +61,101 @@ Introducing a comprehensive digital solution to address the challenges faced by 
 
 ---
 
+ <table>
+    <tr>
+      <td><img src="https://github.com/Deshan555/HeidiQL/blob/master/screenshots/Screenshot_1.png" alt="Image 1"></td>
+      <td><img src="https://github.com/Deshan555/HeidiQL/blob/master/screenshots/Screenshot_2.png" alt="Image 2"></td>
+    </tr>
+    <tr>
+      <td><img src="https://github.com/Deshan555/HeidiQL/blob/master/screenshots/Screenshot_3.png" alt="Image 3"></td>
+      <td><img src="https://github.com/Deshan555/HeidiQL/blob/master/screenshots/Screenshot_4.png" alt="Image 4"></td>
+    </tr>
+    <tr>
+      <td><img src="https://github.com/Deshan555/HeidiQL/blob/master/screenshots/Screenshot_5.png" alt="Image 5"></td>
+      <td><img src="https://github.com/Deshan555/HeidiQL/blob/master/screenshots/Screenshot_6.png" alt="Image 6"></td>
+    </tr>
+    <tr>
+      <td><img src="https://github.com/Deshan555/HeidiQL/blob/master/screenshots/Screenshot_7.png" alt="Image 7"></td>
+      <td><img src="https://github.com/Deshan555/HeidiQL/blob/master/screenshots/Screenshot_8.png" alt="Image 8"></td>
+    </tr>
+    <tr>
+      <td><img src="https://github.com/Deshan555/HeidiQL/blob/master/screenshots/Screenshot_9.png" alt="Image 9"></td>
+      <td><img src="https://github.com/Deshan555/HeidiQL/blob/master/screenshots/Screenshot_10.png" alt="Image 10"></td>
+    </tr>
+    <tr>
+      <td><img src="https://github.com/Deshan555/HeidiQL/blob/master/screenshots/Screenshot_11.png" alt="Image 11"></td>
+      <td><img src="https://github.com/Deshan555/HeidiQL/blob/master/screenshots/Screenshot_12.png" alt="Image 12"></td>
+    </tr>
+    <tr>
+      <td><img src="https://github.com/Deshan555/HeidiQL/blob/master/screenshots/Screenshot_13.png" alt="Image 13"></td>
+      <td><img src="https://github.com/Deshan555/HeidiQL/blob/master/screenshots/Screenshot_14.png" alt="Image 14"></td>
+    </tr>
+    <tr>
+      <td><img src="https://github.com/Deshan555/HeidiQL/blob/master/screenshots/Screenshot_15.png" alt="Image 15"></td>
+      <td><img src="https://github.com/Deshan555/HeidiQL/blob/master/screenshots/Screenshot_16.png" alt="Image 16"></td>
+    </tr>
+    <tr>
+      <td><img src="https://github.com/Deshan555/HeidiQL/blob/master/screenshots/Screenshot_17.png" alt="Image 17"></td>
+      <td><img src="https://github.com/Deshan555/HeidiQL/blob/master/screenshots/Screenshot_18.png" alt="Image 18"></td>
+    </tr>
+    <tr>
+      <td><img src="https://github.com/Deshan555/HeidiQL/blob/master/screenshots/Screenshot_19.png" alt="Image 19"></td>
+      <td><img src="https://github.com/Deshan555/HeidiQL/blob/master/screenshots/Screenshot_20.png" alt="Image 20"></td>
+    </tr>
+    <tr>
+      <td><img src="https://github.com/Deshan555/HeidiQL/blob/master/screenshots/Screenshot_21.png" alt="Image 21"></td>
+      <td><img src="https://github.com/Deshan555/HeidiQL/blob/master/screenshots/Screenshot_22.png" alt="Image 22"></td>
+    </tr>
+    <tr>
+      <td><img src="https://github.com/Deshan555/HeidiQL/blob/master/screenshots/Screenshot_23.png" alt="Image 23"></td>
+      <td><img src="https://github.com/Deshan555/HeidiQL/blob/master/screenshots/Screenshot_24.png" alt="Image 24"></td>
+    </tr>
+    <tr>
+      <td><img src="https://github.com/Deshan555/HeidiQL/blob/master/screenshots/Screenshot_25.png" alt="Image 25"></td>
+      <td><img src="https://github.com/Deshan555/HeidiQL/blob/master/screenshots/Screenshot_26.png" alt="Image 26"></td>
+    </tr>
+    <tr>
+      <td><img src="https://github.com/Deshan555/HeidiQL/blob/master/screenshots/Screenshot_27.png" alt="Image 27"></td>
+      <td><img src="https://github.com/Deshan555/HeidiQL/blob/master/screenshots/Screenshot_28.png" alt="Image 28"></td>
+    </tr>
+    <tr>
+      <td><img src="https://github.com/Deshan555/HeidiQL/blob/master/screenshots/Screenshot_29.png" alt="Image 29"></td>
+      <td><img src="https://github.com/Deshan555/HeidiQL/blob/master/screenshots/Screenshot_30.png" alt="Image 30"></td>
+    </tr>
+    <tr>
+      <td><img src="https://github.com/Deshan555/HeidiQL/blob/master/screenshots/Screenshot_31.png" alt="Image 31"></td>
+      <td><img src="https://github.com/Deshan555/HeidiQL/blob/master/screenshots/Screenshot_32.png" alt="Image 32"></td>
+    </tr>
+    <tr>
+      <td><img src="https://github.com/Deshan555/HeidiQL/blob/master/screenshots/Screenshot_33.png" alt="Image 33"></td>
+      <td><img src="https://github.com/Deshan555/HeidiQL/blob/master/screenshots/Screenshot_34.png" alt="Image 34"></td>
+    </tr>
+    <tr>
+      <td><img src="https://github.com/Deshan555/HeidiQL/blob/master/screenshots/Screenshot_35.png" alt="Image 35"></td>
+      <td><img src="https://github.com/Deshan555/HeidiQL/blob/master/screenshots/Screenshot_36.png" alt="Image 36"></td>
+    </tr>
+    <tr>
+      <td><img src="https://github.com/Deshan555/HeidiQL/blob/master/screenshots/Screenshot_37.png" alt="Image 37"></td>
+      <td><img src="https://github.com/Deshan555/HeidiQL/blob/master/screenshots/Screenshot_38.png" alt="Image 38"></td>
+    </tr>
+    <tr>
+      <td><img src="https://github.com/Deshan555/HeidiQL/blob/master/screenshots/Screenshot_39.png" alt="Image 39"></td>
+      <td><img src="https://github.com/Deshan555/HeidiQL/blob/master/screenshots/Screenshot_40.png" alt="Image 40"></td>
+    </tr>
+    <tr>
+      <td><img src="https://github.com/Deshan555/HeidiQL/blob/master/screenshots/Screenshot_41.png" alt="Image 41"></td>
+      <td><img src="https://github.com/Deshan555/HeidiQL/blob/master/screenshots/Screenshot_42.png" alt="Image 42"></td>
+    </tr>
+    <tr>
+      <td><img src="https://github.com/Deshan555/HeidiQL/blob/master/screenshots/Screenshot_43.png" alt="Image 43"></td>
+      <td><img src="https://github.com/Deshan555/HeidiQL/blob/master/screenshots/Screenshot_44.png" alt="Image 44"></td>
+    </tr>
+    <tr>
+      <td><img src="https://github.com/Deshan555/HeidiQL/blob/master/screenshots/Screenshot_45.png" alt="Image 45"></td>
+    </tr>
+  </table>
+
+
 
 
 **Author**: [Your Name/Organization]
